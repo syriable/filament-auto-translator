@@ -1,0 +1,10 @@
+<?php
+
+namespace Filament\Support\Components {
+    class Component
+    {
+        public function phrase(string $name): static {}
+
+        public function catalog(string $id): static {}
+    }
+}
