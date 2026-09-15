@@ -17,24 +17,24 @@ TextInput::make('email')  →    'form' => ['components' => ['email' => ['label'
 - [Quick start](#quick-start)
 - [How a message key is built](#how-a-message-key-is-built)
 - [Language file layout](#language-file-layout)
-- [Translation domains and prefixes](#catalog-ids-and-prefixes)
-- [Schema catalogs outside resources](#schema-catalogs-outside-resources)
+- [Translation domains and prefixes](#translation-domains-and-prefixes)
+- [Schema domains outside resources](#schema-domains-outside-resources)
 - [What is bound automatically](#what-is-bound-automatically)
 - [Resource chrome](#resource-chrome)
-- [Modes](#modes)
+- [Missing-message policy](#missing-message-policy)
 - [Overrides](#overrides)
 - [Manual lookup](#manual-lookup)
-- [Inspector](#inspector)
-- [Audit command](#audit-command)
-- [Sync command](#sync-command)
-- [Apply command](#apply-command)
+- [Explaining a resolution](#explaining-a-resolution)
+- [`messages:debug`](#messagesdebug)
+- [`messages:extract`](#messagesextract)
+- [`messages:inline`](#messagesinline)
 - [Configuration](#configuration)
 - [Name rules](#name-rules)
 - [PHPStan](#phpstan)
 - [Current limits](#current-limits)
 - [Testing](#testing)
 
-Shipped developer docs are this README. `docs/01`–`docs/14` are the original design notes; they can lag the grammar here.
+This README is the documentation. `docs/01`–`docs/14` are design notes kept for the reasoning behind the architecture; they predate the current naming and are not a reference.
 
 ## What this package does
 
@@ -54,7 +54,7 @@ Opt in per class. Classes without a `#[TranslationDomain]` attribute are left al
 composer require syriable/laravel-message-catalog
 ```
 
-The service provider is auto-discovered. It publishes config and registers `php artisan messages:debug`, `messages:extract`, and `messages:inline`. Binding hooks run when the panel plugin boots.
+The service provider is auto-discovered. It publishes config and registers `php artisan messages:debug`, `messages:extract`, and `messages:inline`.
 
 Publish the config file:
 
@@ -62,7 +62,9 @@ Publish the config file:
 php artisan vendor:publish --tag=messages-config
 ```
 
-Register the plugin on each Filament panel:
+### Register where your schemas live
+
+**In a Filament panel** — register the plugin on each panel:
 
 ```php
 use Syriable\MessageCatalog\MessageCatalogPlugin;
@@ -76,7 +78,22 @@ $panel->plugin(
 );
 ```
 
-Without the plugin, resource chrome (`getModelLabel()`, navigation, page titles) still resolves through the trait. Schema, table, and action slots are **not** filled until the plugin boots.
+**Outside a panel** — a Livewire schema on a public page never boots a panel, so
+register its directory instead. This also starts binding, so there is nothing
+else to call:
+
+```php
+use Syriable\MessageCatalog\Messages;
+
+// in a module service provider's boot()
+Messages::discoverIn(
+    __DIR__.'/../Livewire/Schemas',
+    'Modules\\Identity\\Livewire\\Schemas',
+);
+```
+
+`discoverIn()` is idempotent, so every module can call it for its own directory,
+and using both together is fine.
 
 ## Quick start
 
@@ -85,9 +102,7 @@ Without the plugin, resource chrome (`getModelLabel()`, navigation, page titles)
 ```php
 use Filament\Resources\Resource;
 use Syriable\MessageCatalog\Concerns\HasModelMessages;
-use Syriable\MessageCatalog\Attributes\TranslationDomain;
 
-#[TranslationDomain('filament::user-resource')]
 class UserResource extends Resource
 {
     use HasModelMessages;
@@ -453,7 +468,7 @@ return [
 | `body` | Schema text content; optional notification body keyed by status | Schema text: yes. Notification: no |
 | `notification_title` | Extra action notification copy via `Messages::slot()` | No |
 
-Required slots follow [mode](#modes) when missing. Optional slots stay empty when missing.
+Required slots follow [mode](#missing-message-policy) when missing. Optional slots stay empty when missing.
 
 ### Nested layouts
 
@@ -655,11 +670,11 @@ public static function translationDomain(): string
 
 Point a page or relation manager at the resource catalog as shown in [Quick start](#quick-start).
 
-## Schema catalogs outside resources
+## Schema domains outside resources
 
 Not every schema belongs to a resource. A Livewire form on the public site owns its copy the same way, so it can be a catalog too.
 
-A **schema catalog** is any class that:
+A **schema domain** is any class that:
 
 1. carries a `#[TranslationDomain]` attribute, and
 2. exposes a public **static** `form(Schema $schema): Schema` or `configure(Schema $schema): Schema`.
@@ -674,11 +689,6 @@ use Syriable\MessageCatalog\Attributes\TranslationDomain;
 #[TranslationDomain('identity::user-edit')]
 class EditForm
 {
-    public static function translationDomain(): string
-    {
-        return 'identity.user-edit';
-    }
-
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
@@ -702,12 +712,15 @@ return [
 ];
 ```
 
-The named class owns the catalog, not the Livewire component that renders it. A single-file Livewire component points at it instead of declaring its own id:
+The named class owns the domain, not the Livewire component that renders it. A
+single-file component points at it instead of repeating the literal:
 
 ```php
+use Syriable\MessageCatalog\Messages;
+
 public static function translationDomain(): string
 {
-    return EditForm::translationDomain();
+    return Messages::domainFor(EditForm::class);
 }
 ```
 
@@ -722,7 +735,7 @@ From the panel plugin:
 ```php
 MessageCatalogPlugin::make()
     ->domainPrefixes(['Modules\\Identity' => 'identity'])
-    ->discoverDiscoveredDomains(
+    ->discoverIn(
         in: base_path('modules/identity/src/Livewire/Schemas'),
         for: 'Modules\\Identity\\Livewire\\Schemas',
     );
@@ -731,16 +744,19 @@ MessageCatalogPlugin::make()
 From a module service provider, for schemas that never appear in a panel:
 
 ```php
-use Syriable\MessageCatalog\Discovery\DomainRegistry;
+use Syriable\MessageCatalog\Messages;
 
 public function boot(): void
 {
-    app(DomainRegistry::class)->discover(
-        in: __DIR__.'/../Livewire/Schemas',
-        for: 'Modules\\Identity\\Livewire\\Schemas',
+    Messages::discoverIn(
+        __DIR__.'/../Livewire/Schemas',
+        'Modules\\Identity\\Livewire\\Schemas',
     );
 }
 ```
+
+`Messages::discoverIn()` also starts binding, which the panel plugin does on boot.
+Outside a panel nothing else does, so this one call is all a module needs.
 
 Or from `config/messages.php`:
 
@@ -818,25 +834,35 @@ Vendor actions such as `DeleteAction` keep their Filament language file until **
 
 If the message is missing, the traits fall back to the parent Filament implementation.
 
-## Modes
+## Missing-message policy
 
-Set globally with `MESSAGES_ON_MISSING` / `config('messages.on_missing')`, or per panel:
+What happens when a message has no line in the language file. Set it globally
+with `MESSAGES_ON_MISSING` / `config('messages.on_missing')`, or per panel:
 
 ```php
 use Syriable\MessageCatalog\Enums\MissingMessagePolicy;
 
-MessageCatalogPlugin::make()->mode(MissingMessagePolicy::Inspect);
+MessageCatalogPlugin::make()->onMissing(MissingMessagePolicy::Debug);
 ```
 
-| Mode | Missing **required** slot (`label`, `title`, schema `body`) | Missing **optional** slot |
+| Policy | Missing **required** slot (`label`, `title`, schema `body`) | Missing **optional** slot |
 | --- | --- | --- |
-| `inspect` (default) | Render the compiled key in the UI so you can paste it into a lang file | Empty |
+| `fallback` (default) | Keep Filament's own text | Empty |
+| `debug` | Render the compiled key in the UI so you can paste it into a language file | Empty |
 | `strict` | Throw `MissingMessageException` | Empty |
-| `lenient` | Keep Filament’s default text | Empty |
 
-A key present only in the **fallback** locale (for example English while the app locale is Arabic) is **not** treated as present in the current locale. Decision: `used_fallback`. Inspect/strict do not rewrite that text; you still see the fallback string. `messages:debug --fail-on-fallback` fails CI until the current locale has its own line.
+`fallback` is the default because `debug` puts raw keys in front of users: ship a
+screen before its copy and someone reads
+`identity::user-edit.form.components.tabs-user.label`. Use `debug` locally when
+you want to see what to add, and `messages:debug` to find gaps anywhere.
 
-Unknown `MESSAGES_ON_MISSING` values fall back to `inspect`.
+A key present only in the **fallback locale** — English while the app runs in
+Arabic, say — is **not** treated as present in the current locale. The outcome is
+`used_fallback`, no policy rewrites that text, and you still see the English
+string. `messages:debug --fail-on-fallback` fails CI until the current locale has
+its own line.
+
+An unknown `MESSAGES_ON_MISSING` value falls back to `fallback`.
 
 ## Overrides
 
@@ -877,7 +903,7 @@ Messages::slot($field, MessageSlot::Label, number: $count);
 
 `relative` is appended to the compiled key (dots become nested array keys). `replace` and `number` use Laravel `__()` / `trans_choice()` on the compiled key.
 
-## Inspector
+## Explaining a resolution
 
 ```php
 use Syriable\MessageCatalog\Enums\MessageSlot;
@@ -895,7 +921,7 @@ $resolution->presentInFallbackLocale;
 
 Use this when a label looks wrong and you need to know which identity was chosen.
 
-## Audit command
+## messages:debug
 
 ```bash
 php artisan messages:debug
@@ -921,7 +947,7 @@ use Syriable\MessageCatalog\Audit\MessageScanner;
 app(MessageScanner::class)->auditIdentities([$identity]);
 ```
 
-## Sync command
+## messages:extract
 
 ```bash
 php artisan messages:extract
@@ -941,11 +967,11 @@ If `form()` or `table()` throws, that scope is not pruned. `syncIdentities()` ne
 | `--dry-run` | Print what would be created or removed, write nothing |
 | `--no-prune` | Create missing keys only; keep language keys for deleted components |
 
-It walks registered Filament resources **and** discovered [schema catalogs](#schema-catalogs-outside-resources) in one pass — there is no separate command for them.
+It walks registered Filament resources **and** discovered [schema domains](#schema-domains-outside-resources) in one pass — there is no separate command for them.
 
 Keep `messages:debug` for CI. Use `messages:extract` while scaffolding a resource, then replace stubs with real copy.
 
-## Apply command
+## messages:inline
 
 ```bash
 php artisan messages:inline
@@ -982,7 +1008,7 @@ public static function getModelLabel(): string
 | `--locale=` | Which language file to read keys from. Default: app locale |
 | `--dry-run` | Print what would be written, change no PHP |
 
-It walks registered Filament resources and discovered [schema catalogs](#schema-catalogs-outside-resources). A schema catalog's setters are written into that catalog class's own file.
+It walks registered Filament resources and discovered [schema domains](#schema-domains-outside-resources). A schema domain's setters are written into that catalog class's own file.
 
 Identifier-only PHP remains the default. Use `messages:inline` only when you want keys visible in PHP.
 
@@ -992,10 +1018,10 @@ Identifier-only PHP remains the default. Use `messages:inline` only when you wan
 
 | Key | Env | Default | Role |
 | --- | --- | --- | --- |
-| `mode` | `MESSAGES_ON_MISSING` | `inspect` | `inspect`, `strict`, or `lenient` |
+| `on_missing` | `MESSAGES_ON_MISSING` | `fallback` | `fallback`, `debug`, or `strict` — see [policy](#missing-message-policy) |
 | `default_domain_prefix` | — | `filament` | Prefix when no namespace map matches |
 | `domain_prefixes` | — | `[]` | `['Modules\\Billing' => 'billing']` |
-| `discover_paths` | — | `[]` | `[['path' => …, 'namespace' => …]]` — directories scanned for [schema catalogs](#schema-catalogs-outside-resources) |
+| `discover_paths` | — | `[]` | `[['path' => …, 'namespace' => …]]` — directories scanned for [schema domains](#schema-domains-outside-resources) |
 | `debug_query` | — | `messages` | Reserved query-string key for request-level dumps (not consumed by the binder yet) |
 | `max_parent_depth` | — | `32` | Cap when walking parent schema components; exceeding it throws `ParentDepthExceededException` |
 
@@ -1004,11 +1030,11 @@ Panel plugin options:
 ```php
 MessageCatalogPlugin::make()
     ->domainPrefixes([/* … */])   // merged over config
-    ->discoverDiscoveredDomains(      // merged with config paths
+    ->discoverIn(                 // merged with config paths
         in: base_path('modules/identity/src/Livewire/Schemas'),
         for: 'Modules\\Identity\\Livewire\\Schemas',
     )
-    ->mode(MissingMessagePolicy::Inspect);   // overrides config for this panel
+    ->onMissing(MissingMessagePolicy::Debug);   // overrides config for this panel
 ```
 
 ## Name rules
@@ -1032,9 +1058,9 @@ Inside this monorepo the stub is already listed in the application `phpstan.neon
 
 ## Current limits
 
-v1 binds the slots listed above. Widgets, relation-manager chrome, and import/export are not hooked yet; use `->label()` / `Messages::slot()` there.
+The package binds the slots listed above. Widgets, relation-manager chrome, and import/export are not hooked yet; use `->label()` / `Messages::slot()` there.
 
-`messages:debug` and `messages:extract` walk registered resource forms, tables, action notification titles from action closures, model/navigation chrome, and page titles, plus discovered schema catalogs. They do not yet walk widgets or relation-manager chrome.
+`messages:debug` and `messages:extract` walk registered resource forms, tables, action notification titles from action closures, model/navigation chrome, and page titles, plus discovered schema domains. They do not yet walk widgets or relation-manager chrome.
 
 `debug_query` is reserved configuration only.
 
