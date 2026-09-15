@@ -215,7 +215,7 @@ it('keeps nested layout keys when the catalog is bound on the walk owner', funct
 
 it('reports that there is nothing to write when no catalogs are missing keys', function () {
     $this->artisan('messages:extract', ['--locale' => 'en', '--dry-run' => true])
-        ->expectsOutput('No phrase catalog changes.')
+        ->expectsOutput('No message catalog changes.')
         ->assertSuccessful();
 });
 

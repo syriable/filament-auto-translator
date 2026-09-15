@@ -68,13 +68,13 @@ class MessageBinder
         $this->registry->hooksRegistered = true;
         $binder = $this;
 
-        SupportComponent::macro('phrase', function (string $name) use ($binder): static {
-            $binder->setPhraseName($this, $name);
+        SupportComponent::macro('messageName', function (string $name) use ($binder): static {
+            $binder->setMessageName($this, $name);
 
             return $this;
         });
 
-        SupportComponent::macro('catalog', function (string $id) use ($binder): static {
+        SupportComponent::macro('domain', function (string $id) use ($binder): static {
             $binder->setCatalogId($this, $id);
 
             return $this;
@@ -183,14 +183,14 @@ class MessageBinder
         return $resolution->text;
     }
 
-    public function setPhraseName(object $component, string $name): void
+    public function setMessageName(object $component, string $name): void
     {
-        $this->bindings->setPhrase($component, $name);
+        $this->bindings->setMessageName($component, $name);
     }
 
     public function setCatalogId(object $component, string $id): void
     {
-        $this->bindings->setCatalog($component, $id);
+        $this->bindings->setDomain($component, $id);
     }
 
     public function pushAction(Action $action): void
@@ -265,7 +265,7 @@ class MessageBinder
                 ),
                 key: '',
                 decision: ResolutionOutcome::NoCatalog,
-                reason: 'The owning Livewire class is not a phrase catalog.',
+                reason: 'The owning Livewire class is not a message catalog.',
                 mode: $this->resolver->mode(),
             );
         }
@@ -927,7 +927,7 @@ class MessageBinder
                 break;
             }
 
-            if ($this->bindings->catalog($parent) !== null) {
+            if ($this->bindings->domain($parent) !== null) {
                 break;
             }
 
@@ -958,10 +958,10 @@ class MessageBinder
 
     private function layoutName(SchemaComponent $component): ?string
     {
-        $phrase = $this->bindings->phrase($component);
+        $message = $this->bindings->messageName($component);
 
-        if ($phrase !== null) {
-            return NameNormalizer::machine($phrase);
+        if ($message !== null) {
+            return NameNormalizer::machine($message);
         }
 
         return $this->machineKey($component);
@@ -1013,10 +1013,10 @@ class MessageBinder
 
     private function leafName(object $component): ?string
     {
-        $phrase = $this->bindings->phrase($component);
+        $message = $this->bindings->messageName($component);
 
-        if ($phrase !== null) {
-            return NameNormalizer::machine($phrase);
+        if ($message !== null) {
+            return NameNormalizer::machine($message);
         }
 
         if ($component instanceof Notification) {
@@ -1040,7 +1040,7 @@ class MessageBinder
 
     private function catalogIdFor(object $component): ?string
     {
-        $override = $this->bindings->catalog($component);
+        $override = $this->bindings->domain($component);
 
         if ($override !== null) {
             return $override;
@@ -1059,7 +1059,7 @@ class MessageBinder
         $maxDepth = (int) config('messages.max_parent_depth', 32);
 
         while (is_object($current) && $depth < $maxDepth) {
-            $override = $this->bindings->catalog($current);
+            $override = $this->bindings->domain($current);
 
             if ($override !== null) {
                 return $override;
@@ -1079,7 +1079,7 @@ class MessageBinder
         }
 
         if (is_object($livewire)) {
-            $livewireCatalog = $this->bindings->catalog($livewire);
+            $livewireCatalog = $this->bindings->domain($livewire);
 
             if ($livewireCatalog !== null) {
                 return $livewireCatalog;

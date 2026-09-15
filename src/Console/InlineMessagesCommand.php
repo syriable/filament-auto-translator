@@ -14,7 +14,7 @@ class InlineMessagesCommand extends Command
         {--locale= : Locale whose language file supplies the keys}
         {--dry-run : Show methods that would be written without changing PHP}';
 
-    protected $description = 'Write Filament setter calls for phrase keys that already exist in the language file.';
+    protected $description = 'Write Filament setter calls for message keys that already exist in the language file.';
 
     public function handle(PhrasePhpApplier $applier): int
     {

@@ -12,10 +12,10 @@ class DebugMessagesCommand extends Command
 {
     protected $signature = 'messages:debug
         {--locale= : Locale to check}
-        {--fail-on-missing : Fail when required phrases are missing}
+        {--fail-on-missing : Fail when required messages are missing}
         {--fail-on-fallback : Fail when the current locale uses the fallback locale}';
 
-    protected $description = 'Audit phrase catalog completeness for the current locale.';
+    protected $description = 'Audit message catalog completeness for the current locale.';
 
     public function handle(MessageScanner $auditor): int
     {
@@ -25,7 +25,7 @@ class DebugMessagesCommand extends Command
         $findings = $auditor->audit($locale);
 
         if ($findings === []) {
-            $this->info('No phrase issues found.');
+            $this->info('No message issues found.');
 
             return self::SUCCESS;
         }

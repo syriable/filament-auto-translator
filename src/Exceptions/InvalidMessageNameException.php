@@ -10,6 +10,6 @@ class InvalidMessageNameException extends InvalidArgumentException
 {
     public static function forName(string $name): self
     {
-        return new self("Phrase machine names may only contain letters, numbers, hyphens, underscores, and normalized double underscores. [{$name}] is invalid.");
+        return new self("Message machine names may only contain letters, numbers, hyphens, underscores, and normalized double underscores. [{$name}] is invalid.");
     }
 }

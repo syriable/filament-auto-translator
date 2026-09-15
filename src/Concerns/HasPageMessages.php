@@ -27,10 +27,10 @@ trait HasPageMessages
 
     public function getTitle(): string|Htmlable
     {
-        $phrase = static::catalogPhrase(MessageSurface::Pages, MessageSlot::Title, path: static::phrasePagePath());
+        $message = static::catalogPhrase(MessageSurface::Pages, MessageSlot::Title, path: static::phrasePagePath());
 
-        if ($phrase !== null) {
-            return $phrase;
+        if ($message !== null) {
+            return $message;
         }
 
         return parent::getTitle();
@@ -38,10 +38,10 @@ trait HasPageMessages
 
     public function getSubheading(): string|Htmlable|null
     {
-        $phrase = static::catalogPhrase(MessageSurface::Pages, MessageSlot::Subheading, path: static::phrasePagePath());
+        $message = static::catalogPhrase(MessageSurface::Pages, MessageSlot::Subheading, path: static::phrasePagePath());
 
-        if ($phrase !== null) {
-            return $phrase;
+        if ($message !== null) {
+            return $message;
         }
 
         return parent::getSubheading();

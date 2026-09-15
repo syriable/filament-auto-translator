@@ -9,7 +9,7 @@ use WeakMap;
 class ComponentBindings
 {
     /**
-     * @var WeakMap<object, array{phrase:?string, catalog:?string, owner:?object}>
+     * @var WeakMap<object, array{messageName:?string, domain:?string, owner:?object}>
      */
     private WeakMap $bindings;
 
@@ -18,17 +18,17 @@ class ComponentBindings
         $this->bindings = new WeakMap;
     }
 
-    public function setPhrase(object $component, string $name): void
+    public function setMessageName(object $component, string $name): void
     {
         $current = $this->binding($component);
-        $current['phrase'] = $name;
+        $current['messageName'] = $name;
         $this->bindings[$component] = $current;
     }
 
-    public function setCatalog(object $component, string $id): void
+    public function setDomain(object $component, string $id): void
     {
         $current = $this->binding($component);
-        $current['catalog'] = $id;
+        $current['domain'] = $id;
         $this->bindings[$component] = $current;
     }
 
@@ -39,14 +39,14 @@ class ComponentBindings
         $this->bindings[$component] = $current;
     }
 
-    public function phrase(object $component): ?string
+    public function messageName(object $component): ?string
     {
-        return $this->binding($component)['phrase'];
+        return $this->binding($component)['messageName'];
     }
 
-    public function catalog(object $component): ?string
+    public function domain(object $component): ?string
     {
-        return $this->binding($component)['catalog'];
+        return $this->binding($component)['domain'];
     }
 
     public function owner(object $component): ?object
@@ -55,10 +55,10 @@ class ComponentBindings
     }
 
     /**
-     * @return array{phrase:?string, catalog:?string, owner:?object}
+     * @return array{messageName:?string, domain:?string, owner:?object}
      */
     private function binding(object $component): array
     {
-        return $this->bindings[$component] ?? ['phrase' => null, 'catalog' => null, 'owner' => null];
+        return $this->bindings[$component] ?? ['messageName' => null, 'domain' => null, 'owner' => null];
     }
 }

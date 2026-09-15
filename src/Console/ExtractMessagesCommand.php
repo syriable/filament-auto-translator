@@ -15,7 +15,7 @@ class ExtractMessagesCommand extends Command
         {--dry-run : Show missing and orphan keys without writing files}
         {--no-prune : Keep language keys for components that were removed}';
 
-    protected $description = 'Create missing phrase catalog keys and remove copy for deleted components.';
+    protected $description = 'Create missing message catalog keys and remove copy for deleted components.';
 
     public function handle(MessageExtractor $syncer): int
     {
@@ -28,7 +28,7 @@ class ExtractMessagesCommand extends Command
         }
 
         if ($writes === []) {
-            $this->info('No phrase catalog changes.');
+            $this->info('No message catalog changes.');
 
             return self::SUCCESS;
         }
@@ -66,11 +66,11 @@ class ExtractMessagesCommand extends Command
     private function reportCounts(int $created, int $deleted, string $createdLabel, string $deletedLabel): void
     {
         if ($created > 0) {
-            $this->info("{$createdLabel} {$created} phrase keys.");
+            $this->info("{$createdLabel} {$created} message keys.");
         }
 
         if ($deleted > 0) {
-            $this->info("{$deletedLabel} {$deleted} phrase keys.");
+            $this->info("{$deletedLabel} {$deleted} message keys.");
         }
     }
 

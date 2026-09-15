@@ -10,6 +10,6 @@ class MissingMessageException extends RuntimeException
 {
     public static function forKey(string $key): self
     {
-        return new self("Missing required phrase [{$key}] for the current locale.");
+        return new self("Missing required message [{$key}] for the current locale.");
     }
 }

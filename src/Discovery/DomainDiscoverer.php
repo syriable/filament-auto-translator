@@ -13,7 +13,7 @@ use ReflectionNamedType;
 use Syriable\MessageCatalog\Exceptions\InvalidTranslationDomainException;
 
 /**
- * Turns a directory and its PSR-4 namespace into the phrase catalogs it holds,
+ * Turns a directory and its PSR-4 namespace into the message catalogs it holds,
  * the same way a panel turns a directory into resources.
  */
 class DomainDiscoverer

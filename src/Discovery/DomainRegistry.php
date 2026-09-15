@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Syriable\MessageCatalog\Discovery;
 
 /**
- * Holds the directories phrase catalogs are discovered in. Register a module
+ * Holds the directories message catalogs are discovered in. Register a module
  * once — from a service provider, or from the panel plugin — never one class
  * at a time.
  */

@@ -10,6 +10,6 @@ class ParentDepthExceededException extends RuntimeException
 {
     public static function make(int $depth): self
     {
-        return new self("Phrase parent walk exceeded the maximum depth of [{$depth}].");
+        return new self("Parent walk exceeded the maximum depth of [{$depth}].");
     }
 }
