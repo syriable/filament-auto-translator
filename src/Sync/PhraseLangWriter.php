@@ -7,12 +7,57 @@ namespace Syriable\Filament\Plugins\AutoTranslator\Sync;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Lang;
+use Syriable\Filament\Plugins\AutoTranslator\Exceptions\UnknownCatalogNamespaceException;
 
 class PhraseLangWriter
 {
     public function pathFor(string $catalogId, string $locale): string
     {
-        return lang_path($locale.'/'.str_replace('.', '/', $catalogId).'.php');
+        [$namespace, $group] = $this->split($catalogId);
+
+        $relative = $locale.'/'.str_replace('.', '/', $group).'.php';
+
+        if ($namespace === null) {
+            return lang_path($relative);
+        }
+
+        $root = $this->namespacePath($namespace);
+
+        if ($root === null) {
+            throw UnknownCatalogNamespaceException::make($catalogId, $namespace);
+        }
+
+        return rtrim($root, '/\\').'/'.$relative;
+    }
+
+    /**
+     * Splits a catalog id into its translation namespace and group.
+     *
+     * @return array{0: string|null, 1: string}
+     */
+    public function split(string $catalogId): array
+    {
+        if (! str_contains($catalogId, '::')) {
+            return [null, $catalogId];
+        }
+
+        /** @var array{0: string, 1: string} $parts */
+        $parts = explode('::', $catalogId, 2);
+
+        return [$parts[0], $parts[1]];
+    }
+
+    private function namespacePath(string $namespace): ?string
+    {
+        $loader = Lang::getLoader();
+
+        if (! method_exists($loader, 'namespaces')) {
+            return null;
+        }
+
+        $path = $loader->namespaces()[$namespace] ?? null;
+
+        return is_string($path) ? $path : null;
     }
 
     /**
@@ -194,7 +239,7 @@ class PhraseLangWriter
             return false;
         }
 
-        return (bool) preg_match('/^[A-Za-z0-9._-]+$/', $catalogId);
+        return (bool) preg_match('/^([A-Za-z0-9_-]+::)?[A-Za-z0-9._-]+$/', $catalogId);
     }
 
     public function isSafeLocale(string $locale): bool
