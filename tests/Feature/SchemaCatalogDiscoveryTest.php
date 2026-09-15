@@ -117,9 +117,17 @@ it('ignores malformed configured discovery paths', function () {
 });
 
 it('registers a directory only once', function () {
-    $registry = app(SchemaCatalogRegistry::class)
+    $once = app(SchemaCatalogRegistry::class)
         ->discover(in: schemaFixturePath(), for: SCHEMA_FIXTURE_NAMESPACE)
-        ->discover(in: schemaFixturePath(), for: SCHEMA_FIXTURE_NAMESPACE);
+        ->catalogs();
 
-    expect($registry->catalogs())->toHaveCount(2);
+    app(SchemaCatalogRegistry::class)->flush();
+
+    $twice = app(SchemaCatalogRegistry::class)
+        ->discover(in: schemaFixturePath(), for: SCHEMA_FIXTURE_NAMESPACE)
+        ->discover(in: schemaFixturePath(), for: SCHEMA_FIXTURE_NAMESPACE)
+        ->catalogs();
+
+    expect($twice)->toHaveCount(count($once))
+        ->and(array_keys($twice))->toBe(array_keys($once));
 });
