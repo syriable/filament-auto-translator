@@ -19,7 +19,7 @@ it('builds a catalog id from the longest matching namespace prefix', function ()
         ->toBe('filament.user-resource');
 });
 
-it('does not change the catalog id when the class is renamed but phraseCatalogId stays the same', function () {
+it('does not change the catalog id when the class is renamed but translationDomain stays the same', function () {
     config()->set('messages.default_domain_prefix', 'filament');
     config()->set('messages.domain_prefixes', []);
 

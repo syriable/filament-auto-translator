@@ -10,7 +10,6 @@ use Illuminate\Filesystem\Filesystem;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionNamedType;
-use Syriable\MessageCatalog\Contracts\PhraseCatalog;
 use Syriable\MessageCatalog\Exceptions\InvalidTranslationDomainException;
 
 /**
@@ -28,6 +27,7 @@ class DomainDiscoverer
 
     public function __construct(
         private Filesystem $filesystem,
+        private DomainResolver $domains,
     ) {}
 
     /**
@@ -69,10 +69,6 @@ class DomainDiscoverer
      */
     public function catalogFor(string $class): ?DiscoveredDomain
     {
-        if (! is_a($class, PhraseCatalog::class, true)) {
-            return null;
-        }
-
         // Resources carry their own chrome and pages, so they stay on the resource walk.
         if (is_subclass_of($class, FilamentResource::class)) {
             return null;
@@ -90,8 +86,11 @@ class DomainDiscoverer
             return null;
         }
 
-        /** @var class-string<PhraseCatalog> $class */
-        $catalogId = $class::phraseCatalogId();
+        $catalogId = $this->domains->for($class);
+
+        if ($catalogId === null) {
+            return null;
+        }
 
         if (! $this->isCatalogId($catalogId)) {
             throw InvalidTranslationDomainException::make($class, $catalogId);

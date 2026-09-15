@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Syriable\MessageCatalog\Concerns;
 
 use Illuminate\Contracts\Support\Htmlable;
-use Syriable\MessageCatalog\Contracts\PhraseCatalog;
 use Syriable\MessageCatalog\Discovery\DomainPrefixResolver;
 use Syriable\MessageCatalog\Enums\MessageSlot;
 use Syriable\MessageCatalog\Enums\MessageSurface;
@@ -15,12 +14,12 @@ trait HasPageMessages
 {
     use ResolvesTranslationDomain;
 
-    public static function phraseCatalogId(): string
+    public static function translationDomain(): string
     {
         $resource = call_user_func([static::class, 'getResource']);
 
-        if (is_a($resource, PhraseCatalog::class, true)) {
-            return $resource::phraseCatalogId();
+        if (method_exists($resource, 'translationDomain')) {
+            return $resource::translationDomain();
         }
 
         return app(DomainPrefixResolver::class)->idFor(static::class);

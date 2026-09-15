@@ -4,12 +4,7 @@ declare(strict_types=1);
 
 namespace Syriable\MessageCatalog\Tests\Fixtures\Schemas\Plain;
 
-use Syriable\MessageCatalog\Contracts\PhraseCatalog;
+use Syriable\MessageCatalog\Attributes\TranslationDomain;
 
-class SchemalessCatalog implements PhraseCatalog
-{
-    public static function phraseCatalogId(): string
-    {
-        return 'identity.schemaless';
-    }
-}
+#[TranslationDomain('identity.schemaless')]
+class SchemalessCatalog {}

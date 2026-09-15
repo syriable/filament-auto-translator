@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Syriable\MessageCatalog\Discovery;
 
 use Filament\Schemas\Schema;
-use Syriable\MessageCatalog\Contracts\PhraseCatalog;
 
 class DiscoveredDomain
 {
     /**
-     * @param  class-string<PhraseCatalog>  $class
+     * @param  class-string  $class
      */
     public function __construct(
         public string $class,

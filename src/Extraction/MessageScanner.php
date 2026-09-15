@@ -25,7 +25,6 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Syriable\MessageCatalog\Binding\MessageBinder;
 use Syriable\MessageCatalog\Catalog\MessageResolver;
-use Syriable\MessageCatalog\Contracts\PhraseCatalog;
 use Syriable\MessageCatalog\Discovery\DiscoveredDomain;
 use Syriable\MessageCatalog\Discovery\DomainRegistry;
 use Syriable\MessageCatalog\Enums\MessageSlot;
@@ -118,7 +117,7 @@ class MessageScanner
                     continue;
                 }
 
-                if (! is_a($resource, PhraseCatalog::class, true)) {
+                if (! method_exists($resource, 'translationDomain')) {
                     continue;
                 }
 
@@ -152,11 +151,11 @@ class MessageScanner
     }
 
     /**
-     * @param  class-string<FilamentResource&PhraseCatalog>  $resource
+     * @param  class-string<FilamentResource>  $resource
      */
     private function auditResource(string $resource): void
     {
-        $catalogId = $resource::phraseCatalogId();
+        $catalogId = $resource::translationDomain();
 
         $this->auditChrome($resource, $catalogId);
 
@@ -195,7 +194,7 @@ class MessageScanner
     }
 
     /**
-     * @param  class-string<FilamentResource&PhraseCatalog>  $resource
+     * @param  class-string<FilamentResource>  $resource
      */
     private function auditChrome(string $resource, string $catalogId): void
     {
@@ -243,7 +242,7 @@ class MessageScanner
     }
 
     /**
-     * @param  class-string<FilamentResource&PhraseCatalog>  $resource
+     * @param  class-string<FilamentResource>  $resource
      */
     private function auditForm(string $resource, string $catalogId, ExtractionHost $owner): void
     {
@@ -262,7 +261,7 @@ class MessageScanner
     }
 
     /**
-     * @param  class-string<FilamentResource&PhraseCatalog>  $resource
+     * @param  class-string<FilamentResource>  $resource
      */
     private function auditTable(string $resource, string $catalogId, ExtractionHost $owner): void
     {

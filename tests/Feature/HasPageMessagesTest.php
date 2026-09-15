@@ -16,7 +16,7 @@ beforeEach(function () {
 });
 
 it('shares the resource catalog id on a bound page', function () {
-    expect(CatalogBoundPage::phraseCatalogId())->toBe(CatalogOwner::phraseCatalogId());
+    expect(CatalogBoundPage::translationDomain())->toBe(CatalogOwner::translationDomain());
 });
 
 it('fills page chrome from the shared resource catalog', function () {

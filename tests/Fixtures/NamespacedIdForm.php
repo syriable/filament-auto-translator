@@ -5,15 +5,11 @@ declare(strict_types=1);
 namespace Syriable\MessageCatalog\Tests\Fixtures;
 
 use Filament\Schemas\Schema;
-use Syriable\MessageCatalog\Contracts\PhraseCatalog;
+use Syriable\MessageCatalog\Attributes\TranslationDomain;
 
-class NamespacedIdForm implements PhraseCatalog
+#[TranslationDomain('identity::users.edit')]
+class NamespacedIdForm
 {
-    public static function phraseCatalogId(): string
-    {
-        return 'identity::users.edit';
-    }
-
     public static function configure(Schema $schema): Schema
     {
         return $schema;

@@ -13,7 +13,7 @@ use Syriable\MessageCatalog\MessageIdentity;
 
 trait ResolvesTranslationDomain
 {
-    public static function phraseCatalogId(): string
+    public static function translationDomain(): string
     {
         return app(DomainPrefixResolver::class)->idFor(static::class);
     }
@@ -24,7 +24,7 @@ trait ResolvesTranslationDomain
     protected static function catalogPhrase(MessageSurface $scope, MessageSlot $slot, array $path = []): ?string
     {
         $resolution = app(MessageBinder::class)->resolveIdentity(new MessageIdentity(
-            catalogId: static::phraseCatalogId(),
+            catalogId: static::translationDomain(),
             scope: $scope,
             path: $path,
             name: '',

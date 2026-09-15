@@ -13,7 +13,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
-use Syriable\MessageCatalog\Contracts\PhraseCatalog;
+use Syriable\MessageCatalog\Attributes\TranslationDomain;
 
 /**
  * Deep layout nesting, mirroring how a real application composes a schema.
@@ -21,13 +21,9 @@ use Syriable\MessageCatalog\Contracts\PhraseCatalog;
  * The shallow fixtures cannot catch a regression in parent-path derivation,
  * so this one exists to pin the compiled keys for nested layouts.
  */
-class NestedForm implements PhraseCatalog
+#[TranslationDomain('identity.user-nested')]
+class NestedForm
 {
-    public static function phraseCatalogId(): string
-    {
-        return 'identity.user-nested';
-    }
-
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([

@@ -29,7 +29,7 @@ use Filament\Tables\Table;
 use Illuminate\Support\Facades\Event;
 use Livewire\Livewire;
 use Syriable\MessageCatalog\Catalog\MessageResolver;
-use Syriable\MessageCatalog\Contracts\PhraseCatalog;
+use Syriable\MessageCatalog\Discovery\DomainResolver;
 use Syriable\MessageCatalog\Enums\MessageSlot;
 use Syriable\MessageCatalog\Enums\MessageSurface;
 use Syriable\MessageCatalog\Enums\MissingMessagePolicy;
@@ -56,6 +56,7 @@ class MessageBinder
         private MessageResolver $resolver,
         private ComponentBindings $bindings,
         private MessageOverrides $registry,
+        private DomainResolver $domains,
     ) {}
 
     public function registerHooks(): void
@@ -1085,11 +1086,11 @@ class MessageBinder
             }
         }
 
-        if (! is_object($livewire) || ! is_a($livewire, PhraseCatalog::class)) {
+        if (! is_object($livewire)) {
             return null;
         }
 
-        return $livewire::phraseCatalogId();
+        return $this->domains->for($livewire);
     }
 
     private function relatedFieldOf(Action $action): Field|Entry|null

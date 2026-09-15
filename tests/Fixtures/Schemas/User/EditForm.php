@@ -7,15 +7,11 @@ namespace Syriable\MessageCatalog\Tests\Fixtures\Schemas\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
-use Syriable\MessageCatalog\Contracts\PhraseCatalog;
+use Syriable\MessageCatalog\Attributes\TranslationDomain;
 
-class EditForm implements PhraseCatalog
+#[TranslationDomain('identity.user-edit')]
+class EditForm
 {
-    public static function phraseCatalogId(): string
-    {
-        return 'identity.user-edit';
-    }
-
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([

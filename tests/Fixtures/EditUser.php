@@ -8,17 +8,16 @@ use Filament\Actions\Action;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Livewire\Component;
-use Syriable\MessageCatalog\Contracts\PhraseCatalog;
 
-class EditUser extends Component implements HasSchemas, PhraseCatalog
+class EditUser extends Component implements HasSchemas
 {
     use InteractsWithSchemas;
 
     private ?Action $mountedTestingAction = null;
 
-    public static function phraseCatalogId(): string
+    public static function translationDomain(): string
     {
-        return CatalogOwner::phraseCatalogId();
+        return CatalogOwner::translationDomain();
     }
 
     public static function getResource(): string

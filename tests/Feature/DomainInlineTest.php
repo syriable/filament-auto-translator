@@ -28,15 +28,11 @@ namespace {$this->namespace};
 
 use Filament\\Forms\\Components\\TextInput;
 use Filament\\Schemas\\Schema;
-use Syriable\\MessageCatalog\\Contracts\\PhraseCatalog;
+use Syriable\\MessageCatalog\\Attributes\\TranslationDomain;
 
-class SignUpForm implements PhraseCatalog
+#[TranslationDomain('identity.sign-up')]
+class SignUpForm
 {
-    public static function phraseCatalogId(): string
-    {
-        return 'identity.sign-up';
-    }
-
     public static function configure(Schema \$schema): Schema
     {
         return \$schema->components([

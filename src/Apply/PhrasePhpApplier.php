@@ -21,7 +21,6 @@ use Illuminate\Support\Facades\File;
 use ReflectionClass;
 use Syriable\MessageCatalog\Binding\MessageBinder;
 use Syriable\MessageCatalog\Catalog\CatalogWriter;
-use Syriable\MessageCatalog\Contracts\PhraseCatalog;
 use Syriable\MessageCatalog\Discovery\DiscoveredDomain;
 use Syriable\MessageCatalog\Discovery\DomainRegistry;
 use Syriable\MessageCatalog\Enums\MessageSlot;
@@ -58,7 +57,7 @@ class PhrasePhpApplier
         $resources = $this->catalogResources();
 
         foreach ($resources as $resource) {
-            $catalogId = $resource::phraseCatalogId();
+            $catalogId = $resource::translationDomain();
 
             if (! $this->writer->isSafeCatalogId($catalogId)) {
                 continue;
@@ -147,7 +146,7 @@ class PhrasePhpApplier
     }
 
     /**
-     * @param  class-string<FilamentResource&PhraseCatalog>  $resource
+     * @param  class-string<FilamentResource>  $resource
      * @return array<int, PhraseApplyWrite>
      */
     private function applyResourceChrome(string $resource, string $catalogId, string $locale, bool $dryRun): array
@@ -167,7 +166,7 @@ class PhrasePhpApplier
     }
 
     /**
-     * @param  class-string<FilamentResource&PhraseCatalog>  $resource
+     * @param  class-string<FilamentResource>  $resource
      * @return array<int, PhraseApplyWrite>
      */
     private function applyPageChrome(string $resource, string $catalogId, string $locale, bool $dryRun): array
@@ -346,7 +345,7 @@ class PhrasePhpApplier
     }
 
     /**
-     * @param  class-string<FilamentResource&PhraseCatalog>  $resource
+     * @param  class-string<FilamentResource>  $resource
      * @return array<int, PhraseApplyWrite>
      */
     private function applyResourceForm(string $resource, ExtractionHost $owner, string $catalogId, string $locale, bool $dryRun): array
@@ -367,7 +366,7 @@ class PhrasePhpApplier
     }
 
     /**
-     * @param  class-string<FilamentResource&PhraseCatalog>  $resource
+     * @param  class-string<FilamentResource>  $resource
      * @return array<int, PhraseApplyWrite>
      */
     private function applyResourceTable(string $resource, ExtractionHost $owner, string $catalogId, string $locale, bool $dryRun): array
@@ -840,7 +839,7 @@ class PhrasePhpApplier
     }
 
     /**
-     * @return array<int, class-string<FilamentResource&PhraseCatalog>>
+     * @return array<int, class-string<FilamentResource>>
      */
     private function catalogResources(): array
     {
@@ -861,7 +860,7 @@ class PhrasePhpApplier
                 continue;
             }
 
-            if (! is_a($resource, PhraseCatalog::class, true)) {
+            if (! method_exists($resource, 'translationDomain')) {
                 continue;
             }
 
