@@ -239,7 +239,7 @@ class PhraseLangWriter
             return false;
         }
 
-        return (bool) preg_match('/^[A-Za-z0-9._-]+$/', $catalogId);
+        return (bool) preg_match('/^([A-Za-z0-9_-]+::)?[A-Za-z0-9._-]+$/', $catalogId);
     }
 
     public function isSafeLocale(string $locale): bool

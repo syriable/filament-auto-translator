@@ -48,3 +48,20 @@ it('segments a namespaced compiled key against its catalog', function () {
     expect($writer->segments('identity::user-edit', 'identity::user-edit.form.components.name.label'))
         ->toBe(['form', 'components', 'name', 'label']);
 });
+
+it('treats a namespaced catalog id as safe to write', function () {
+    $writer = new PhraseLangWriter;
+
+    expect($writer->isSafeCatalogId('identity::user-edit'))->toBeTrue()
+        ->and($writer->isSafeCatalogId('identity.user-edit'))->toBeTrue();
+});
+
+it('still rejects catalog ids that could escape the lang path', function (string $catalogId) {
+    expect((new PhraseLangWriter)->isSafeCatalogId($catalogId))->toBeFalse();
+})->with([
+    '../etc/passwd',
+    '/etc/passwd',
+    'identity::../secrets',
+    'identity::user edit',
+    '',
+]);
