@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Filament\Plugins\AutoTranslator\Apply;
+namespace Syriable\MessageCatalog\Apply;
 
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -19,28 +19,27 @@ use Filament\Tables\Table;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use ReflectionClass;
-use Syriable\Filament\Plugins\AutoTranslator\Audit\ActionNotificationScanner;
-use Syriable\Filament\Plugins\AutoTranslator\Contracts\PhraseCatalog;
-use Syriable\Filament\Plugins\AutoTranslator\Discovery\SchemaCatalog;
-use Syriable\Filament\Plugins\AutoTranslator\Discovery\SchemaCatalogRegistry;
-use Syriable\Filament\Plugins\AutoTranslator\Enums\PhraseDecision;
-use Syriable\Filament\Plugins\AutoTranslator\Enums\PhraseSlot;
-use Syriable\Filament\Plugins\AutoTranslator\PhraseBinder;
-use Syriable\Filament\Plugins\AutoTranslator\Support\NameNormalizer;
-use Syriable\Filament\Plugins\AutoTranslator\Sync\CatalogWalkLivewire;
-use Syriable\Filament\Plugins\AutoTranslator\Sync\PhraseLangWriter;
+use Syriable\MessageCatalog\Binding\MessageBinder;
+use Syriable\MessageCatalog\Catalog\CatalogWriter;
+use Syriable\MessageCatalog\Discovery\DiscoveredDomain;
+use Syriable\MessageCatalog\Discovery\DomainRegistry;
+use Syriable\MessageCatalog\Enums\MessageSlot;
+use Syriable\MessageCatalog\Enums\ResolutionOutcome;
+use Syriable\MessageCatalog\Extraction\ExtractionHost;
+use Syriable\MessageCatalog\Extraction\NotificationScanner;
+use Syriable\MessageCatalog\Support\NameNormalizer;
 use Throwable;
 
 class PhrasePhpApplier
 {
     public function __construct(
-        private PhraseBinder $binder,
-        private PhraseLangWriter $writer,
+        private MessageBinder $binder,
+        private CatalogWriter $writer,
         private ComponentChainEditor $editor,
         private ClassMethodEditor $classMethods,
         private SlotMethodMap $methods,
-        private ActionNotificationScanner $notifications,
-        private SchemaCatalogRegistry $schemaCatalogs,
+        private NotificationScanner $notifications,
+        private DomainRegistry $schemaCatalogs,
     ) {}
 
     /**
@@ -58,13 +57,13 @@ class PhrasePhpApplier
         $resources = $this->catalogResources();
 
         foreach ($resources as $resource) {
-            $catalogId = $resource::phraseCatalogId();
+            $catalogId = $resource::translationDomain();
 
             if (! $this->writer->isSafeCatalogId($catalogId)) {
                 continue;
             }
 
-            $owner = new CatalogWalkLivewire;
+            $owner = new ExtractionHost;
             $this->binder->setCatalogId($owner, $catalogId);
 
             $writes = [
@@ -77,7 +76,7 @@ class PhrasePhpApplier
         }
 
         foreach ($this->schemaCatalogs->catalogs() as $catalog) {
-            $writes = [...$writes, ...$this->applySchemaCatalog($catalog, $locale, $dryRun)];
+            $writes = [...$writes, ...$this->applyDiscoveredDomain($catalog, $locale, $dryRun)];
         }
 
         return $writes;
@@ -86,13 +85,13 @@ class PhrasePhpApplier
     /**
      * @return array<int, PhraseApplyWrite>
      */
-    private function applySchemaCatalog(SchemaCatalog $catalog, string $locale, bool $dryRun): array
+    private function applyDiscoveredDomain(DiscoveredDomain $catalog, string $locale, bool $dryRun): array
     {
         if (! $this->writer->isSafeCatalogId($catalog->catalogId)) {
             return [];
         }
 
-        $owner = new CatalogWalkLivewire;
+        $owner = new ExtractionHost;
         $this->binder->setCatalogId($owner, $catalog->catalogId);
 
         try {
@@ -147,7 +146,7 @@ class PhrasePhpApplier
     }
 
     /**
-     * @param  class-string<FilamentResource&PhraseCatalog>  $resource
+     * @param  class-string<FilamentResource>  $resource
      * @return array<int, PhraseApplyWrite>
      */
     private function applyResourceChrome(string $resource, string $catalogId, string $locale, bool $dryRun): array
@@ -167,7 +166,7 @@ class PhrasePhpApplier
     }
 
     /**
-     * @param  class-string<FilamentResource&PhraseCatalog>  $resource
+     * @param  class-string<FilamentResource>  $resource
      * @return array<int, PhraseApplyWrite>
      */
     private function applyPageChrome(string $resource, string $catalogId, string $locale, bool $dryRun): array
@@ -346,10 +345,10 @@ class PhrasePhpApplier
     }
 
     /**
-     * @param  class-string<FilamentResource&PhraseCatalog>  $resource
+     * @param  class-string<FilamentResource>  $resource
      * @return array<int, PhraseApplyWrite>
      */
-    private function applyResourceForm(string $resource, CatalogWalkLivewire $owner, string $catalogId, string $locale, bool $dryRun): array
+    private function applyResourceForm(string $resource, ExtractionHost $owner, string $catalogId, string $locale, bool $dryRun): array
     {
         try {
             $schema = $resource::form(Schema::make($owner));
@@ -367,10 +366,10 @@ class PhrasePhpApplier
     }
 
     /**
-     * @param  class-string<FilamentResource&PhraseCatalog>  $resource
+     * @param  class-string<FilamentResource>  $resource
      * @return array<int, PhraseApplyWrite>
      */
-    private function applyResourceTable(string $resource, CatalogWalkLivewire $owner, string $catalogId, string $locale, bool $dryRun): array
+    private function applyResourceTable(string $resource, ExtractionHost $owner, string $catalogId, string $locale, bool $dryRun): array
     {
         try {
             $table = $resource::table(Table::make($owner));
@@ -416,7 +415,7 @@ class PhrasePhpApplier
             $make = $this->makeName($component);
 
             if ($make !== null && $make !== '') {
-                foreach (PhraseSlot::cases() as $slot) {
+                foreach (MessageSlot::cases() as $slot) {
                     $method = $this->methods->method($slot);
 
                     if ($method === null || ! method_exists($component, $method)) {
@@ -428,7 +427,7 @@ class PhrasePhpApplier
 
                     if (
                         $key === ''
-                        || in_array($resolution->decision, [PhraseDecision::NoCatalog, PhraseDecision::Unbound], true)
+                        || in_array($resolution->decision, [ResolutionOutcome::NoCatalog, ResolutionOutcome::Unbound], true)
                     ) {
                         $key = $this->keyFromTree($tree, $catalogId, $component, $make, $slot) ?? '';
                     }
@@ -506,7 +505,7 @@ class PhrasePhpApplier
                     continue;
                 }
 
-                foreach ([PhraseSlot::Title, PhraseSlot::Body] as $slot) {
+                foreach ([MessageSlot::Title, MessageSlot::Body] as $slot) {
                     $method = $this->methods->method($slot);
 
                     if ($method === null) {
@@ -518,7 +517,7 @@ class PhrasePhpApplier
 
                     if (
                         $key === ''
-                        || in_array($resolution->decision, [PhraseDecision::NoCatalog, PhraseDecision::Unbound], true)
+                        || in_array($resolution->decision, [ResolutionOutcome::NoCatalog, ResolutionOutcome::Unbound], true)
                     ) {
                         $key = $this->notificationKeyFromTree($tree, $catalogId, $make, $status, $slot) ?? '';
                     }
@@ -574,7 +573,7 @@ class PhrasePhpApplier
         string $catalogId,
         string $make,
         string $status,
-        PhraseSlot $slot,
+        MessageSlot $slot,
     ): ?string {
         $suffix = '.'.$make.'.notifications.'.$status.'.'.$slot->value;
         $matches = [];
@@ -738,7 +737,7 @@ class PhrasePhpApplier
     /**
      * @param  array<string, mixed>  $tree
      */
-    private function keyFromTree(array $tree, string $catalogId, object $component, string $make, PhraseSlot $slot): ?string
+    private function keyFromTree(array $tree, string $catalogId, object $component, string $make, MessageSlot $slot): ?string
     {
         $scope = $this->scopePrefix($component);
         $suffix = '.'.$make.'.'.$slot->value;
@@ -840,7 +839,7 @@ class PhrasePhpApplier
     }
 
     /**
-     * @return array<int, class-string<FilamentResource&PhraseCatalog>>
+     * @return array<int, class-string<FilamentResource>>
      */
     private function catalogResources(): array
     {
@@ -861,7 +860,7 @@ class PhrasePhpApplier
                 continue;
             }
 
-            if (! is_a($resource, PhraseCatalog::class, true)) {
+            if (! method_exists($resource, 'translationDomain')) {
                 continue;
             }
 

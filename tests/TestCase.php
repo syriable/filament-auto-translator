@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Filament\Plugins\AutoTranslator\Tests;
+namespace Syriable\MessageCatalog\Tests;
 
 use Illuminate\Foundation\Application;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Syriable\Filament\Plugins\AutoTranslator\AutoTranslatorServiceProvider;
+use Syriable\MessageCatalog\MessageCatalogServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -17,7 +17,7 @@ class TestCase extends Orchestra
     protected function getPackageProviders($app): array
     {
         return [
-            AutoTranslatorServiceProvider::class,
+            MessageCatalogServiceProvider::class,
         ];
     }
 }

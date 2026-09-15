@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Syriable\Filament\Plugins\AutoTranslator\Support\NameNormalizer;
+use Syriable\MessageCatalog\Support\NameNormalizer;
 
 it('replaces dots with a double underscore so laravel does not nest the key', function () {
     expect(NameNormalizer::machine('author.name'))->toBe('author__name');

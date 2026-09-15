@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures;
+namespace Syriable\MessageCatalog\Tests\Fixtures;
 
-use Syriable\Filament\Plugins\AutoTranslator\Concerns\BindsPagePhrases;
-use Syriable\Filament\Plugins\AutoTranslator\Contracts\PhraseCatalog;
+use Syriable\MessageCatalog\Concerns\HasPageMessages;
 
-class CatalogBoundPage extends CatalogPageParent implements PhraseCatalog
+class CatalogBoundPage extends CatalogPageParent
 {
-    use BindsPagePhrases;
+    use HasPageMessages;
 }
