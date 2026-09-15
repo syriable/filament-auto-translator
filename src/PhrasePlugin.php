@@ -6,6 +6,7 @@ namespace Syriable\Filament\Plugins\AutoTranslator;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
+use Syriable\Filament\Plugins\AutoTranslator\Discovery\SchemaCatalogRegistry;
 use Syriable\Filament\Plugins\AutoTranslator\Enums\PhraseMode;
 
 class PhrasePlugin implements Plugin
@@ -14,6 +15,11 @@ class PhrasePlugin implements Plugin
      * @var array<string, string>
      */
     private array $prefixes = [];
+
+    /**
+     * @var array<string, array{path: string, namespace: string}>
+     */
+    private array $schemaCatalogPaths = [];
 
     private ?PhraseMode $mode = null;
 
@@ -37,6 +43,17 @@ class PhrasePlugin implements Plugin
         return $this;
     }
 
+    /**
+     * Discover phrase catalogs that own a schema but are not resources, such as
+     * Livewire form schemas on the public site.
+     */
+    public function discoverSchemaCatalogs(string $in, string $for): self
+    {
+        $this->schemaCatalogPaths[$in.'|'.$for] = ['path' => $in, 'namespace' => $for];
+
+        return $this;
+    }
+
     public function mode(PhraseMode $mode): self
     {
         $this->mode = $mode;
@@ -53,6 +70,12 @@ class PhrasePlugin implements Plugin
 
         if ($this->mode instanceof PhraseMode) {
             $registry->mode = $this->mode;
+        }
+
+        $catalogs = app(SchemaCatalogRegistry::class);
+
+        foreach ($this->schemaCatalogPaths as $path) {
+            $catalogs->discover(in: $path['path'], for: $path['namespace']);
         }
 
         app(PhraseBinder::class)->registerHooks();

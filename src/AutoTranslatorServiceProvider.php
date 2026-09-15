@@ -9,6 +9,7 @@ use Spatie\LaravelPackageTools\PackageServiceProvider;
 use Syriable\Filament\Plugins\AutoTranslator\Apply\ApplyPhrasesCommand;
 use Syriable\Filament\Plugins\AutoTranslator\Audit\AuditPhrasesCommand;
 use Syriable\Filament\Plugins\AutoTranslator\Audit\PhraseAuditor;
+use Syriable\Filament\Plugins\AutoTranslator\Discovery\SchemaCatalogRegistry;
 use Syriable\Filament\Plugins\AutoTranslator\Inspection\PhraseInspector;
 use Syriable\Filament\Plugins\AutoTranslator\Sync\SyncPhrasesCommand;
 
@@ -36,6 +37,7 @@ class AutoTranslatorServiceProvider extends PackageServiceProvider
         $this->app->singleton(PhraseResolver::class);
         $this->app->singleton(PhraseBinder::class);
         $this->app->singleton(PhraseInspector::class);
+        $this->app->singleton(SchemaCatalogRegistry::class);
         $this->app->singleton(PhraseAuditor::class);
     }
 }

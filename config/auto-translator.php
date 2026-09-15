@@ -51,6 +51,28 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Schema Catalog Paths
+    |--------------------------------------------------------------------------
+    |
+    | Directories scanned for phrase catalogs that own a schema but are not
+    | Filament resources, such as Livewire form schemas on the public site.
+    | A class is collected when it implements the PhraseCatalog contract and
+    | exposes a public static form(Schema) or configure(Schema) builder.
+    |
+    | Register a module once. Panel plugins can do the same through
+    | PhrasePlugin::make()->discoverSchemaCatalogs(in: ..., for: ...).
+    |
+    */
+
+    'schema_catalog_paths' => [
+        // [
+        //     'path' => base_path('modules/identity/src/Livewire/Schemas'),
+        //     'namespace' => 'Modules\\Identity\\Livewire\\Schemas',
+        // ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Inspect Query Parameter
     |--------------------------------------------------------------------------
     |

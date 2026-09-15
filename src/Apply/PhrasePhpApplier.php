@@ -21,6 +21,8 @@ use Illuminate\Support\Facades\File;
 use ReflectionClass;
 use Syriable\Filament\Plugins\AutoTranslator\Audit\ActionNotificationScanner;
 use Syriable\Filament\Plugins\AutoTranslator\Contracts\PhraseCatalog;
+use Syriable\Filament\Plugins\AutoTranslator\Discovery\SchemaCatalog;
+use Syriable\Filament\Plugins\AutoTranslator\Discovery\SchemaCatalogRegistry;
 use Syriable\Filament\Plugins\AutoTranslator\Enums\PhraseDecision;
 use Syriable\Filament\Plugins\AutoTranslator\Enums\PhraseSlot;
 use Syriable\Filament\Plugins\AutoTranslator\PhraseBinder;
@@ -38,6 +40,7 @@ class PhrasePhpApplier
         private ClassMethodEditor $classMethods,
         private SlotMethodMap $methods,
         private ActionNotificationScanner $notifications,
+        private SchemaCatalogRegistry $schemaCatalogs,
     ) {}
 
     /**
@@ -73,7 +76,48 @@ class PhrasePhpApplier
             ];
         }
 
+        foreach ($this->schemaCatalogs->catalogs() as $catalog) {
+            $writes = [...$writes, ...$this->applySchemaCatalog($catalog, $locale, $dryRun)];
+        }
+
         return $writes;
+    }
+
+    /**
+     * @return array<int, PhraseApplyWrite>
+     */
+    private function applySchemaCatalog(SchemaCatalog $catalog, string $locale, bool $dryRun): array
+    {
+        if (! $this->writer->isSafeCatalogId($catalog->catalogId)) {
+            return [];
+        }
+
+        $owner = new CatalogWalkLivewire;
+        $this->binder->setCatalogId($owner, $catalog->catalogId);
+
+        try {
+            $schema = $catalog->build(Schema::make($owner));
+        } catch (Throwable) {
+            return [];
+        }
+
+        if (! $schema instanceof Schema) {
+            return [];
+        }
+
+        $file = (new ReflectionClass($catalog->class))->getFileName();
+
+        if (! is_string($file)) {
+            return [];
+        }
+
+        return $this->applyComponents(
+            $schema->getComponents(),
+            [$file],
+            $catalog->catalogId,
+            $locale,
+            $dryRun,
+        );
     }
 
     /**

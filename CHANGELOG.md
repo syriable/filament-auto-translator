@@ -4,6 +4,13 @@ All notable changes to `syriable/filament-auto-translator` are documented in thi
 
 ## Unreleased
 
+### Added
+
+- Schema catalogs outside Filament resources. A class that implements `PhraseCatalog` and exposes a public static `form(Schema $schema): Schema` or `configure(Schema $schema): Schema` is walked by `phrases:audit`, `phrases:sync`, and `phrases:apply` alongside resources. A Livewire form on the public site can own its copy without being a resource, and without `BindsPhrases`.
+- Directory discovery for those catalogs, mirroring `discoverResources()`: `PhrasePlugin::make()->discoverSchemaCatalogs(in: …, for: …)`, `app(SchemaCatalogRegistry::class)->discover(in: …, for: …)` from a module service provider, or the `schema_catalog_paths` config key. Register a module once; never list classes.
+- `InvalidCatalogIdException` when a discovered catalog returns an id that is not dotted, such as `identity::users.edit`. A catalog id maps to a file path (`identity.user-edit` → `lang/{locale}/identity/user-edit.php`), so a namespaced translation key is not one.
+- `phrases:apply` writes setters for discovered schema catalogs into the catalog class's own file.
+
 ## 0.1.0 - 2026-09-12
 
 ### Added

@@ -24,6 +24,8 @@ use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Syriable\Filament\Plugins\AutoTranslator\Contracts\PhraseCatalog;
+use Syriable\Filament\Plugins\AutoTranslator\Discovery\SchemaCatalog;
+use Syriable\Filament\Plugins\AutoTranslator\Discovery\SchemaCatalogRegistry;
 use Syriable\Filament\Plugins\AutoTranslator\Enums\PhraseDecision;
 use Syriable\Filament\Plugins\AutoTranslator\Enums\PhraseScope;
 use Syriable\Filament\Plugins\AutoTranslator\Enums\PhraseSlot;
@@ -61,6 +63,7 @@ class PhraseAuditor
         private PhraseBinder $binder,
         private PhraseResolver $resolver,
         private ActionNotificationScanner $notificationScanner,
+        private SchemaCatalogRegistry $schemaCatalogs,
     ) {}
 
     /**
@@ -122,6 +125,10 @@ class PhraseAuditor
 
                 $this->auditResource($resource);
             }
+
+            foreach ($this->schemaCatalogs->catalogs() as $catalog) {
+                $this->auditSchemaCatalog($catalog);
+            }
         } finally {
             app()->setLocale($originalLocale);
         }
@@ -159,6 +166,33 @@ class PhraseAuditor
 
         $this->auditForm($resource, $catalogId, $owner);
         $this->auditTable($resource, $catalogId, $owner);
+    }
+
+    /**
+     * Walks a catalog that owns a schema but is not a Filament resource, such as
+     * a Livewire form schema on the public site.
+     */
+    private function auditSchemaCatalog(SchemaCatalog $catalog): void
+    {
+        $catalogId = $catalog->catalogId;
+        $owner = new CatalogWalkLivewire;
+        $this->binder->setCatalogId($owner, $catalogId);
+
+        try {
+            $schema = $catalog->build(Schema::make($owner));
+        } catch (Throwable) {
+            return;
+        }
+
+        if (! $schema instanceof Schema) {
+            return;
+        }
+
+        $this->walkedScopes[$catalogId]['form'] = true;
+
+        foreach ($schema->getComponents() as $component) {
+            $this->auditComponent($component, $catalogId);
+        }
     }
 
     /**

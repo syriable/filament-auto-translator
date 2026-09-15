@@ -18,6 +18,7 @@ TextInput::make('email')  →    'form' => ['components' => ['email' => ['label'
 - [How a phrase key is built](#how-a-phrase-key-is-built)
 - [Language file layout](#language-file-layout)
 - [Catalog ids and prefixes](#catalog-ids-and-prefixes)
+- [Schema catalogs outside resources](#schema-catalogs-outside-resources)
 - [What is bound automatically](#what-is-bound-automatically)
 - [Resource chrome](#resource-chrome)
 - [Modes](#modes)
@@ -653,6 +654,120 @@ public static function phraseCatalogId(): string
 
 Point a page or relation manager at the resource catalog as shown in [Quick start](#quick-start).
 
+## Schema catalogs outside resources
+
+Not every schema belongs to a resource. A Livewire form on the public site owns its copy the same way, so it can be a catalog too.
+
+A **schema catalog** is any class that:
+
+1. implements `PhraseCatalog`, and
+2. exposes a public **static** `form(Schema $schema): Schema` or `configure(Schema $schema): Schema`.
+
+```php
+namespace Modules\Identity\Livewire\Schemas\User;
+
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Schema;
+use Syriable\Filament\Plugins\AutoTranslator\Contracts\PhraseCatalog;
+
+class EditForm implements PhraseCatalog
+{
+    public static function phraseCatalogId(): string
+    {
+        return 'identity.user-edit';
+    }
+
+    public static function configure(Schema $schema): Schema
+    {
+        return $schema->components([
+            TextInput::make('name')->required(),
+            TextInput::make('email')->email(),
+        ]);
+    }
+}
+```
+
+`phrases:audit`, `phrases:sync`, and `phrases:apply` walk these alongside resources. `identity.user-edit` writes to `lang/{locale}/identity/user-edit.php`:
+
+```php
+return [
+    'form' => [
+        'components' => [
+            'name' => ['label' => 'Name'],
+            'email' => ['label' => 'Email'],
+        ],
+    ],
+];
+```
+
+The named class owns the catalog, not the Livewire component that renders it. A single-file Livewire component points at it instead of declaring its own id:
+
+```php
+public static function phraseCatalogId(): string
+{
+    return EditForm::phraseCatalogId();
+}
+```
+
+`BindsPhrases` and `BindsPagePhrases` stay on Filament resources and pages. A site Livewire component does not need them — the binder reads the catalog from the schema's owner.
+
+### Register a directory, not a class list
+
+Discovery mirrors `discoverResources()`: name a directory and its PSR-4 namespace **once per module**. Never enumerate every form class.
+
+From the panel plugin:
+
+```php
+PhrasePlugin::make()
+    ->catalogPrefixes(['Modules\\Identity' => 'identity'])
+    ->discoverSchemaCatalogs(
+        in: base_path('modules/identity/src/Livewire/Schemas'),
+        for: 'Modules\\Identity\\Livewire\\Schemas',
+    );
+```
+
+From a module service provider, for schemas that never appear in a panel:
+
+```php
+use Syriable\Filament\Plugins\AutoTranslator\Discovery\SchemaCatalogRegistry;
+
+public function boot(): void
+{
+    app(SchemaCatalogRegistry::class)->discover(
+        in: __DIR__.'/../Livewire/Schemas',
+        for: 'Modules\\Identity\\Livewire\\Schemas',
+    );
+}
+```
+
+Or from `config/auto-translator.php`:
+
+```php
+'schema_catalog_paths' => [
+    [
+        'path' => base_path('modules/identity/src/Livewire/Schemas'),
+        'namespace' => 'Modules\\Identity\\Livewire\\Schemas',
+    ],
+],
+```
+
+A directory is scanned once however many times it is registered. Subdirectories are included. Classes are collected when they implement `PhraseCatalog` **and** expose a static schema builder; everything else in the directory is skipped, so a plain schema class or a catalog with no builder costs nothing. Abstract classes and Filament resources are skipped too — resources keep the richer resource walk with chrome, pages, and table.
+
+### Catalog ids are dotted
+
+A catalog id is dotted segments, and only dotted segments:
+
+| Id | File | |
+| --- | --- | --- |
+| `identity.user-edit` | `lang/{locale}/identity/user-edit.php` | ✅ |
+| `identity::users.edit` | — | ❌ throws `InvalidCatalogIdException` |
+
+A namespaced translation key (`vendor::group.key`) is not a catalog id. Discovery throws `InvalidCatalogIdException` on one rather than writing a file you did not mean.
+
+### What is walked
+
+Only the schema the builder returns, under the `form` scope. Pruning is scoped to it: a component you delete from the schema loses its key on the next `phrases:sync`, and keys in other scopes are left alone. Model, navigation, page, and table chrome stay exclusive to resources.
+
 ## What is bound automatically
 
 After `PhrasePlugin` boots, the binder fills **unset** slots on:
@@ -824,6 +939,8 @@ If `form()` or `table()` throws, that scope is not pruned. `syncIdentities()` ne
 | `--dry-run` | Print what would be created or removed, write nothing |
 | `--no-prune` | Create missing keys only; keep language keys for deleted components |
 
+It walks registered Filament resources **and** discovered [schema catalogs](#schema-catalogs-outside-resources) in one pass — there is no separate command for them.
+
 Keep `phrases:audit` for CI. Use `phrases:sync` while scaffolding a resource, then replace stubs with real copy.
 
 ## Apply command
@@ -863,6 +980,8 @@ public static function getModelLabel(): string
 | `--locale=` | Which language file to read keys from. Default: app locale |
 | `--dry-run` | Print what would be written, change no PHP |
 
+It walks registered Filament resources and discovered [schema catalogs](#schema-catalogs-outside-resources). A schema catalog's setters are written into that catalog class's own file.
+
 Identifier-only PHP remains the default. Use `phrases:apply` only when you want keys visible in PHP.
 
 ## Configuration
@@ -874,6 +993,7 @@ Identifier-only PHP remains the default. Use `phrases:apply` only when you want 
 | `mode` | `PHRASE_MODE` | `inspect` | `inspect`, `strict`, or `lenient` |
 | `default_prefix` | — | `filament` | Prefix when no namespace map matches |
 | `catalog_prefixes` | — | `[]` | `['Modules\\Billing' => 'billing']` |
+| `schema_catalog_paths` | — | `[]` | `[['path' => …, 'namespace' => …]]` — directories scanned for [schema catalogs](#schema-catalogs-outside-resources) |
 | `inspect_query` | — | `phrases` | Reserved query-string key for request-level dumps (not consumed by the binder yet) |
 | `max_parent_depth` | — | `32` | Cap when walking parent schema components; exceeding it throws `ParentDepthExceededException` |
 
@@ -881,8 +1001,12 @@ Panel plugin options:
 
 ```php
 PhrasePlugin::make()
-    ->catalogPrefixes([/* … */])  // merged over config
-    ->mode(PhraseMode::Inspect);  // overrides config for this panel
+    ->catalogPrefixes([/* … */])   // merged over config
+    ->discoverSchemaCatalogs(      // merged with config paths
+        in: base_path('modules/identity/src/Livewire/Schemas'),
+        for: 'Modules\\Identity\\Livewire\\Schemas',
+    )
+    ->mode(PhraseMode::Inspect);   // overrides config for this panel
 ```
 
 ## Name rules
@@ -908,7 +1032,7 @@ Inside this monorepo the stub is already listed in the application `phpstan.neon
 
 v1 binds the slots listed above. Widgets, relation-manager chrome, and import/export are not hooked yet; use `->label()` / `Phrase::slot()` there.
 
-`phrases:audit` and `phrases:sync` walk registered resource forms, tables, action notification titles from action closures, model/navigation chrome, and page titles. They do not yet walk widgets or relation-manager chrome.
+`phrases:audit` and `phrases:sync` walk registered resource forms, tables, action notification titles from action closures, model/navigation chrome, and page titles, plus discovered schema catalogs. They do not yet walk widgets or relation-manager chrome.
 
 `inspect_query` is reserved configuration only.
 
