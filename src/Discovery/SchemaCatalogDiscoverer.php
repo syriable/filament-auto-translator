@@ -93,7 +93,7 @@ class SchemaCatalogDiscoverer
         /** @var class-string<PhraseCatalog> $class */
         $catalogId = $class::phraseCatalogId();
 
-        if (! $this->isDottedCatalogId($catalogId)) {
+        if (! $this->isCatalogId($catalogId)) {
             throw InvalidCatalogIdException::make($class, $catalogId);
         }
 
@@ -152,8 +152,10 @@ class SchemaCatalogDiscoverer
         return trim($namespace, '\\').'\\'.str_replace(['/', DIRECTORY_SEPARATOR], '\\', $relative);
     }
 
-    private function isDottedCatalogId(string $catalogId): bool
+    private function isCatalogId(string $catalogId): bool
     {
-        return (bool) preg_match('/^[A-Za-z0-9][A-Za-z0-9_-]*(\.[A-Za-z0-9][A-Za-z0-9_-]*)*$/', $catalogId);
+        $segment = '[A-Za-z0-9][A-Za-z0-9_-]*';
+
+        return (bool) preg_match("/^({$segment}::)?{$segment}(\.{$segment})*$/", $catalogId);
     }
 }

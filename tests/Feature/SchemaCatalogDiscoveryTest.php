@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Syriable\Filament\Plugins\AutoTranslator\Discovery\SchemaCatalogDiscoverer;
 use Syriable\Filament\Plugins\AutoTranslator\Discovery\SchemaCatalogRegistry;
 use Syriable\Filament\Plugins\AutoTranslator\Exceptions\InvalidCatalogIdException;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\InvalidIdForm;
 use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\NamespacedIdForm;
 use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\Schemas\Plain\AbstractForm;
 use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\Schemas\Plain\PlainForm;
@@ -76,9 +77,15 @@ it('returns nothing for a directory that does not exist', function () {
     expect($catalogs)->toBe([]);
 });
 
-it('rejects a catalog id that is not dotted', function () {
-    app(SchemaCatalogDiscoverer::class)->catalogFor(NamespacedIdForm::class);
-})->throws(InvalidCatalogIdException::class, 'identity::users.edit');
+it('accepts a catalog id namespaced against a translation namespace', function () {
+    $catalog = app(SchemaCatalogDiscoverer::class)->catalogFor(NamespacedIdForm::class);
+
+    expect($catalog?->catalogId)->toBe('identity::users.edit');
+});
+
+it('rejects a catalog id that is neither dotted nor namespaced', function () {
+    app(SchemaCatalogDiscoverer::class)->catalogFor(InvalidIdForm::class);
+})->throws(InvalidCatalogIdException::class, 'identity::users::edit');
 
 it('collects catalogs from a registered directory', function () {
     $catalogs = app(SchemaCatalogRegistry::class)
