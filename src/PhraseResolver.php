@@ -15,12 +15,12 @@ class PhraseResolver
         private PhraseKeyCompiler $compiler,
         private PhraseMemo $memo,
         private PhraseRegistry $registry,
-        private Translator $translator,
     ) {}
 
     public function resolve(PhraseIdentity $identity): PhraseResolution
     {
-        $locale = $this->translator->getLocale();
+        $translator = $this->translator();
+        $locale = $translator->getLocale();
         $cacheKey = $identity->cacheKey($locale);
         $cached = $this->memo->resolution($cacheKey);
 
@@ -30,13 +30,13 @@ class PhraseResolver
 
         $key = $this->compiler->compile($identity);
         $mode = $this->mode();
-        $fallbackLocale = $this->translator->getFallback();
-        $presentInCurrent = $this->translator->has($key, $locale, false);
+        $fallbackLocale = $translator->getFallback();
+        $presentInCurrent = $translator->has($key, $locale, false);
         $presentInFallback = $fallbackLocale !== $locale
-            && $this->translator->has($key, $fallbackLocale, false);
+            && $translator->has($key, $fallbackLocale, false);
 
         if ($presentInCurrent) {
-            $text = $this->translator->get($key, [], $locale);
+            $text = $translator->get($key, [], $locale);
 
             $resolution = new PhraseResolution(
                 identity: $identity,
@@ -54,7 +54,7 @@ class PhraseResolver
         }
 
         if ($presentInFallback) {
-            $text = $this->translator->get($key, [], $fallbackLocale);
+            $text = $translator->get($key, [], $fallbackLocale);
 
             $resolution = new PhraseResolution(
                 identity: $identity,
@@ -115,5 +115,16 @@ class PhraseResolver
     {
         return $this->registry->mode
             ?? PhraseMode::fromConfig((string) config('auto-translator.mode', 'inspect'));
+    }
+
+    /**
+     * Resolved on demand rather than constructor-injected: constructing PhraseResolver
+     * must not force Illuminate\Translation\Translator (and its FileLoader) to boot
+     * before the app has finished configuring the lang path (e.g. App::useLangPath()
+     * called from a later service provider, middleware, or a test's own setup).
+     */
+    private function translator(): Translator
+    {
+        return app(Translator::class);
     }
 }
