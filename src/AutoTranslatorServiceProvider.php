@@ -38,4 +38,9 @@ class AutoTranslatorServiceProvider extends PackageServiceProvider
         $this->app->singleton(PhraseInspector::class);
         $this->app->singleton(PhraseAuditor::class);
     }
+
+    public function packageBooted(): void
+    {
+        $this->app->make(PhraseBinder::class)->registerHooks();
+    }
 }
