@@ -4,11 +4,6 @@ All notable changes to `syriable/filament-auto-translator` are documented in thi
 
 ## Unreleased
 
-### Fixed
-
-- Binding hooks now register when the package boots (`AutoTranslatorServiceProvider::packageBooted()`), not only when a Filament panel carrying `PhrasePlugin` boots. Previously, a Livewire component outside any Resource or Panel (a standalone page, or any class implementing `HasSchemas` / `HasActions` directly) would silently stay unbound unless some panel with the plugin happened to boot first in that process.
-- `PhraseResolver` no longer constructor-injects `Illuminate\Translation\Translator`; it resolves it lazily on each call instead. Eagerly injecting it meant constructing `PhraseResolver` during package boot forced the translator's `FileLoader` to cache the lang path in effect at that moment, silently ignoring a later `App::useLangPath()` call (from another service provider, middleware, or test setup).
-
 ## 0.1.0 - 2026-09-12
 
 ### Added

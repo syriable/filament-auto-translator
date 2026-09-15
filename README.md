@@ -53,7 +53,7 @@ Opt in per class. Classes that do not implement `PhraseCatalog` are left alone.
 composer require syriable/filament-auto-translator
 ```
 
-The service provider is auto-discovered. It publishes config and registers `php artisan phrases:audit`, `phrases:sync`, and `phrases:apply`. Binding hooks are registered automatically when the package boots — no panel or plugin required. This also covers Livewire components that implement `HasSchemas` / `HasActions` outside of any Resource (standalone pages, custom components): as long as the class implements `PhraseCatalog`, its slots bind.
+The service provider is auto-discovered. It publishes config and registers `php artisan phrases:audit`, `phrases:sync`, and `phrases:apply`. Binding hooks run when the panel plugin boots.
 
 Publish the config file:
 
@@ -75,7 +75,7 @@ $panel->plugin(
 );
 ```
 
-The plugin is only needed for **panel-scoped** overrides — `catalogPrefixes()` and `mode()` merged on top of `config/auto-translator.php` for that specific panel. Binding itself (resource chrome, schema, table, and action slots) does not depend on the plugin or on any panel booting; it works from the published config alone.
+Without the plugin, resource chrome (`getModelLabel()`, navigation, page titles) still resolves through the trait. Schema, table, and action slots are **not** filled until the plugin boots.
 
 ## Quick start
 
