@@ -29,9 +29,9 @@ use Syriable\MessageCatalog\Tests\Fixtures\DomainTable;
 use Syriable\MessageCatalog\Tests\Fixtures\EditUser;
 
 beforeEach(function () {
-    config()->set('auto-translator.mode', 'inspect');
-    config()->set('auto-translator.default_prefix', 'filament');
-    config()->set('auto-translator.catalog_prefixes', []);
+    config()->set('messages.on_missing', 'debug');
+    config()->set('messages.default_domain_prefix', 'filament');
+    config()->set('messages.domain_prefixes', []);
     app(MessageBinder::class)->registerHooks();
 });
 

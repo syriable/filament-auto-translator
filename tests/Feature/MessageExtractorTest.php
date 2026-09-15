@@ -18,7 +18,7 @@ use Syriable\MessageCatalog\Extraction\MessageScanner;
 use Syriable\MessageCatalog\MessageIdentity;
 
 beforeEach(function () {
-    $this->langPath = sys_get_temp_dir().'/auto-translator-phrases-'.uniqid('', true);
+    $this->langPath = sys_get_temp_dir().'/messages-phrases-'.uniqid('', true);
     File::ensureDirectoryExists($this->langPath);
     app()->useLangPath($this->langPath);
 });
@@ -214,7 +214,7 @@ it('keeps nested layout keys when the catalog is bound on the walk owner', funct
 });
 
 it('reports that there is nothing to write when no catalogs are missing keys', function () {
-    $this->artisan('phrases:sync', ['--locale' => 'en', '--dry-run' => true])
+    $this->artisan('messages:extract', ['--locale' => 'en', '--dry-run' => true])
         ->expectsOutput('No phrase catalog changes.')
         ->assertSuccessful();
 });

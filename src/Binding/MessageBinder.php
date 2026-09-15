@@ -320,7 +320,7 @@ class MessageBinder
                 return $captured;
             }
 
-            if ($resolution->decision === ResolutionOutcome::Missing && $resolution->mode === MissingMessagePolicy::Lenient) {
+            if ($resolution->decision === ResolutionOutcome::Missing && $resolution->mode === MissingMessagePolicy::Fallback) {
                 return $captured;
             }
 
@@ -916,7 +916,7 @@ class MessageBinder
         $names = [];
         $current = $component;
         $depth = 0;
-        $maxDepth = (int) config('auto-translator.max_parent_depth', 32);
+        $maxDepth = (int) config('messages.max_parent_depth', 32);
 
         while ($depth < $maxDepth) {
             $depth++;
@@ -1055,7 +1055,7 @@ class MessageBinder
 
         $current = $component;
         $depth = 0;
-        $maxDepth = (int) config('auto-translator.max_parent_depth', 32);
+        $maxDepth = (int) config('messages.max_parent_depth', 32);
 
         while (is_object($current) && $depth < $maxDepth) {
             $override = $this->bindings->catalog($current);
@@ -1165,7 +1165,7 @@ class MessageBinder
         $current = $component;
         $container = null;
         $depth = 0;
-        $maxDepth = (int) config('auto-translator.max_parent_depth', 32);
+        $maxDepth = (int) config('messages.max_parent_depth', 32);
 
         while ($depth < $maxDepth) {
             $depth++;

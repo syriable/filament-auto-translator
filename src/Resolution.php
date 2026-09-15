@@ -17,7 +17,7 @@ class Resolution
         public string $locale = '',
         public bool $presentInCurrentLocale = false,
         public bool $presentInFallbackLocale = false,
-        public MissingMessagePolicy $mode = MissingMessagePolicy::Inspect,
+        public MissingMessagePolicy $mode = MissingMessagePolicy::Debug,
         public string $reason = '',
     ) {}
 

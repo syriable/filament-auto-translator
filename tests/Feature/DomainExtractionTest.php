@@ -9,7 +9,7 @@ use Syriable\MessageCatalog\Extraction\MessageExtractor;
 use Syriable\MessageCatalog\Extraction\MessageScanner;
 
 beforeEach(function () {
-    $this->langPath = sys_get_temp_dir().'/auto-translator-schemas-'.uniqid('', true);
+    $this->langPath = sys_get_temp_dir().'/messages-schemas-'.uniqid('', true);
     File::ensureDirectoryExists($this->langPath);
     app()->useLangPath($this->langPath);
 });
@@ -109,10 +109,10 @@ it('writes nothing when no discovery path is registered', function () {
         ->and(is_file(lang_path('en/identity/user-edit.php')))->toBeFalse();
 });
 
-it('includes discovered schema catalogs in the phrases:sync command', function () {
+it('includes discovered schema catalogs in the messages:extract command', function () {
     discoverSchemaFixtures();
 
-    $this->artisan('phrases:sync', ['--locale' => 'en,ar'])
+    $this->artisan('messages:extract', ['--locale' => 'en,ar'])
         ->assertSuccessful();
 
     $english = include lang_path('en/identity/user-edit.php');

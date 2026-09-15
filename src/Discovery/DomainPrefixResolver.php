@@ -33,7 +33,7 @@ class DomainPrefixResolver
         }
 
         if ($matches === []) {
-            return (string) config('auto-translator.default_prefix', 'filament');
+            return (string) config('messages.default_domain_prefix', 'filament');
         }
 
         $longest = '';
@@ -63,7 +63,7 @@ class DomainPrefixResolver
     public function prefixes(): array
     {
         /** @var array<string, string> $configured */
-        $configured = config('auto-translator.catalog_prefixes', []);
+        $configured = config('messages.domain_prefixes', []);
 
         return [...$configured, ...$this->registry->prefixes];
     }

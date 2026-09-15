@@ -18,7 +18,7 @@ return [
     |
     */
 
-    'mode' => env('PHRASE_MODE', 'inspect'),
+    'on_missing' => env('MESSAGES_ON_MISSING', 'fallback'),
 
     /*
     |--------------------------------------------------------------------------
@@ -31,7 +31,7 @@ return [
     |
     */
 
-    'default_prefix' => 'filament',
+    'default_domain_prefix' => 'filament',
 
     /*
     |--------------------------------------------------------------------------
@@ -44,7 +44,7 @@ return [
     |
     */
 
-    'catalog_prefixes' => [
+    'domain_prefixes' => [
         // 'Modules\\Billing' => 'billing',
         // 'App\\Filament' => 'filament',
     ],
@@ -64,7 +64,7 @@ return [
     |
     */
 
-    'schema_catalog_paths' => [
+    'discover_paths' => [
         // [
         //     'path' => base_path('modules/identity/src/Livewire/Schemas'),
         //     'namespace' => 'Modules\\Identity\\Livewire\\Schemas',
@@ -82,7 +82,7 @@ return [
     |
     */
 
-    'inspect_query' => 'phrases',
+    'debug_query' => 'messages',
 
     /*
     |--------------------------------------------------------------------------

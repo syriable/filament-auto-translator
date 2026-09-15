@@ -10,7 +10,7 @@ use Syriable\MessageCatalog\Apply\PhrasePhpApplier;
 
 class InlineMessagesCommand extends Command
 {
-    protected $signature = 'phrases:apply
+    protected $signature = 'messages:inline
         {--locale= : Locale whose language file supplies the keys}
         {--dry-run : Show methods that would be written without changing PHP}';
 

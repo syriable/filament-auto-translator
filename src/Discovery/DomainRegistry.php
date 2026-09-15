@@ -75,7 +75,7 @@ class DomainRegistry
      */
     private function configured(): array
     {
-        $entries = config('auto-translator.schema_catalog_paths', []);
+        $entries = config('messages.discover_paths', []);
         $definitions = [];
 
         if (! is_array($entries)) {

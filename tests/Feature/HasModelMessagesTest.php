@@ -8,9 +8,9 @@ use Syriable\MessageCatalog\Enums\MissingMessagePolicy;
 use Syriable\MessageCatalog\Tests\Fixtures\CatalogOwner;
 
 beforeEach(function () {
-    config()->set('auto-translator.mode', 'inspect');
-    config()->set('auto-translator.default_prefix', 'filament');
-    config()->set('auto-translator.catalog_prefixes', []);
+    config()->set('messages.on_missing', 'debug');
+    config()->set('messages.default_domain_prefix', 'filament');
+    config()->set('messages.domain_prefixes', []);
     app(MessageOverrides::class)->mode = null;
 });
 
@@ -35,7 +35,7 @@ it('surfaces compiled chrome keys when required phrases are missing in inspect m
 });
 
 it('keeps parent chrome when required phrases are missing in lenient mode', function () {
-    app(MessageOverrides::class)->mode = MissingMessagePolicy::Lenient;
+    app(MessageOverrides::class)->mode = MissingMessagePolicy::Fallback;
 
     expect(CatalogOwner::getModelLabel())->toBe('parent model')
         ->and(CatalogOwner::getPluralModelLabel())->toBe('parent models')

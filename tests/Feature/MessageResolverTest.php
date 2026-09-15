@@ -13,7 +13,7 @@ use Syriable\MessageCatalog\Exceptions\MissingMessageException;
 use Syriable\MessageCatalog\MessageIdentity;
 
 beforeEach(function () {
-    config()->set('auto-translator.mode', 'inspect');
+    config()->set('messages.on_missing', 'debug');
     app(MessageOverrides::class)->mode = null;
 });
 

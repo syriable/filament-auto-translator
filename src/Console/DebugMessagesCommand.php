@@ -10,7 +10,7 @@ use Syriable\MessageCatalog\Extraction\MessageScanner;
 
 class DebugMessagesCommand extends Command
 {
-    protected $signature = 'phrases:audit
+    protected $signature = 'messages:debug
         {--locale= : Locale to check}
         {--fail-on-missing : Fail when required phrases are missing}
         {--fail-on-fallback : Fail when the current locale uses the fallback locale}';

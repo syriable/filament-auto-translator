@@ -24,8 +24,8 @@ class MessageCatalogServiceProvider extends PackageServiceProvider
     public function configurePackage(Package $package): void
     {
         $package
-            ->name('auto-translator')
-            ->hasConfigFile('auto-translator')
+            ->name('messages')
+            ->hasConfigFile('messages')
             ->hasCommands(
                 DebugMessagesCommand::class,
                 ExtractMessagesCommand::class,

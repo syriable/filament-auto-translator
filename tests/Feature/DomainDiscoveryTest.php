@@ -98,7 +98,7 @@ it('collects catalogs from a registered directory', function () {
 });
 
 it('collects catalogs from configured discovery paths', function () {
-    config()->set('auto-translator.schema_catalog_paths', [
+    config()->set('messages.discover_paths', [
         ['path' => schemaFixturePath(), 'namespace' => SCHEMA_FIXTURE_NAMESPACE],
     ]);
 
@@ -107,7 +107,7 @@ it('collects catalogs from configured discovery paths', function () {
 });
 
 it('ignores malformed configured discovery paths', function () {
-    config()->set('auto-translator.schema_catalog_paths', [
+    config()->set('messages.discover_paths', [
         ['path' => schemaFixturePath()],
         'not-an-array',
         ['path' => '', 'namespace' => ''],

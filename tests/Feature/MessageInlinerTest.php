@@ -13,7 +13,7 @@ use Syriable\MessageCatalog\Catalog\CatalogWriter;
 use Syriable\MessageCatalog\Extraction\ExtractionHost;
 
 beforeEach(function () {
-    $this->langPath = sys_get_temp_dir().'/auto-translator-apply-lang-'.uniqid('', true);
+    $this->langPath = sys_get_temp_dir().'/messages-apply-lang-'.uniqid('', true);
     File::ensureDirectoryExists($this->langPath);
     app()->useLangPath($this->langPath);
 });
@@ -34,7 +34,7 @@ it('writes label and placeholder methods for keys present in the language file',
         ],
     ]);
 
-    $phpPath = sys_get_temp_dir().'/auto-translator-apply-'.uniqid('', true).'.php';
+    $phpPath = sys_get_temp_dir().'/messages-apply-'.uniqid('', true).'.php';
     File::put($phpPath, <<<'PHP'
 <?php
 
@@ -75,7 +75,7 @@ it('rewrites a raw catalog key on an existing setter and adds missing methods', 
         ],
     ]);
 
-    $phpPath = sys_get_temp_dir().'/auto-translator-apply-'.uniqid('', true).'.php';
+    $phpPath = sys_get_temp_dir().'/messages-apply-'.uniqid('', true).'.php';
     File::put($phpPath, <<<'PHP'
 <?php
 
@@ -117,7 +117,7 @@ it('does not write methods for keys missing from the language file', function ()
         ],
     ]);
 
-    $phpPath = sys_get_temp_dir().'/auto-translator-apply-'.uniqid('', true).'.php';
+    $phpPath = sys_get_temp_dir().'/messages-apply-'.uniqid('', true).'.php';
     File::put($phpPath, <<<'PHP'
 <?php
 
@@ -165,7 +165,7 @@ it('writes notification title from the language file onto Notification::make', f
         ],
     ]);
 
-    $phpPath = sys_get_temp_dir().'/auto-translator-apply-'.uniqid('', true).'.php';
+    $phpPath = sys_get_temp_dir().'/messages-apply-'.uniqid('', true).'.php';
     File::put($phpPath, <<<'PHP'
 <?php
 
@@ -203,7 +203,7 @@ PHP);
 });
 
 it('writes getModelLabel when the language file has model_label', function () {
-    $phpPath = sys_get_temp_dir().'/auto-translator-apply-'.uniqid('', true).'.php';
+    $phpPath = sys_get_temp_dir().'/messages-apply-'.uniqid('', true).'.php';
     File::put($phpPath, <<<'PHP'
 <?php
 

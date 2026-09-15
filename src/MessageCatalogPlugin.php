@@ -32,7 +32,7 @@ class MessageCatalogPlugin implements Plugin
 
     public function getId(): string
     {
-        return 'syriable-filament-auto-translator';
+        return 'syriable-filament-messages';
     }
 
     /**

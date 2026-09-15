@@ -10,7 +10,7 @@ use Syriable\MessageCatalog\Extraction\MessageExtractor;
 
 class ExtractMessagesCommand extends Command
 {
-    protected $signature = 'phrases:sync
+    protected $signature = 'messages:extract
         {--locale= : Locale to write, or comma-separated locales}
         {--dry-run : Show missing and orphan keys without writing files}
         {--no-prune : Keep language keys for components that were removed}';

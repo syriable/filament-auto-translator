@@ -107,7 +107,7 @@ class MessageResolver
             throw MissingMessageException::forKey($resolution->key);
         }
 
-        if ($required && $resolution->mode === MissingMessagePolicy::Inspect) {
+        if ($required && $resolution->mode === MissingMessagePolicy::Debug) {
             $resolution->text = $resolution->key;
 
             return $resolution;
@@ -119,6 +119,6 @@ class MessageResolver
     public function mode(): MissingMessagePolicy
     {
         return $this->registry->mode
-            ?? MissingMessagePolicy::fromConfig((string) config('auto-translator.mode', 'inspect'));
+            ?? MissingMessagePolicy::fromConfig((string) config('messages.on_missing', 'fallback'));
     }
 }

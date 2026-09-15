@@ -6,12 +6,12 @@ namespace Syriable\MessageCatalog\Enums;
 
 enum MissingMessagePolicy: string
 {
-    case Inspect = 'inspect';
+    case Debug = 'debug';
     case Strict = 'strict';
-    case Lenient = 'lenient';
+    case Fallback = 'fallback';
 
     public static function fromConfig(string $value): self
     {
-        return self::tryFrom($value) ?? self::Inspect;
+        return self::tryFrom($value) ?? self::Fallback;
     }
 }

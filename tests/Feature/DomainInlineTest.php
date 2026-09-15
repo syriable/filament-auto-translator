@@ -8,13 +8,13 @@ use Syriable\MessageCatalog\Catalog\CatalogWriter;
 use Syriable\MessageCatalog\Discovery\DomainRegistry;
 
 beforeEach(function () {
-    $this->langPath = sys_get_temp_dir().'/auto-translator-apply-lang-'.uniqid('', true);
+    $this->langPath = sys_get_temp_dir().'/messages-apply-lang-'.uniqid('', true);
     File::ensureDirectoryExists($this->langPath);
     app()->useLangPath($this->langPath);
 
     // The applier only edits PHP under base_path() or the temp directory, so the
     // catalog has to live somewhere it is allowed to write.
-    $this->schemaPath = sys_get_temp_dir().'/auto-translator-schemas-'.uniqid('', true);
+    $this->schemaPath = sys_get_temp_dir().'/messages-schemas-'.uniqid('', true);
     $this->namespace = 'MessageCatalogTempSchemas'.str_replace('.', '', uniqid('', true));
     File::ensureDirectoryExists($this->schemaPath);
 

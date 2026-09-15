@@ -6,7 +6,7 @@ use Syriable\MessageCatalog\Binding\MessageOverrides;
 use Syriable\MessageCatalog\Discovery\DomainPrefixResolver;
 
 it('builds a catalog id from the longest matching namespace prefix', function () {
-    config()->set('auto-translator.catalog_prefixes', [
+    config()->set('messages.domain_prefixes', [
         'App\\Filament' => 'filament',
         'Modules\\Billing' => 'billing',
     ]);
@@ -20,8 +20,8 @@ it('builds a catalog id from the longest matching namespace prefix', function ()
 });
 
 it('does not change the catalog id when the class is renamed but phraseCatalogId stays the same', function () {
-    config()->set('auto-translator.default_prefix', 'filament');
-    config()->set('auto-translator.catalog_prefixes', []);
+    config()->set('messages.default_domain_prefix', 'filament');
+    config()->set('messages.domain_prefixes', []);
 
     $resolver = new DomainPrefixResolver(new MessageOverrides);
 
@@ -30,8 +30,8 @@ it('does not change the catalog id when the class is renamed but phraseCatalogId
 });
 
 it('uses the configured default prefix when no namespace matches', function () {
-    config()->set('auto-translator.default_prefix', 'filament');
-    config()->set('auto-translator.catalog_prefixes', []);
+    config()->set('messages.default_domain_prefix', 'filament');
+    config()->set('messages.domain_prefixes', []);
 
     $resolver = new DomainPrefixResolver(new MessageOverrides);
 
@@ -40,7 +40,7 @@ it('uses the configured default prefix when no namespace matches', function () {
 });
 
 it('prefers the longest namespace prefix when one namespace contains another', function () {
-    config()->set('auto-translator.catalog_prefixes', [
+    config()->set('messages.domain_prefixes', [
         'App\\Filament' => 'filament',
         'App\\Filament\\Admin' => 'admin',
     ]);
