@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures;
+namespace Syriable\MessageCatalog\Tests\Fixtures;
 
 use Illuminate\Contracts\Support\Htmlable;
 

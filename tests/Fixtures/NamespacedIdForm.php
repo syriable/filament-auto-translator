@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures;
+namespace Syriable\MessageCatalog\Tests\Fixtures;
 
 use Filament\Schemas\Schema;
-use Syriable\Filament\Plugins\AutoTranslator\Contracts\PhraseCatalog;
+use Syriable\MessageCatalog\Contracts\PhraseCatalog;
 
 class NamespacedIdForm implements PhraseCatalog
 {

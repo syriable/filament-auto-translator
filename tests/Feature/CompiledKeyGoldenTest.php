@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Syriable\Filament\Plugins\AutoTranslator\Audit\PhraseAuditor;
-use Syriable\Filament\Plugins\AutoTranslator\Discovery\SchemaCatalogRegistry;
+use Syriable\MessageCatalog\Discovery\DomainRegistry;
+use Syriable\MessageCatalog\Extraction\MessageScanner;
 
 /**
  * Pins the compiled key surface.
@@ -15,12 +15,12 @@ use Syriable\Filament\Plugins\AutoTranslator\Discovery\SchemaCatalogRegistry;
  */
 function goldenKeys(): array
 {
-    app(SchemaCatalogRegistry::class)->discover(
+    app(DomainRegistry::class)->discover(
         in: dirname(__DIR__).'/Fixtures/Schemas',
-        for: 'Syriable\\Filament\\Plugins\\AutoTranslator\\Tests\\Fixtures\\Schemas',
+        for: 'Syriable\\MessageCatalog\\Tests\\Fixtures\\Schemas',
     );
 
-    $keys = array_column(app(PhraseAuditor::class)->audit('en'), 'key');
+    $keys = array_column(app(MessageScanner::class)->audit('en'), 'key');
 
     sort($keys);
 

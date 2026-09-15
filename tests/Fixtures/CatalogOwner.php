@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures;
+namespace Syriable\MessageCatalog\Tests\Fixtures;
 
-use Syriable\Filament\Plugins\AutoTranslator\Concerns\BindsPhrases;
-use Syriable\Filament\Plugins\AutoTranslator\Contracts\PhraseCatalog;
+use Syriable\MessageCatalog\Concerns\HasModelMessages;
+use Syriable\MessageCatalog\Contracts\PhraseCatalog;
 
 class CatalogOwner extends CatalogChromeParent implements PhraseCatalog
 {
-    use BindsPhrases;
+    use HasModelMessages;
 }

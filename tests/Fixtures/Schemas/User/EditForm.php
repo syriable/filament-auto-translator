@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\Schemas\User;
+namespace Syriable\MessageCatalog\Tests\Fixtures\Schemas\User;
 
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
-use Syriable\Filament\Plugins\AutoTranslator\Contracts\PhraseCatalog;
+use Syriable\MessageCatalog\Contracts\PhraseCatalog;
 
 class EditForm implements PhraseCatalog
 {

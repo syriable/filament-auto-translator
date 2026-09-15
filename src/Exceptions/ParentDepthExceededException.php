@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Filament\Plugins\AutoTranslator\Exceptions;
+namespace Syriable\MessageCatalog\Exceptions;
 
 use RuntimeException;
 

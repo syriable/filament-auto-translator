@@ -60,7 +60,7 @@ return [
     | exposes a public static form(Schema) or configure(Schema) builder.
     |
     | Register a module once. Panel plugins can do the same through
-    | PhrasePlugin::make()->discoverSchemaCatalogs(in: ..., for: ...).
+    | MessageCatalogPlugin::make()->discoverDiscoveredDomains(in: ..., for: ...).
     |
     */
 

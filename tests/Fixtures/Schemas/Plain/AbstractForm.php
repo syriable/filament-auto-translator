@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\Schemas\Plain;
+namespace Syriable\MessageCatalog\Tests\Fixtures\Schemas\Plain;
 
 use Filament\Schemas\Schema;
-use Syriable\Filament\Plugins\AutoTranslator\Contracts\PhraseCatalog;
+use Syriable\MessageCatalog\Contracts\PhraseCatalog;
 
 abstract class AbstractForm implements PhraseCatalog
 {

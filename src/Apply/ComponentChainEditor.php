@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Filament\Plugins\AutoTranslator\Apply;
+namespace Syriable\MessageCatalog\Apply;
 
 class ComponentChainEditor
 {
