@@ -11,7 +11,7 @@ use Syriable\MessageCatalog\Tests\Fixtures\Schemas\User\EditForm;
 
 it('hands registered discovery paths to the catalog registry on boot', function () {
     MessageCatalogPlugin::make()
-        ->discoverDiscoveredDomains(
+        ->discoverIn(
             in: dirname(__DIR__).'/Fixtures/Schemas',
             for: 'Syriable\\MessageCatalog\\Tests\\Fixtures\\Schemas',
         )
@@ -23,8 +23,8 @@ it('hands registered discovery paths to the catalog registry on boot', function 
 
 it('still merges catalog prefixes and mode on boot', function () {
     MessageCatalogPlugin::make()
-        ->catalogPrefixes(['Modules\\Identity' => 'identity'])
-        ->mode(MissingMessagePolicy::Strict)
+        ->domainPrefixes(['Modules\\Identity' => 'identity'])
+        ->onMissing(MissingMessagePolicy::Strict)
         ->boot(Panel::make());
 
     $registry = app(MessageOverrides::class);

@@ -21,9 +21,9 @@ class MessageCatalogPlugin implements Plugin
     /**
      * @var array<string, array{path: string, namespace: string}>
      */
-    private array $schemaCatalogPaths = [];
+    private array $discoverPaths = [];
 
-    private ?MissingMessagePolicy $mode = null;
+    private ?MissingMessagePolicy $policy = null;
 
     public static function make(): self
     {
@@ -38,7 +38,7 @@ class MessageCatalogPlugin implements Plugin
     /**
      * @param  array<string, string>  $prefixes
      */
-    public function catalogPrefixes(array $prefixes): self
+    public function domainPrefixes(array $prefixes): self
     {
         $this->prefixes = $prefixes;
 
@@ -46,19 +46,19 @@ class MessageCatalogPlugin implements Plugin
     }
 
     /**
-     * Discover phrase catalogs that own a schema but are not resources, such as
+     * Discover schema classes that declare a translation domain, such as
      * Livewire form schemas on the public site.
      */
-    public function discoverDiscoveredDomains(string $in, string $for): self
+    public function discoverIn(string $in, string $for): self
     {
-        $this->schemaCatalogPaths[$in.'|'.$for] = ['path' => $in, 'namespace' => $for];
+        $this->discoverPaths[$in.'|'.$for] = ['path' => $in, 'namespace' => $for];
 
         return $this;
     }
 
-    public function mode(MissingMessagePolicy $mode): self
+    public function onMissing(MissingMessagePolicy $policy): self
     {
-        $this->mode = $mode;
+        $this->policy = $policy;
 
         return $this;
     }
@@ -70,13 +70,13 @@ class MessageCatalogPlugin implements Plugin
         $registry = app(MessageOverrides::class);
         $registry->prefixes = [...$registry->prefixes, ...$this->prefixes];
 
-        if ($this->mode instanceof MissingMessagePolicy) {
-            $registry->mode = $this->mode;
+        if ($this->policy instanceof MissingMessagePolicy) {
+            $registry->mode = $this->policy;
         }
 
         $catalogs = app(DomainRegistry::class);
 
-        foreach ($this->schemaCatalogPaths as $path) {
+        foreach ($this->discoverPaths as $path) {
             $catalogs->discover(in: $path['path'], for: $path['namespace']);
         }
 
