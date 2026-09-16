@@ -186,3 +186,41 @@ it('prunes a validation attribute whose field left the schema', function () {
 
     expect($written['form']['components'])->not->toHaveKey('deleted_field');
 });
+
+it('writes a first language file into a module that has none', function () {
+    File::ensureDirectoryExists(base_path('modules/billing'));
+
+    try {
+        $writes = app(MessageExtractor::class)->writeFindings([[
+            'key' => 'billing::invoice.form.components.total.label',
+            'catalog' => 'billing::invoice',
+            'decision' => 'missing',
+            'locale' => 'en',
+            'text' => null,
+        ]], 'en');
+
+        $written = base_path('modules/billing/resources/lang/en/invoice.php');
+
+        expect($writes)->toHaveCount(1)
+            ->and(is_file($written))->toBeTrue()
+            ->and(include $written)->toBe(['form' => ['components' => ['total' => ['label' => 'Total']]]])
+            ->and(app(CatalogWriter::class)->registeredNamespaces())
+            ->toBe(['billing' => base_path('modules/billing').'/resources/lang']);
+    } finally {
+        File::deleteDirectory(base_path('modules'));
+    }
+});
+
+it('reports the namespace it had to register itself', function () {
+    File::ensureDirectoryExists(base_path('modules/billing'));
+
+    try {
+        app(CatalogWriter::class)->ensureNamespace('billing::invoice');
+
+        $this->artisan('translations:extract')
+            ->expectsOutputToContain('Registered the translation namespace [billing]')
+            ->assertSuccessful();
+    } finally {
+        File::deleteDirectory(base_path('modules'));
+    }
+});

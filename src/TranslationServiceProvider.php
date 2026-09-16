@@ -12,6 +12,7 @@ use Syriable\Translation\Binding\MessageBinder;
 use Syriable\Translation\Binding\MessageOverrides;
 use Syriable\Translation\Binding\ResolutionCache;
 use Syriable\Translation\Binding\ResolutionExplainer;
+use Syriable\Translation\Catalog\CatalogWriter;
 use Syriable\Translation\Catalog\MessageResolver;
 use Syriable\Translation\Console\DebugMessagesCommand;
 use Syriable\Translation\Console\ExtractMessagesCommand;
@@ -44,6 +45,7 @@ class TranslationServiceProvider extends PackageServiceProvider
         $this->app->singleton(EmbeddedSchemas::class);
         $this->app->singleton(MessageKeyBuilder::class);
         $this->app->singleton(DomainPrefixResolver::class);
+        $this->app->singleton(CatalogWriter::class);
         $this->app->singleton(MessageResolver::class);
         $this->app->singleton(MessageBinder::class);
         $this->app->singleton(ResolutionExplainer::class);

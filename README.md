@@ -861,6 +861,35 @@ A chrome builder that throws, one reading the signed-in user say, leaves the
 `form` scope unpruned for that catalog rather than letting its keys look
 orphaned. Deleting live copy is the one failure a rerun cannot undo.
 
+### A module with no language directory
+
+A module keeps its copy under its own translation namespace, and Laravel knows
+that namespace only because something registered it — which a module package
+does only once `resources/lang` is there. A module that has never been
+translated therefore has no namespace, and `translations:extract`, the command
+whose job is to write its first language file, used to stop on it:
+
+```
+Catalog id [billing::invoice] is namespaced under [billing], but no translation
+namespace by that name is registered.
+```
+
+Extraction now registers the namespace itself and carries on, reporting it:
+
+```
+Registered the translation namespace [billing] at modules/billing/resources/lang;
+the module had no language directory yet.
+```
+
+The module has to exist: the name is looked up through the module package when
+one is installed, and otherwise under [`module_path`](#configuration). A name
+matching no module is still unknown and still throws, so a typo stays loud.
+
+Only the namespace is registered — the directory arrives with the first file
+written into it, so `--dry-run` writes nothing. That first file is also the
+lasting fix, because the directory is what the module package looks for when it
+registers the namespace on the next boot.
+
 ## What is bound automatically
 
 After `TranslationPlugin` boots, the binder fills **unset** slots on:
@@ -1179,6 +1208,7 @@ Identifier-only PHP remains the default. Use `translations:inline` only when you
 | `default_domain_prefix` | — | `filament` | Prefix when no namespace map matches |
 | `domain_prefixes` | — | `[]` | `['Modules\\Billing' => 'billing']` |
 | `discover_paths` | — | `[]` | `[['path' => …, 'namespace' => …]]` — directories scanned for [schema domains](#schema-domains-outside-resources) |
+| `module_path` | — | `modules` | Where modules live, relative to the base path — see [a module with no language directory](#a-module-with-no-language-directory) |
 | `max_parent_depth` | — | `32` | Cap when walking parent schema components; exceeding it throws `ParentDepthExceededException` |
 
 Panel plugin options:
