@@ -9,7 +9,7 @@ use WeakMap;
 class ComponentBindings
 {
     /**
-     * @var WeakMap<object, array{messageName:?string, domain:?string, owner:?object}>
+     * @var WeakMap<object, array{messageName:?string, domain:?string, owner:?object, replace:array<string, mixed>}>
      */
     private WeakMap $bindings;
 
@@ -29,6 +29,16 @@ class ComponentBindings
     {
         $current = $this->binding($component);
         $current['domain'] = $id;
+        $this->bindings[$component] = $current;
+    }
+
+    /**
+     * @param  array<string, mixed>  $replace
+     */
+    public function setReplace(object $component, array $replace): void
+    {
+        $current = $this->binding($component);
+        $current['replace'] = [...$current['replace'], ...$replace];
         $this->bindings[$component] = $current;
     }
 
@@ -55,10 +65,23 @@ class ComponentBindings
     }
 
     /**
-     * @return array{messageName:?string, domain:?string, owner:?object}
+     * @return array<string, mixed>
+     */
+    public function replace(object $component): array
+    {
+        return $this->binding($component)['replace'];
+    }
+
+    /**
+     * @return array{messageName:?string, domain:?string, owner:?object, replace:array<string, mixed>}
      */
     private function binding(object $component): array
     {
-        return $this->bindings[$component] ?? ['messageName' => null, 'domain' => null, 'owner' => null];
+        return $this->bindings[$component] ?? [
+            'messageName' => null,
+            'domain' => null,
+            'owner' => null,
+            'replace' => [],
+        ];
     }
 }

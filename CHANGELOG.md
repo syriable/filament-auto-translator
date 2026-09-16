@@ -12,6 +12,21 @@ document and no earlier behaviour to preserve.
 
 ### Added
 
+- **`messageReplace()`.** Declares what a bound line's `:placeholder` stands for,
+  so copy needing a URL, a count or a name stays automatic instead of falling
+  back to a hand-written `__()`. A closure is resolved when the slot renders,
+  not when the component is built. Replacements are per component and never
+  enter the resolution cache.
+- **The chrome builder.** A public static `make()` taking no required argument
+  and returning a schema component is walked alongside `form()`/`configure()`,
+  so the section a form class wraps its fields in — its heading, its footer —
+  no longer needs its copy written by hand. The embedded schema node is skipped,
+  so no existing key moves; a builder that throws leaves its scope unpruned.
+- **Every child schema is walked**, not only a component's default one, so copy
+  in a section's footer or header is reached. Catalogs using those will see new
+  optional keys offered on the next `translations:extract`; nothing already
+  translated stops resolving.
+
 - **Message binding.** Filament fills an unset label, heading, hint, placeholder,
   description or modal string from the language file, so PHP keeps machine names
   and the copy lives in `lang/`. An explicit `->label('…')` always wins; the

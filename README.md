@@ -803,7 +803,54 @@ A namespaced translation key (`vendor::group.key`) is not a translation domain. 
 
 ### What is walked
 
-Only the schema the builder returns, under the `form` scope. Pruning is scoped to it: a component you delete from the schema loses its key on the next `translations:extract`, and keys in other scopes are left alone. Model, navigation, page, and table chrome stay exclusive to resources.
+The schema the builder returns, under the `form` scope, **and the chrome a
+second builder wraps it in**. Pruning is scoped to `form`: a component you
+delete loses its key on the next `translations:extract`, and keys in other
+scopes are left alone. Model, navigation, page, and table chrome stay
+exclusive to resources.
+
+Every child schema of a component is walked, not only its default one, so copy
+in a section's footer or header is reached like any other.
+
+### The chrome builder
+
+A form class often describes its wrapper separately from its fields — the
+section around them, its heading, its footer — in a builder that takes no
+`Schema`. The schema walk cannot reach that, so its copy used to be written by
+hand. A public **static** method named `make()` taking no required argument and
+returning a `Filament\Schemas\Components\Component` is now walked too:
+
+```php
+#[TranslationDomain('auth::login')]
+final class LoginForm
+{
+    public static function make(): Form
+    {
+        return Form::make([
+            Section::make()
+                ->key('login')                        // the machine name
+                ->schema([EmbeddedSchema::make('form')])
+                ->footer([Text::make('terms')]),
+        ]);
+    }
+
+    public static function configure(Schema $schema): Schema
+    {
+        return $schema->components([TextInput::make('email')]);
+    }
+}
+// form.components.login.heading            optional, never stubbed
+// form.components.login.schema.terms.body
+// form.components.email.label              unchanged by the chrome walk
+```
+
+The embedded schema node is skipped, so the fields keep the paths they already
+had rather than moving under the wrapper — **a catalog that gains chrome does
+not move a single existing key.**
+
+A chrome builder that throws, one reading the signed-in user say, leaves the
+`form` scope unpruned for that catalog rather than letting its keys look
+orphaned. Deleting live copy is the one failure a rerun cannot undo.
 
 ## What is bound automatically
 
@@ -899,7 +946,30 @@ TextInput::make('email')->label('Work email');     // catalog not used for label
 AddressSchema::make()->domain('shared.address');   // this subtree uses another translation domain
 ```
 
-`messageName()` and `domain()` are macros on `Filament\Support\Components\Component`. They store bindings in a `WeakMap` (no dynamic properties on Filament objects).
+### Placeholders in bound copy
+
+The binder reads a line from the catalog with no replacements, so a line
+holding `:name` would render the placeholder. `messageReplace()` declares what
+to put there, and the slot stays automatic:
+
+```php
+Text::make('terms')->messageReplace([
+    'privacy_url' => fn (): string => route('privacy'),
+    'terms_url' => fn (): string => route('terms'),
+]);
+// 'Read our :privacy_url and :terms_url.'
+```
+
+A closure is called when the slot renders, not when the component is built, so
+a URL, a count or a signed-in user's name is current. A plain value is used as
+given. Replacements apply per component and never enter the resolution cache,
+which is keyed by identity and locale.
+
+Without a declared replacement nothing changes, and a slot the catalog did not
+supply is left alone — `messageReplace()` never turns a missing message into a
+present one.
+
+`messageName()`, `domain()` and `messageReplace()` are macros on `Filament\Support\Components\Component`. They store bindings in a `WeakMap` (no dynamic properties on Filament objects).
 
 ## Manual lookup
 

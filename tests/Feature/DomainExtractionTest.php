@@ -121,3 +121,27 @@ it('includes discovered schema catalogs in the translations:extract command', fu
     expect($english['form']['components']['email']['label'])->toBe('Email')
         ->and($arabic['form']['components']['email']['label'])->toBe('Email');
 });
+
+it('walks the chrome a catalog builds around its schema', function () {
+    discoverSchemaFixtures();
+
+    $keys = array_column(app(MessageScanner::class)->audit('en'), 'key');
+
+    // the section's own heading is an optional slot, so it is remembered for
+    // pruning but never stubbed; its footer's copy is required and is
+    expect($keys)
+        ->toContain('identity/user-chrome.form.components.account.schema.actions.register.label')
+        ->toContain('identity/user-chrome.form.components.account.schema.terms.body');
+});
+
+it('keeps the schema keys where they were when a catalog gains chrome', function () {
+    discoverSchemaFixtures();
+
+    $keys = array_column(app(MessageScanner::class)->audit('en'), 'key');
+
+    // the embedded schema node is skipped, so the field keeps its own path
+    // rather than moving under the wrapping section
+    expect($keys)
+        ->toContain('identity/user-chrome.form.components.nickname.label')
+        ->not->toContain('identity/user-chrome.form.components.account.schema.nickname.label');
+});
