@@ -28,6 +28,7 @@ use Syriable\Translation\Tests\Fixtures\CustomSeparator;
 use Syriable\Translation\Tests\Fixtures\DomainForm;
 use Syriable\Translation\Tests\Fixtures\DomainTable;
 use Syriable\Translation\Tests\Fixtures\EditUser;
+use Syriable\Translation\Tests\Fixtures\EmbeddedSchemaHost;
 use Syriable\Translation\Tests\Fixtures\Schemas\User\ChromeForm;
 
 beforeEach(function () {
@@ -1460,4 +1461,56 @@ it('does not overwrite a custom component label set after make', function () {
     ]);
 
     expect($schema->getComponents()[0]->getLabel())->toBe('OR');
+});
+
+it('lends a keyed wrapper its segment to a field in the schema it embeds', function () {
+    Lang::addLines([
+        'filament/embedded-schema-host.form.components.account.schema.nickname.label' => 'Your nickname',
+    ], 'en');
+
+    $host = app(EmbeddedSchemaHost::class);
+    $host->getSchema('content')->getComponents();
+
+    $field = $host->getSchema('form')->getComponents()[0];
+
+    expect($field->getLabel())->toBe('Your nickname');
+});
+
+it('adds nothing to the path when the wrapper has no key', function () {
+    Lang::addLines([
+        'filament/embedded-schema-host.form.components.nickname.label' => 'Your nickname',
+    ], 'en');
+
+    $host = app(EmbeddedSchemaHost::class);
+    $host->wrapperKey = null;
+    $host->getSchema('content')->getComponents();
+
+    $field = $host->getSchema('form')->getComponents()[0];
+
+    expect($field->getLabel())->toBe('Your nickname');
+});
+
+it('leaves a field alone when no node embeds its schema', function () {
+    Lang::addLines([
+        'filament/embedded-schema-host.form.components.nickname.label' => 'Your nickname',
+    ], 'en');
+
+    $host = app(EmbeddedSchemaHost::class);
+
+    $field = $host->getSchema('form')->getComponents()[0];
+
+    expect($field->getLabel())->toBe('Your nickname');
+});
+
+it('lends a keyed wrapper its segment to an action in the schema it embeds', function () {
+    Lang::addLines([
+        'filament/embedded-schema-host.form.components.account.schema.actions.submit.label' => 'Sign in',
+    ], 'en');
+
+    $host = app(EmbeddedSchemaHost::class);
+    $host->getSchema('content')->getComponents();
+
+    $action = $host->getSchema('form')->getComponents()[1];
+
+    expect($action->getLabel())->toBe('Sign in');
 });

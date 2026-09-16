@@ -14,6 +14,7 @@ use Filament\Infolists\Components\Entry;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\Component as SchemaComponent;
+use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\EmptyState;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
@@ -54,12 +55,15 @@ class MessageBinder
      */
     private array $actionStack = [];
 
+    private bool $resolvingEmbeddedParent = false;
+
     public function __construct(
         private MessageResolver $resolver,
         private ComponentBindings $bindings,
         private MessageOverrides $registry,
         private DomainResolver $domains,
         private Translator $translator,
+        private EmbeddedSchemas $embeds,
     ) {}
 
     public function registerHooks(): void
@@ -914,18 +918,10 @@ class MessageBinder
                 return MessageSurface::Form;
             }
 
-            $container = $this->schemaContainerOf($component);
+            $parent = $this->parentComponentOf($this->schemaContainerOf($component));
 
-            if (is_object($container) && method_exists($container, 'getParentComponent')) {
-                try {
-                    $parent = $container->getParentComponent();
-                } catch (Throwable) {
-                    $parent = null;
-                }
-
-                if ($parent instanceof SchemaComponent) {
-                    return $this->formScope($parent);
-                }
+            if ($parent instanceof SchemaComponent) {
+                return $this->formScope($parent);
             }
         }
 
@@ -966,17 +962,7 @@ class MessageBinder
      */
     private function schemaActionPath(Action $action): array
     {
-        $container = $this->schemaContainerOf($action);
-
-        if (! is_object($container) || ! method_exists($container, 'getParentComponent')) {
-            return ['actions'];
-        }
-
-        try {
-            $parent = $container->getParentComponent();
-        } catch (Throwable) {
-            $parent = null;
-        }
+        $parent = $this->parentComponentOf($this->schemaContainerOf($action));
 
         if (! $parent instanceof SchemaComponent) {
             return ['actions'];
@@ -1073,6 +1059,7 @@ class MessageBinder
         $names = [];
         $current = $component;
         $depth = 0;
+        $crossed = [];
         $maxDepth = (int) config('translations.max_parent_depth', 32);
 
         while ($depth < $maxDepth) {
@@ -1081,6 +1068,16 @@ class MessageBinder
 
             if ($parent === null) {
                 break;
+            }
+
+            if ($parent instanceof EmbeddedSchema) {
+                $node = spl_object_id($parent);
+
+                if (isset($crossed[$node])) {
+                    break;
+                }
+
+                $crossed[$node] = true;
             }
 
             if ($this->bindings->domain($parent) !== null) {
@@ -1106,9 +1103,73 @@ class MessageBinder
     private function parentSchemaComponent(SchemaComponent $component): ?SchemaComponent
     {
         try {
-            return $component->getContainer()->getParentComponent();
+            $container = $component->getContainer();
         } catch (Throwable) {
             return null;
+        }
+
+        return $this->parentComponentOf($container);
+    }
+
+    /**
+     * The component a schema hangs from.
+     *
+     * A schema embedded in another one has no parent component of its own:
+     * it is a schema on the Livewire component, reached by name. The node
+     * that embeds it stands in for the missing parent, so a keyed wrapper
+     * lends its segment to the components inside, exactly as it does to the
+     * components beside them.
+     */
+    private function parentComponentOf(mixed $container): ?SchemaComponent
+    {
+        if (! is_object($container) || ! method_exists($container, 'getParentComponent')) {
+            return null;
+        }
+
+        try {
+            $parent = $container->getParentComponent();
+        } catch (Throwable) {
+            $parent = null;
+        }
+
+        if ($parent instanceof SchemaComponent) {
+            return $parent;
+        }
+
+        return $this->embeddingComponent($container);
+    }
+
+    /**
+     * The node embedding this schema, if one does.
+     *
+     * Reading the name off the container can evaluate a closure, which can
+     * ask for a message and land back here, so the lookup refuses to nest.
+     */
+    private function embeddingComponent(object $container): ?EmbeddedSchema
+    {
+        if ($this->resolvingEmbeddedParent) {
+            return null;
+        }
+
+        if (! method_exists($container, 'getKey') || ! method_exists($container, 'getLivewire')) {
+            return null;
+        }
+
+        $this->resolvingEmbeddedParent = true;
+
+        try {
+            $name = $container->getKey(isAbsolute: false);
+            $livewire = $container->getLivewire();
+
+            if (! is_string($name) || ! is_object($livewire)) {
+                return null;
+            }
+
+            return $this->embeds->embedding($name, $livewire);
+        } catch (Throwable) {
+            return null;
+        } finally {
+            $this->resolvingEmbeddedParent = false;
         }
     }
 

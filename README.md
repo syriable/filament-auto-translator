@@ -840,14 +840,22 @@ final class LoginForm
         return $schema->components([TextInput::make('email')]);
     }
 }
-// form.components.login.heading            optional, never stubbed
+// form.components.login.heading                   optional, never stubbed
 // form.components.login.schema.terms.body
-// form.components.email.label              unchanged by the chrome walk
+// form.components.login.schema.email.label        the field, under the section
 ```
 
-The embedded schema node is skipped, so the fields keep the paths they already
-had rather than moving under the wrapper — **a catalog that gains chrome does
-not move a single existing key.**
+A keyed wrapper lends its segment to the schema it embeds, exactly as it does
+to the components beside it: the field above reads
+`form.components.login.schema.email.label`, the same path its neighbour in the
+footer reads. Being reached through an `EmbeddedSchema` is how Filament renders
+a field, not where the field lives.
+
+**Key a wrapper only when you mean to.** An unkeyed `Section::make()` adds
+nothing, so chrome without keys leaves every existing key where it is; adding
+`->key()` to a wrapper that already has copy underneath moves those keys, and
+the copy has to move with them. `translations:extract` writes the new keys and
+prunes the old ones, so run it and check the diff.
 
 A chrome builder that throws, one reading the signed-in user say, leaves the
 `form` scope unpruned for that catalog rather than letting its keys look

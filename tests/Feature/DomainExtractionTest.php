@@ -134,16 +134,17 @@ it('walks the chrome a catalog builds around its schema', function () {
         ->toContain('identity/user-chrome.form.components.account.schema.terms.body');
 });
 
-it('keeps the schema keys where they were when a catalog gains chrome', function () {
+it('lends a keyed wrapper its segment to the schema it embeds', function () {
     discoverSchemaFixtures();
 
     $keys = array_column(app(MessageScanner::class)->audit('en'), 'key');
 
-    // the embedded schema node is skipped, so the field keeps its own path
-    // rather than moving under the wrapping section
+    // the field is inside the section as surely as the footer button beside
+    // it is, so it reads the same path; being reached through an embedded
+    // schema is how Filament renders it, not where it lives
     expect($keys)
-        ->toContain('identity/user-chrome.form.components.nickname.label')
-        ->not->toContain('identity/user-chrome.form.components.account.schema.nickname.label');
+        ->toContain('identity/user-chrome.form.components.account.schema.nickname.label')
+        ->not->toContain('identity/user-chrome.form.components.nickname.label');
 });
 
 it('keeps a validation attribute the walk never stubs', function () {

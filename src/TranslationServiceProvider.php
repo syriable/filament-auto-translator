@@ -7,6 +7,7 @@ namespace Syriable\Translation;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 use Syriable\Translation\Binding\ComponentBindings;
+use Syriable\Translation\Binding\EmbeddedSchemas;
 use Syriable\Translation\Binding\MessageBinder;
 use Syriable\Translation\Binding\MessageOverrides;
 use Syriable\Translation\Binding\ResolutionCache;
@@ -40,6 +41,7 @@ class TranslationServiceProvider extends PackageServiceProvider
         $this->app->singleton(MessageOverrides::class);
         $this->app->scoped(ResolutionCache::class);
         $this->app->singleton(ComponentBindings::class);
+        $this->app->singleton(EmbeddedSchemas::class);
         $this->app->singleton(MessageKeyBuilder::class);
         $this->app->singleton(DomainPrefixResolver::class);
         $this->app->singleton(MessageResolver::class);
