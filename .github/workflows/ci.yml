@@ -51,6 +51,8 @@ jobs:
 
       - name: Install dependencies
         uses: ramsey/composer-install@v3
+        with:
+          dependency-versions: highest
 
       # --test reports instead of rewriting: CI reports, it does not fix.
       - name: Check formatting
@@ -71,6 +73,8 @@ jobs:
 
       - name: Install dependencies
         uses: ramsey/composer-install@v3
+        with:
+          dependency-versions: highest
 
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse --no-progress

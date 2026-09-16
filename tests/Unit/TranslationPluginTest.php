@@ -6,8 +6,8 @@ use Filament\Panel;
 use Syriable\Translation\Binding\MessageOverrides;
 use Syriable\Translation\Discovery\DomainRegistry;
 use Syriable\Translation\Enums\MissingMessagePolicy;
-use Syriable\Translation\TranslationPlugin;
 use Syriable\Translation\Tests\Fixtures\Schemas\User\EditForm;
+use Syriable\Translation\TranslationPlugin;
 
 it('hands registered discovery paths to the catalog registry on boot', function () {
     TranslationPlugin::make()
