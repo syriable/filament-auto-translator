@@ -27,6 +27,7 @@ use Syriable\MessageCatalog\Binding\MessageBinder;
 use Syriable\MessageCatalog\Catalog\MessageResolver;
 use Syriable\MessageCatalog\Discovery\DiscoveredDomain;
 use Syriable\MessageCatalog\Discovery\DomainRegistry;
+use Syriable\MessageCatalog\Discovery\PanelResources;
 use Syriable\MessageCatalog\Enums\MessageSlot;
 use Syriable\MessageCatalog\Enums\MessageSurface;
 use Syriable\MessageCatalog\Enums\ResolutionOutcome;
@@ -62,6 +63,7 @@ class MessageScanner
         private MessageResolver $resolver,
         private NotificationScanner $notificationScanner,
         private DomainRegistry $schemaCatalogs,
+        private PanelResources $panels,
     ) {}
 
     /**
@@ -102,25 +104,7 @@ class MessageScanner
         }
 
         try {
-            $resources = [];
-
-            if (app()->bound('filament')) {
-                try {
-                    $resources = Filament::getResources();
-                } catch (Throwable) {
-                    $resources = [];
-                }
-            }
-
-            foreach ($resources as $resource) {
-                if (! is_subclass_of($resource, FilamentResource::class)) {
-                    continue;
-                }
-
-                if (! method_exists($resource, 'translationDomain')) {
-                    continue;
-                }
-
+            foreach ($this->panels->catalogs() as $resource) {
                 $this->auditResource($resource);
             }
 

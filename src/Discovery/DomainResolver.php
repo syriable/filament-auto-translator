@@ -44,19 +44,22 @@ class DomainResolver
             return null;
         }
 
-        $fromAttribute = $this->fromAttribute($class);
+        $declared = $this->declaredOn($class);
 
-        if ($fromAttribute !== null) {
-            return $fromAttribute;
+        if ($declared !== null) {
+            return $declared;
         }
 
         return $this->fromMethod($class);
     }
 
     /**
+     * The domain a class declares with #[TranslationDomain], its own or an
+     * inherited one. Null when it declares none.
+     *
      * @param  class-string  $class
      */
-    private function fromAttribute(string $class): ?string
+    public function declaredOn(string $class): ?string
     {
         $reflection = new ReflectionClass($class);
 

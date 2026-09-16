@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Lang;
 use Syriable\MessageCatalog\Binding\MessageOverrides;
 use Syriable\MessageCatalog\Enums\MissingMessagePolicy;
 use Syriable\MessageCatalog\Tests\Fixtures\CatalogOwner;
+use Syriable\MessageCatalog\Tests\Fixtures\DeclaredDomainOwner;
 
 beforeEach(function () {
     config()->set('messages.on_missing', 'debug');
@@ -42,4 +43,19 @@ it('keeps parent chrome when required phrases are missing in lenient mode', func
         ->and(CatalogOwner::getPluralLabel())->toBe('parent plurals')
         ->and(CatalogOwner::getNavigationLabel())->toBe('parent nav')
         ->and(CatalogOwner::getNavigationGroup())->toBe('parent group');
+});
+
+it('prefers a declared domain over the prefix map', function () {
+    config()->set('messages.domain_prefixes', [
+        'Syriable\\MessageCatalog\\Tests\\Fixtures' => 'fixtures',
+    ]);
+
+    expect(DeclaredDomainOwner::translationDomain())->toBe('identity::people')
+        ->and(CatalogOwner::translationDomain())->toBe('fixtures.catalog-owner');
+});
+
+it('fills chrome from the module lang directory a declared domain points at', function () {
+    Lang::addLines(['people.model_label' => 'Person'], 'en', 'identity');
+
+    expect(DeclaredDomainOwner::getModelLabel())->toBe('Person');
 });

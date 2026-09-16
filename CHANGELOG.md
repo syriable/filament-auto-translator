@@ -24,7 +24,10 @@ document and no earlier behaviour to preserve.
   its code.
 - **Resource domains from a prefix map.** Resources and their pages derive a
   domain from `domainPrefixes()` instead of declaring one, via
-  `HasModelMessages` and `HasPageMessages`.
+  `HasModelMessages` and `HasPageMessages`. A prefix ending in `::` names a
+  translation namespace rather than a folder, so `'Modules\Identity' =>
+  'identity::'` puts a module's resource copy in the module. A resource or page
+  that declares `#[TranslationDomain]` keeps that domain instead.
 - **Discovery.** `Messages::discoverIn($path, $namespace)` registers a directory
   the way `discoverResources()` does. It works with or without a Filament panel,
   because a schema may render on a public Livewire page where no panel boots, and
@@ -32,6 +35,10 @@ document and no earlier behaviour to preserve.
 - **`messages:extract`** creates the language keys a walked schema needs, and
   removes keys for components that no longer exist. It never overwrites copy that
   is already translated. `--dry-run` previews; `--no-prune` keeps orphans.
+- **Console commands see panel configuration.** `messages:extract`, `messages:debug`
+  and `messages:inline` boot every registered panel before walking it, so
+  prefixes, discovery paths and the missing-message policy registered on a panel
+  plugin apply on the CLI exactly as they do in the browser.
 - **`messages:debug`** reports missing and obsolete messages for a locale without
   writing anything, so it is safe in CI. `--fail-on-missing` and
   `--fail-on-fallback` turn findings into a non-zero exit.

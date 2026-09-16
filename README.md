@@ -113,6 +113,25 @@ The default translation domain is `{prefix}.{basename-kebab}`. With prefix `fila
 
 Copy lives in `lang/{locale}/filament/user-resource.php`.
 
+A prefix ending in `::` names a registered translation namespace instead of a folder, so a module keeps its copy in its own lang directory:
+
+```php
+MessageCatalogPlugin::make()
+    ->domainPrefixes(['Modules\\Identity' => 'identity::']);
+```
+
+`Modules\Identity\Filament\Resources\UserResource` then becomes `identity::user-resource`, written to `modules/identity/resources/lang/{locale}/user-resource.php`.
+
+To name the domain outright rather than derive it, put `#[TranslationDomain]` on the class. It wins over the prefix map:
+
+```php
+#[TranslationDomain('identity::people')]
+class UserResource extends Resource
+{
+    use HasModelMessages;
+}
+```
+
 ### 2. Share that catalog on resource pages
 
 Schema components resolve the catalog from the **Livewire owner** (the page), not from the resource class. Use `HasPageMessages` on create / edit / list / view. Do **not** use `HasModelMessages` on a page: Filament pages declare instance `getModelLabel()`, and `HasModelMessages` declares it static.
@@ -128,7 +147,7 @@ class EditUser extends EditRecord
 }
 ```
 
-`HasPageMessages` reads `getResource()` and reuses the resource translation domain.
+`HasPageMessages` reads `getResource()` and reuses the resource translation domain, unless the page declares its own `#[TranslationDomain]`.
 
 ### 3. Keep identifiers in PHP
 
@@ -824,7 +843,7 @@ Vendor actions such as `DeleteAction` keep their Filament language file until **
 | `getNavigationLabel()` | `navigation_label` |
 | `getNavigationGroup()` | `navigation_group` |
 
-`HasPageMessages` is for **resource pages**. It shares the resource catalog. Page keys use the class kebab (`EditUser` → `edit-user`), not the registered route name (`edit`):
+`HasPageMessages` is for **resource pages**. It shares the resource catalog unless the page declares its own `#[TranslationDomain]`. Page keys use the class kebab (`EditUser` → `edit-user`), not the registered route name (`edit`):
 
 | Method | Identity |
 | --- | --- |
@@ -968,6 +987,8 @@ If `form()` or `table()` throws, that scope is not pruned. `syncIdentities()` ne
 | `--no-prune` | Create missing keys only; keep language keys for deleted components |
 
 It walks registered Filament resources **and** discovered [schema domains](#schema-domains-outside-resources) in one pass — there is no separate command for them.
+
+The commands boot every registered panel before they walk it. A panel plugin is configured in `Panel::boot()`, which a console command never triggers on its own, so without this the CLI would read no domain prefixes, no plugin discovery paths and no missing-message policy — and write copy to a different file than the browser reads from.
 
 Keep `messages:debug` for CI. Use `messages:extract` while scaffolding a resource, then replace stubs with real copy.
 

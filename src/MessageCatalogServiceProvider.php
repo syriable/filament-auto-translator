@@ -18,6 +18,7 @@ use Syriable\MessageCatalog\Console\InlineMessagesCommand;
 use Syriable\MessageCatalog\Discovery\DomainPrefixResolver;
 use Syriable\MessageCatalog\Discovery\DomainRegistry;
 use Syriable\MessageCatalog\Discovery\DomainResolver;
+use Syriable\MessageCatalog\Discovery\PanelResources;
 use Syriable\MessageCatalog\Extraction\MessageScanner;
 
 class MessageCatalogServiceProvider extends PackageServiceProvider
@@ -46,6 +47,7 @@ class MessageCatalogServiceProvider extends PackageServiceProvider
         $this->app->singleton(ResolutionExplainer::class);
         $this->app->singleton(DomainRegistry::class);
         $this->app->singleton(DomainResolver::class);
+        $this->app->singleton(PanelResources::class);
         $this->app->singleton(MessageScanner::class);
     }
 }

@@ -7,6 +7,7 @@ use Syriable\MessageCatalog\Binding\MessageOverrides;
 use Syriable\MessageCatalog\Enums\MissingMessagePolicy;
 use Syriable\MessageCatalog\Tests\Fixtures\CatalogBoundPage;
 use Syriable\MessageCatalog\Tests\Fixtures\CatalogOwner;
+use Syriable\MessageCatalog\Tests\Fixtures\DeclaredDomainPage;
 
 beforeEach(function () {
     config()->set('messages.on_missing', 'debug');
@@ -45,4 +46,15 @@ it('keeps parent page chrome when phrases are missing in lenient mode', function
     expect($page->getTitle())->toBe('parent title')
         ->and($page->getSubheading())->toBe('parent subheading')
         ->and(CatalogBoundPage::getNavigationLabel())->toBe('parent navigation');
+});
+
+it('keeps a domain the page declares itself instead of the resource one', function () {
+    expect(DeclaredDomainPage::translationDomain())->toBe('identity::people-edit')
+        ->and(DeclaredDomainPage::translationDomain())->not->toBe(CatalogOwner::translationDomain());
+});
+
+it('fills page chrome from the domain the page declares', function () {
+    Lang::addLines(['people-edit.pages.declared-domain-page.title' => 'Edit person'], 'en', 'identity');
+
+    expect((new DeclaredDomainPage)->getTitle())->toBe('Edit person');
 });
