@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Apply;
+namespace Syriable\Translation\Apply;
 
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -18,19 +18,19 @@ use Filament\Tables\Table;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use ReflectionClass;
-use Syriable\MessageCatalog\Binding\MessageBinder;
-use Syriable\MessageCatalog\Catalog\CatalogWriter;
-use Syriable\MessageCatalog\Discovery\DiscoveredDomain;
-use Syriable\MessageCatalog\Discovery\DomainRegistry;
-use Syriable\MessageCatalog\Discovery\PanelResources;
-use Syriable\MessageCatalog\Enums\MessageSlot;
-use Syriable\MessageCatalog\Enums\ResolutionOutcome;
-use Syriable\MessageCatalog\Extraction\ExtractionHost;
-use Syriable\MessageCatalog\Extraction\NotificationScanner;
-use Syriable\MessageCatalog\Support\NameNormalizer;
+use Syriable\Translation\Binding\MessageBinder;
+use Syriable\Translation\Catalog\CatalogWriter;
+use Syriable\Translation\Discovery\DiscoveredDomain;
+use Syriable\Translation\Discovery\DomainRegistry;
+use Syriable\Translation\Discovery\PanelResources;
+use Syriable\Translation\Enums\MessageSlot;
+use Syriable\Translation\Enums\ResolutionOutcome;
+use Syriable\Translation\Extraction\ExtractionHost;
+use Syriable\Translation\Extraction\NotificationScanner;
+use Syriable\Translation\Support\NameNormalizer;
 use Throwable;
 
-class PhrasePhpApplier
+class MessageInliner
 {
     public function __construct(
         private MessageBinder $binder,
@@ -44,7 +44,7 @@ class PhrasePhpApplier
     ) {}
 
     /**
-     * @return array<int, PhraseApplyWrite>
+     * @return array<int, InlineWrite>
      */
     public function apply(?string $locale = null, bool $dryRun = false): array
     {
@@ -58,6 +58,10 @@ class PhrasePhpApplier
         $resources = $this->catalogResources();
 
         foreach ($resources as $resource) {
+            if (! method_exists($resource, 'translationDomain')) {
+                continue;
+            }
+
             $catalogId = $resource::translationDomain();
 
             if (! $this->writer->isSafeCatalogId($catalogId)) {
@@ -84,7 +88,7 @@ class PhrasePhpApplier
     }
 
     /**
-     * @return array<int, PhraseApplyWrite>
+     * @return array<int, InlineWrite>
      */
     private function applyDiscoveredDomain(DiscoveredDomain $catalog, string $locale, bool $dryRun): array
     {
@@ -123,7 +127,7 @@ class PhrasePhpApplier
     /**
      * @param  array<int, mixed>  $components
      * @param  array<int, string>  $files
-     * @return array<int, PhraseApplyWrite>
+     * @return array<int, InlineWrite>
      */
     public function applyComponents(array $components, array $files, string $catalogId, string $locale, bool $dryRun = false): array
     {
@@ -139,7 +143,7 @@ class PhrasePhpApplier
 
     /**
      * @param  array<int, array{method: string, key: string, static: bool, return: string}>  $methods
-     * @return array<int, PhraseApplyWrite>
+     * @return array<int, InlineWrite>
      */
     public function applyClassMethods(string $path, array $methods, bool $dryRun = false): array
     {
@@ -148,7 +152,7 @@ class PhrasePhpApplier
 
     /**
      * @param  class-string<FilamentResource>  $resource
-     * @return array<int, PhraseApplyWrite>
+     * @return array<int, InlineWrite>
      */
     private function applyResourceChrome(string $resource, string $catalogId, string $locale, bool $dryRun): array
     {
@@ -168,7 +172,7 @@ class PhrasePhpApplier
 
     /**
      * @param  class-string<FilamentResource>  $resource
-     * @return array<int, PhraseApplyWrite>
+     * @return array<int, InlineWrite>
      */
     private function applyPageChrome(string $resource, string $catalogId, string $locale, bool $dryRun): array
     {
@@ -270,7 +274,7 @@ class PhrasePhpApplier
 
     /**
      * @param  array<int, array{method: string, key: string, static: bool, return: string}>  $methods
-     * @return array<int, PhraseApplyWrite>
+     * @return array<int, InlineWrite>
      */
     private function writeChromeMethods(string $path, string $make, array $methods, bool $dryRun): array
     {
@@ -291,7 +295,7 @@ class PhrasePhpApplier
                 continue;
             }
 
-            $writes[] = new PhraseApplyWrite(
+            $writes[] = new InlineWrite(
                 path: $path,
                 make: $make,
                 method: $method['method'],
@@ -306,7 +310,7 @@ class PhrasePhpApplier
 
         return array_values(array_filter(
             $writes,
-            fn (PhraseApplyWrite $write): bool => $write->action !== 'skipped',
+            fn (InlineWrite $write): bool => $write->action !== 'skipped',
         ));
     }
 
@@ -347,7 +351,7 @@ class PhrasePhpApplier
 
     /**
      * @param  class-string<FilamentResource>  $resource
-     * @return array<int, PhraseApplyWrite>
+     * @return array<int, InlineWrite>
      */
     private function applyResourceForm(string $resource, ExtractionHost $owner, string $catalogId, string $locale, bool $dryRun): array
     {
@@ -368,7 +372,7 @@ class PhrasePhpApplier
 
     /**
      * @param  class-string<FilamentResource>  $resource
-     * @return array<int, PhraseApplyWrite>
+     * @return array<int, InlineWrite>
      */
     private function applyResourceTable(string $resource, ExtractionHost $owner, string $catalogId, string $locale, bool $dryRun): array
     {
@@ -599,7 +603,7 @@ class PhrasePhpApplier
     /**
      * @param  array<int, array{make: string, method: string, key: string, target: string, status: string}>  $pending
      * @param  array<int, string>  $files
-     * @return array<int, PhraseApplyWrite>
+     * @return array<int, InlineWrite>
      */
     private function writePending(array $pending, array $files, bool $dryRun): array
     {
@@ -646,7 +650,7 @@ class PhrasePhpApplier
 
         return array_values(array_filter(
             $writes,
-            fn (PhraseApplyWrite $write): bool => $write->action !== 'skipped',
+            fn (InlineWrite $write): bool => $write->action !== 'skipped',
         ));
     }
 
@@ -670,7 +674,7 @@ class PhrasePhpApplier
 
     /**
      * @param  array<int, array{method: string, key: string}>  $calls
-     * @return array<int, PhraseApplyWrite>
+     * @return array<int, InlineWrite>
      */
     private function reportWrites(
         string $path,
@@ -690,7 +694,7 @@ class PhrasePhpApplier
                 continue;
             }
 
-            $writes[] = new PhraseApplyWrite(
+            $writes[] = new InlineWrite(
                 path: $path,
                 make: $make,
                 method: $call['method'],

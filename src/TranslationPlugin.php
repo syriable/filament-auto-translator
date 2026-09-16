@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog;
+namespace Syriable\Translation;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
-use Syriable\MessageCatalog\Binding\MessageBinder;
-use Syriable\MessageCatalog\Binding\MessageOverrides;
-use Syriable\MessageCatalog\Discovery\DomainRegistry;
-use Syriable\MessageCatalog\Enums\MissingMessagePolicy;
+use Syriable\Translation\Binding\MessageBinder;
+use Syriable\Translation\Binding\MessageOverrides;
+use Syriable\Translation\Discovery\DomainRegistry;
+use Syriable\Translation\Enums\MissingMessagePolicy;
 
-class MessageCatalogPlugin implements Plugin
+class TranslationPlugin implements Plugin
 {
     /**
      * @var array<string, string>

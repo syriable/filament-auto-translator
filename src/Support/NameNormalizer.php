@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Support;
+namespace Syriable\Translation\Support;
 
 final class NameNormalizer
 {

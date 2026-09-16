@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Apply;
+namespace Syriable\Translation\Apply;
 
 class ComponentChainEditor
 {

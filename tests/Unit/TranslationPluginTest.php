@@ -3,17 +3,17 @@
 declare(strict_types=1);
 
 use Filament\Panel;
-use Syriable\MessageCatalog\Binding\MessageOverrides;
-use Syriable\MessageCatalog\Discovery\DomainRegistry;
-use Syriable\MessageCatalog\Enums\MissingMessagePolicy;
-use Syriable\MessageCatalog\MessageCatalogPlugin;
-use Syriable\MessageCatalog\Tests\Fixtures\Schemas\User\EditForm;
+use Syriable\Translation\Binding\MessageOverrides;
+use Syriable\Translation\Discovery\DomainRegistry;
+use Syriable\Translation\Enums\MissingMessagePolicy;
+use Syriable\Translation\Tests\Fixtures\Schemas\User\EditForm;
+use Syriable\Translation\TranslationPlugin;
 
 it('hands registered discovery paths to the catalog registry on boot', function () {
-    MessageCatalogPlugin::make()
+    TranslationPlugin::make()
         ->discoverIn(
             in: dirname(__DIR__).'/Fixtures/Schemas',
-            for: 'Syriable\\MessageCatalog\\Tests\\Fixtures\\Schemas',
+            for: 'Syriable\\Translation\\Tests\\Fixtures\\Schemas',
         )
         ->boot(Panel::make());
 
@@ -22,7 +22,7 @@ it('hands registered discovery paths to the catalog registry on boot', function 
 });
 
 it('still merges catalog prefixes and mode on boot', function () {
-    MessageCatalogPlugin::make()
+    TranslationPlugin::make()
         ->domainPrefixes(['Modules\\Identity' => 'identity'])
         ->onMissing(MissingMessagePolicy::Strict)
         ->boot(Panel::make());

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Exceptions;
+namespace Syriable\Translation\Exceptions;
 
 use InvalidArgumentException;
 

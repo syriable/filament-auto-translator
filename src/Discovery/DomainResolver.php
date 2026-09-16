@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Discovery;
+namespace Syriable\Translation\Discovery;
 
 use ReflectionClass;
-use Syriable\MessageCatalog\Attributes\TranslationDomain;
+use Syriable\Translation\Attributes\TranslationDomain;
 use Throwable;
 
 /**
@@ -22,6 +22,10 @@ class DomainResolver
     public function for(object|string $subject): ?string
     {
         $class = is_object($subject) ? $subject::class : $subject;
+
+        if (! class_exists($class)) {
+            return null;
+        }
 
         if (array_key_exists($class, $this->memo)) {
             return $this->memo[$class];
@@ -40,10 +44,6 @@ class DomainResolver
      */
     private function resolve(string $class): ?string
     {
-        if (! class_exists($class)) {
-            return null;
-        }
-
         $declared = $this->declaredOn($class);
 
         if ($declared !== null) {

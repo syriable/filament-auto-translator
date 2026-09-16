@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
-use Syriable\MessageCatalog\Extraction\NotificationScanner;
+use Syriable\Translation\Extraction\NotificationScanner;
 
 it('finds success and danger statuses in an action closure', function () {
     $action = Action::make('edit')

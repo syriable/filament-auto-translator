@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Tests\Fixtures;
+namespace Syriable\Translation\Tests\Fixtures;
 
-use Syriable\MessageCatalog\Attributes\TranslationDomain;
-use Syriable\MessageCatalog\Concerns\HasModelMessages;
+use Syriable\Translation\Attributes\TranslationDomain;
+use Syriable\Translation\Concerns\HasModelTranslations;
 
 /**
  * A resource that names its own domain instead of taking one from the prefix map.
@@ -13,5 +13,5 @@ use Syriable\MessageCatalog\Concerns\HasModelMessages;
 #[TranslationDomain('identity::people')]
 class DeclaredDomainOwner extends CatalogChromeParent
 {
-    use HasModelMessages;
+    use HasModelTranslations;
 }

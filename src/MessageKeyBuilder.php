@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog;
+namespace Syriable\Translation;
 
-use Syriable\MessageCatalog\Enums\MessageSlot;
-use Syriable\MessageCatalog\Enums\MessageSurface;
-use Syriable\MessageCatalog\Exceptions\InvalidMessageNameException;
-use Syriable\MessageCatalog\Support\NameNormalizer;
+use Syriable\Translation\Enums\MessageSlot;
+use Syriable\Translation\Enums\MessageSurface;
+use Syriable\Translation\Exceptions\InvalidMessageNameException;
+use Syriable\Translation\Support\NameNormalizer;
 
 class MessageKeyBuilder
 {

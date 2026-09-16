@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Extraction;
+namespace Syriable\Translation\Extraction;
 
 use Illuminate\Support\Arr;
-use Syriable\MessageCatalog\Binding\ResolutionCache;
-use Syriable\MessageCatalog\Catalog\CatalogWriter;
-use Syriable\MessageCatalog\Catalog\ObsoleteMessagePruner;
-use Syriable\MessageCatalog\Enums\ResolutionOutcome;
-use Syriable\MessageCatalog\MessageIdentity;
+use Syriable\Translation\Binding\ResolutionCache;
+use Syriable\Translation\Catalog\CatalogWriter;
+use Syriable\Translation\Catalog\ObsoleteMessagePruner;
+use Syriable\Translation\Enums\ResolutionOutcome;
+use Syriable\Translation\MessageIdentity;
 
 class MessageExtractor
 {
@@ -85,7 +85,7 @@ class MessageExtractor
         $grouped = [];
 
         foreach ($findings as $finding) {
-            if (! in_array($finding['decision'], [ResolutionOutcome::Missing->value, ResolutionOutcome::UsedFallback->value], true)) {
+            if (! in_array($finding['decision'], [ResolutionOutcome::Missing->value, ResolutionOutcome::UsedFallbackLocale->value], true)) {
                 continue;
             }
 
@@ -158,7 +158,7 @@ class MessageExtractor
     private function valueFor(array $finding): string
     {
         if (
-            $finding['decision'] === ResolutionOutcome::UsedFallback->value
+            $finding['decision'] === ResolutionOutcome::UsedFallbackLocale->value
             && is_string($finding['text'])
             && $finding['text'] !== ''
             && $finding['text'] !== $finding['key']

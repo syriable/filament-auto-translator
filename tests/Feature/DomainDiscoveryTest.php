@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-use Syriable\MessageCatalog\Discovery\DomainDiscoverer;
-use Syriable\MessageCatalog\Discovery\DomainRegistry;
-use Syriable\MessageCatalog\Exceptions\InvalidTranslationDomainException;
-use Syriable\MessageCatalog\Tests\Fixtures\InvalidIdForm;
-use Syriable\MessageCatalog\Tests\Fixtures\NamespacedIdForm;
-use Syriable\MessageCatalog\Tests\Fixtures\Schemas\Plain\AbstractForm;
-use Syriable\MessageCatalog\Tests\Fixtures\Schemas\Plain\PlainForm;
-use Syriable\MessageCatalog\Tests\Fixtures\Schemas\Plain\SchemalessCatalog;
-use Syriable\MessageCatalog\Tests\Fixtures\Schemas\User\EditForm;
-use Syriable\MessageCatalog\Tests\Fixtures\Schemas\User\ProfileForm;
+use Syriable\Translation\Discovery\DomainDiscoverer;
+use Syriable\Translation\Discovery\DomainRegistry;
+use Syriable\Translation\Exceptions\InvalidTranslationDomainException;
+use Syriable\Translation\Tests\Fixtures\InvalidIdForm;
+use Syriable\Translation\Tests\Fixtures\NamespacedIdForm;
+use Syriable\Translation\Tests\Fixtures\Schemas\Plain\AbstractForm;
+use Syriable\Translation\Tests\Fixtures\Schemas\Plain\PlainForm;
+use Syriable\Translation\Tests\Fixtures\Schemas\Plain\SchemalessCatalog;
+use Syriable\Translation\Tests\Fixtures\Schemas\User\EditForm;
+use Syriable\Translation\Tests\Fixtures\Schemas\User\ProfileForm;
 
-const SCHEMA_FIXTURE_NAMESPACE = 'Syriable\\MessageCatalog\\Tests\\Fixtures\\Schemas';
+const SCHEMA_FIXTURE_NAMESPACE = 'Syriable\\Translation\\Tests\\Fixtures\\Schemas';
 
 function schemaFixturePath(): string
 {
@@ -98,7 +98,7 @@ it('collects catalogs from a registered directory', function () {
 });
 
 it('collects catalogs from configured discovery paths', function () {
-    config()->set('messages.discover_paths', [
+    config()->set('translations.discover_paths', [
         ['path' => schemaFixturePath(), 'namespace' => SCHEMA_FIXTURE_NAMESPACE],
     ]);
 
@@ -107,7 +107,7 @@ it('collects catalogs from configured discovery paths', function () {
 });
 
 it('ignores malformed configured discovery paths', function () {
-    config()->set('messages.discover_paths', [
+    config()->set('translations.discover_paths', [
         ['path' => schemaFixturePath()],
         'not-an-array',
         ['path' => '', 'namespace' => ''],

@@ -3,17 +3,17 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Lang;
-use Syriable\MessageCatalog\Binding\MessageOverrides;
-use Syriable\MessageCatalog\Catalog\MessageResolver;
-use Syriable\MessageCatalog\Enums\MessageSlot;
-use Syriable\MessageCatalog\Enums\MessageSurface;
-use Syriable\MessageCatalog\Enums\MissingMessagePolicy;
-use Syriable\MessageCatalog\Enums\ResolutionOutcome;
-use Syriable\MessageCatalog\Exceptions\MissingMessageException;
-use Syriable\MessageCatalog\MessageIdentity;
+use Syriable\Translation\Binding\MessageOverrides;
+use Syriable\Translation\Catalog\MessageResolver;
+use Syriable\Translation\Enums\MessageSlot;
+use Syriable\Translation\Enums\MessageSurface;
+use Syriable\Translation\Enums\MissingMessagePolicy;
+use Syriable\Translation\Enums\ResolutionOutcome;
+use Syriable\Translation\Exceptions\MissingMessageException;
+use Syriable\Translation\MessageIdentity;
 
 beforeEach(function () {
-    config()->set('messages.on_missing', 'debug');
+    config()->set('translations.on_missing', 'debug');
     app(MessageOverrides::class)->mode = null;
 });
 
@@ -51,12 +51,12 @@ it('does not treat an english fallback as a present arabic translation', functio
         slot: MessageSlot::Label,
     ));
 
-    expect($resolution->decision)->toBe(ResolutionOutcome::UsedFallback)
+    expect($resolution->decision)->toBe(ResolutionOutcome::UsedFallbackLocale)
         ->and($resolution->presentInCurrentLocale)->toBeFalse()
         ->and($resolution->presentInFallbackLocale)->toBeTrue();
 });
 
-it('surfaces the compiled key when a required phrase is missing in inspect mode', function () {
+it('surfaces the compiled key when a required message is missing in debug mode', function () {
     $resolution = app(MessageResolver::class)->resolve(new MessageIdentity(
         catalogId: 'filament.user-resource',
         scope: MessageSurface::Form,
@@ -69,7 +69,7 @@ it('surfaces the compiled key when a required phrase is missing in inspect mode'
         ->and($resolution->text)->toBe('filament/user-resource.form.components.email.label');
 });
 
-it('throws when a required phrase is missing in strict mode', function () {
+it('throws when a required message is missing in strict mode', function () {
     app(MessageOverrides::class)->mode = MissingMessagePolicy::Strict;
 
     app(MessageResolver::class)->resolve(new MessageIdentity(
@@ -81,7 +81,7 @@ it('throws when a required phrase is missing in strict mode', function () {
     ));
 })->throws(MissingMessageException::class);
 
-it('leaves optional missing phrases empty in inspect mode', function () {
+it('leaves optional missing messages empty in debug mode', function () {
     $resolution = app(MessageResolver::class)->resolve(new MessageIdentity(
         catalogId: 'filament.user-resource',
         scope: MessageSurface::Form,
@@ -94,7 +94,7 @@ it('leaves optional missing phrases empty in inspect mode', function () {
         ->and($resolution->text)->toBeNull();
 });
 
-it('leaves a missing notification body empty in inspect mode', function () {
+it('leaves a missing notification body empty in debug mode', function () {
     $resolution = app(MessageResolver::class)->resolve(new MessageIdentity(
         catalogId: 'filament.user-resource',
         scope: MessageSurface::Form,

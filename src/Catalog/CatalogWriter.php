@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Catalog;
+namespace Syriable\Translation\Catalog;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Lang;
-use Syriable\MessageCatalog\Exceptions\UnknownDomainNamespaceException;
+use Syriable\Translation\Exceptions\UnknownDomainNamespaceException;
 
 class CatalogWriter
 {
@@ -49,13 +49,7 @@ class CatalogWriter
 
     private function namespacePath(string $namespace): ?string
     {
-        $loader = Lang::getLoader();
-
-        if (! method_exists($loader, 'namespaces')) {
-            return null;
-        }
-
-        $path = $loader->namespaces()[$namespace] ?? null;
+        $path = Lang::getLoader()->namespaces()[$namespace] ?? null;
 
         return is_string($path) ? $path : null;
     }

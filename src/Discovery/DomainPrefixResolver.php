@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Discovery;
+namespace Syriable\Translation\Discovery;
 
-use Syriable\MessageCatalog\Binding\MessageOverrides;
-use Syriable\MessageCatalog\Exceptions\DomainPrefixOverlapException;
-use Syriable\MessageCatalog\Support\NameNormalizer;
+use Syriable\Translation\Binding\MessageOverrides;
+use Syriable\Translation\Exceptions\DomainPrefixOverlapException;
+use Syriable\Translation\Support\NameNormalizer;
 
 class DomainPrefixResolver
 {
@@ -39,7 +39,7 @@ class DomainPrefixResolver
         }
 
         if ($matches === []) {
-            return (string) config('messages.default_domain_prefix', 'filament');
+            return (string) config('translations.default_domain_prefix', 'filament');
         }
 
         $longest = '';
@@ -69,7 +69,7 @@ class DomainPrefixResolver
     public function prefixes(): array
     {
         /** @var array<string, string> $configured */
-        $configured = config('messages.domain_prefixes', []);
+        $configured = config('translations.domain_prefixes', []);
 
         return [...$configured, ...$this->registry->prefixes];
     }

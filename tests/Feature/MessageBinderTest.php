@@ -20,22 +20,22 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Lang;
-use Syriable\MessageCatalog\Binding\MessageBinder;
-use Syriable\MessageCatalog\Binding\ResolutionExplainer;
-use Syriable\MessageCatalog\Enums\MessageSlot;
-use Syriable\MessageCatalog\Enums\ResolutionOutcome;
-use Syriable\MessageCatalog\Tests\Fixtures\DomainForm;
-use Syriable\MessageCatalog\Tests\Fixtures\DomainTable;
-use Syriable\MessageCatalog\Tests\Fixtures\EditUser;
+use Syriable\Translation\Binding\MessageBinder;
+use Syriable\Translation\Binding\ResolutionExplainer;
+use Syriable\Translation\Enums\MessageSlot;
+use Syriable\Translation\Enums\ResolutionOutcome;
+use Syriable\Translation\Tests\Fixtures\DomainForm;
+use Syriable\Translation\Tests\Fixtures\DomainTable;
+use Syriable\Translation\Tests\Fixtures\EditUser;
 
 beforeEach(function () {
-    config()->set('messages.on_missing', 'debug');
-    config()->set('messages.default_domain_prefix', 'filament');
-    config()->set('messages.domain_prefixes', []);
+    config()->set('translations.on_missing', 'debug');
+    config()->set('translations.default_domain_prefix', 'filament');
+    config()->set('translations.domain_prefixes', []);
     app(MessageBinder::class)->registerHooks();
 });
 
-it('fills an unset field label from the phrase catalog', function () {
+it('fills an unset field label from the message catalog', function () {
     Lang::addLines([
         'filament/domain-form.form.components.email.label' => 'Email address',
     ], 'en');
@@ -63,7 +63,7 @@ it('does not overwrite a custom field label', function () {
     expect(textInput($schema)->getLabel())->toBe('Work email');
 });
 
-it('fills a field placeholder from the phrase catalog', function () {
+it('fills a field placeholder from the message catalog', function () {
     Lang::addLines([
         'filament/domain-form.form.components.email.placeholder' => 'name@example.com',
     ], 'en');
@@ -102,7 +102,7 @@ it('does not invent a field placeholder when the catalog omits it', function () 
     expect(textInput($schema)->getPlaceholder())->toBeNull();
 });
 
-it('fills field before and after content from the phrase catalog', function () {
+it('fills field before and after content from the message catalog', function () {
     Lang::addLines([
         'filament/domain-form.form.components.user.schema.email.before_content' => 'Before the email',
         'filament/domain-form.form.components.user.schema.email.after_content' => 'After the email',
@@ -142,7 +142,7 @@ it('does not invent field before content when the catalog omits it', function ()
     expect(textInput($schema)->getChildSchema(TextInput::BEFORE_CONTENT_SCHEMA_KEY))->toBeNull();
 });
 
-it('fills an infolist entry label from the phrase catalog', function () {
+it('fills an infolist entry label from the message catalog', function () {
     Lang::addLines([
         'filament/domain-form.infolist.components.info.label' => 'Account info',
         'filament/domain-form.infolist.components.info.placeholder' => 'No info yet',
@@ -176,7 +176,7 @@ it('keeps an explicit infolist entry label', function () {
         ->and($entry->getLabel())->toBe('Details');
 });
 
-it('fills schema text content from the phrase catalog', function () {
+it('fills schema text content from the message catalog', function () {
     Lang::addLines([
         'filament/domain-form.form.components.info.body' => 'Account info',
         'filament/domain-form.form.components.info.tooltip' => 'More about this account',
@@ -210,7 +210,7 @@ it('keeps explicit schema text content', function () {
         ->and($text->getContent())->toBe('Visible copy');
 });
 
-it('renders the compiled key when schema text body is missing in inspect mode', function () {
+it('renders the compiled key when schema text body is missing in debug mode', function () {
     $livewire = app(DomainForm::class);
     $schema = Schema::make($livewire)->components([
         Text::make('info'),
@@ -234,7 +234,7 @@ it('does not treat visible schema text as a catalog identifier', function () {
         ->and($text->getContent())->toBe('Hello world');
 });
 
-it('fills a callout heading from the phrase catalog', function () {
+it('fills a callout heading from the message catalog', function () {
     Lang::addLines([
         'filament/domain-form.form.components.alert.heading' => 'Check this',
         'filament/domain-form.form.components.alert.description' => 'Something needs your attention.',
@@ -297,7 +297,7 @@ it('does not invent a callout description when the catalog omits it', function (
         ->and($callout->getDescription())->toBeNull();
 });
 
-it('fills a schema action label from the phrase catalog', function () {
+it('fills a schema action label from the message catalog', function () {
     Lang::addLines([
         'filament/domain-form.form.components.actions.action.label' => 'Do this',
     ], 'en');
@@ -329,7 +329,7 @@ it('keeps an explicit schema action label', function () {
         ->and($action->getLabel())->toBe('Run now');
 });
 
-it('renders the compiled key when a schema action label is missing in inspect mode', function () {
+it('renders the compiled key when a schema action label is missing in debug mode', function () {
     $livewire = app(DomainForm::class);
     $schema = Schema::make($livewire)->components([
         Action::make('action'),
@@ -341,7 +341,7 @@ it('renders the compiled key when a schema action label is missing in inspect mo
         ->and($action->getLabel())->toBe('filament/domain-form.form.components.actions.action.label');
 });
 
-it('fills schema action modal chrome from the phrase catalog', function () {
+it('fills schema action modal chrome from the message catalog', function () {
     Lang::addLines([
         'filament/domain-form.form.components.actions.action.label' => 'Do this',
         'filament/domain-form.form.components.actions.action.modal_heading' => 'Confirm this',
@@ -400,7 +400,7 @@ it('does not invent schema action modal chrome when the catalog omits it', funct
         ->and($action->getModalSubmitActionLabel())->toBe(__('filament-actions::modal.actions.submit.label'));
 });
 
-it('fills a table column label from the phrase catalog', function () {
+it('fills a table column label from the message catalog', function () {
     Lang::addLines([
         'filament/domain-table.table.columns.name.label' => 'Name',
         'filament/domain-table.table.columns.email.label' => 'E-mail',
@@ -460,7 +460,7 @@ it('does not invent a table column prefix when the catalog omits it', function (
         ->and($column->getPrefix())->toBeNull();
 });
 
-it('renders the compiled key when a table column label is missing in inspect mode', function () {
+it('renders the compiled key when a table column label is missing in debug mode', function () {
     $livewire = app(DomainTable::class);
     $table = Table::make($livewire)->columns([
         TextColumn::make('email'),
@@ -472,7 +472,7 @@ it('renders the compiled key when a table column label is missing in inspect mod
         ->and($column->getLabel())->toBe('filament/domain-table.table.columns.email.label');
 });
 
-it('fills a table filter label from the phrase catalog', function () {
+it('fills a table filter label from the message catalog', function () {
     Lang::addLines([
         'filament/domain-table.table.filters.is_featured.label' => 'Is featured',
         'filament/domain-table.table.filters.is_featured.indicator' => 'Featured only',
@@ -502,7 +502,7 @@ it('keeps an explicit table filter label', function () {
     expect(tableFilter($table)->getLabel())->toBe('Shown in English');
 });
 
-it('renders the compiled key when a table filter label is missing in inspect mode', function () {
+it('renders the compiled key when a table filter label is missing in debug mode', function () {
     $livewire = app(DomainTable::class);
     $table = Table::make($livewire)->filters([
         Filter::make('is_featured'),
@@ -527,7 +527,7 @@ it('does not invent a table filter indicator when the catalog omits it', functio
         ->and(ResolutionExplainer::explain($filter, MessageSlot::Indicator)->text)->toBeNull();
 });
 
-it('fills table record and toolbar action labels from the phrase catalog', function () {
+it('fills table record and toolbar action labels from the message catalog', function () {
     Lang::addLines([
         'filament/domain-table.table.record_actions.view.label' => 'View user',
         'filament/domain-table.table.toolbar_actions.bulk_action.label' => 'Bulk action',
@@ -564,7 +564,7 @@ it('keeps an explicit table record action label', function () {
     expect(tableAction($table->getRecordActions())->getLabel())->toBe('Shown in English');
 });
 
-it('renders the compiled key when a table record action label is missing in inspect mode', function () {
+it('renders the compiled key when a table record action label is missing in debug mode', function () {
     $livewire = app(DomainTable::class);
     $table = Table::make($livewire)->recordActions([
         Action::make('view'),
@@ -574,7 +574,7 @@ it('renders the compiled key when a table record action label is missing in insp
         ->toBe('filament/domain-table.table.record_actions.view.label');
 });
 
-it('fills an action schema field label from the phrase catalog', function () {
+it('fills an action schema field label from the message catalog', function () {
     Lang::addLines([
         'filament/domain-form.form.components.actions.action.schema.components.name_action.label' => 'Action name',
     ], 'en');
@@ -655,7 +655,7 @@ it('fills a field hint action label from the parent field path', function () {
     expect($hintAction->getLabel())->toBe('Copy email');
 });
 
-it('renders the compiled key when a field hint action label is missing in inspect mode', function () {
+it('renders the compiled key when a field hint action label is missing in debug mode', function () {
     $livewire = app(DomainForm::class);
     $schema = Schema::make($livewire)->components([
         Section::make()
@@ -678,7 +678,7 @@ it('renders the compiled key when a field hint action label is missing in inspec
     expect($hintAction->getLabel())->toBe('filament/domain-form.form.components.user.schema.email.actions.hint_action.label');
 });
 
-it('renders the compiled key when a required label is missing in inspect mode', function () {
+it('renders the compiled key when a required label is missing in debug mode', function () {
     $livewire = app(DomainForm::class);
     $schema = Schema::make($livewire)->components([
         TextInput::make('email'),
@@ -687,7 +687,7 @@ it('renders the compiled key when a required label is missing in inspect mode', 
     expect(textInput($schema)->getLabel())->toBe('filament/domain-form.form.components.email.label');
 });
 
-it('fills a keyed fieldset label from the phrase catalog', function () {
+it('fills a keyed fieldset label from the message catalog', function () {
     Lang::addLines([
         'filament/domain-form.form.components.authorization.label' => 'Authorization',
         'filament/domain-form.form.components.authorization.schema.name.label' => 'Name',
@@ -748,7 +748,7 @@ it('does not invent a keyed fieldset label when the catalog omits it', function 
         ->and($fieldset->getLabel())->toBeNull();
 });
 
-it('fills a keyed section description from the phrase catalog', function () {
+it('fills a keyed section description from the message catalog', function () {
     Lang::addLines([
         'filament/domain-form.form.components.authorization.heading' => 'Section Heading',
         'filament/domain-form.form.components.authorization.description' => 'Section Description Paragraph.',
@@ -839,7 +839,7 @@ it('does not put a heading-only section in the field path', function () {
         ->and($field->getLabel())->toBe('filament/domain-form.form.components.role.label');
 });
 
-it('fills a wizard step label from the phrase catalog', function () {
+it('fills a wizard step label from the message catalog', function () {
     Lang::addLines([
         'filament/domain-form.form.components.first_step.label' => 'User',
         'filament/domain-form.form.components.first_step.schema.name.label' => 'Name',
@@ -907,7 +907,7 @@ it('does not put an unkeyed wizard in the field path', function () {
         ->and($field->getLabel())->toBe('filament/domain-form.form.components.first_step.schema.name.label');
 });
 
-it('fills a keyed wizard label from the phrase catalog', function () {
+it('fills a keyed wizard label from the message catalog', function () {
     Lang::addLines([
         'filament/domain-form.form.components.onboarding.label' => 'Onboarding',
         'filament/domain-form.form.components.onboarding.schema.first_step.label' => 'User',
@@ -932,7 +932,7 @@ it('fills a keyed wizard label from the phrase catalog', function () {
         ->and($step->getLabel())->toBe('User');
 });
 
-it('fills a tab label from the phrase catalog', function () {
+it('fills a tab label from the message catalog', function () {
     Lang::addLines([
         'filament/domain-form.form.components.user_tabs.label' => 'Details',
         'filament/domain-form.form.components.user_tabs.schema.user.label' => 'User',
@@ -962,7 +962,7 @@ it('fills a tab label from the phrase catalog', function () {
         ->and($field->getLabel())->toBe('Name');
 });
 
-it('fills an empty state heading from the phrase catalog', function () {
+it('fills an empty state heading from the message catalog', function () {
     Lang::addLines([
         'filament/domain-form.form.components.user_empty_state.heading' => 'No users yet',
         'filament/domain-form.form.components.user_empty_state.description' => 'Get started by creating a new user.',
@@ -1049,7 +1049,7 @@ it('leaves components unbound when the livewire owner is not a catalog', functio
     expect(ResolutionExplainer::explain(textInput($schema))->decision)->toBe(ResolutionOutcome::NoCatalog);
 });
 
-it('fills a schema action notification title and body from the phrase catalog using status', function () {
+it('fills a schema action notification title and body from the message catalog using status', function () {
     Lang::addLines([
         'filament/domain-form.form.components.actions.action.notifications.success.title' => 'Saved',
         'filament/domain-form.form.components.actions.action.notifications.success.body' => 'The record was saved.',
@@ -1149,7 +1149,7 @@ it('does not bind a notification that has no status', function () {
         ->and($sent->getBody())->toBeNull();
 });
 
-it('fills a page header action label from the phrase catalog', function () {
+it('fills a page header action label from the message catalog', function () {
     Lang::addLines([
         'filament/catalog-owner.pages.edit-user.actions.first_action.label' => 'First action',
     ], 'en');

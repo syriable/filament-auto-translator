@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Lang;
-use Syriable\MessageCatalog\Binding\MessageOverrides;
-use Syriable\MessageCatalog\Catalog\CatalogWriter;
-use Syriable\MessageCatalog\Discovery\DomainPrefixResolver;
-use Syriable\MessageCatalog\Exceptions\UnknownDomainNamespaceException;
+use Syriable\Translation\Binding\MessageOverrides;
+use Syriable\Translation\Catalog\CatalogWriter;
+use Syriable\Translation\Discovery\DomainPrefixResolver;
+use Syriable\Translation\Exceptions\UnknownDomainNamespaceException;
 
 it('writes a dotted catalog into the application lang path', function () {
     $writer = new CatalogWriter;
@@ -70,7 +70,7 @@ it('still rejects catalog ids that could escape the lang path', function (string
 
 it('routes a prefix-derived module domain into that module lang path', function () {
     Lang::getLoader()->addNamespace('identity', '/modules/identity/resources/lang');
-    config()->set('messages.domain_prefixes', ['Modules\\Identity' => 'identity::']);
+    config()->set('translations.domain_prefixes', ['Modules\\Identity' => 'identity::']);
 
     $domain = (new DomainPrefixResolver(
         new MessageOverrides

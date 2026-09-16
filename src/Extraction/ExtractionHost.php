@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Extraction;
+namespace Syriable\Translation\Extraction;
 
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;

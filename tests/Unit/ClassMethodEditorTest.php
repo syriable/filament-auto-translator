@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Syriable\MessageCatalog\Apply\ClassMethodEditor;
+use Syriable\Translation\Apply\ClassMethodEditor;
 
 it('inserts getModelLabel when the class does not declare it', function () {
     $source = <<<'PHP'

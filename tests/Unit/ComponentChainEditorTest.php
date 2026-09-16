@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Syriable\MessageCatalog\Apply\ComponentChainEditor;
+use Syriable\Translation\Apply\ComponentChainEditor;
 
 it('inserts label and placeholder after make on a multiline chain', function () {
     $source = <<<'PHP'

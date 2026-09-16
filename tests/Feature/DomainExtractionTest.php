@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\File;
-use Syriable\MessageCatalog\Catalog\CatalogWriter;
-use Syriable\MessageCatalog\Discovery\DomainRegistry;
-use Syriable\MessageCatalog\Extraction\MessageExtractor;
-use Syriable\MessageCatalog\Extraction\MessageScanner;
+use Syriable\Translation\Catalog\CatalogWriter;
+use Syriable\Translation\Discovery\DomainRegistry;
+use Syriable\Translation\Extraction\MessageExtractor;
+use Syriable\Translation\Extraction\MessageScanner;
 
 beforeEach(function () {
     $this->langPath = sys_get_temp_dir().'/messages-schemas-'.uniqid('', true);
@@ -22,7 +22,7 @@ function discoverSchemaFixtures(): void
 {
     app(DomainRegistry::class)->discover(
         in: dirname(__DIR__).'/Fixtures/Schemas',
-        for: 'Syriable\\MessageCatalog\\Tests\\Fixtures\\Schemas',
+        for: 'Syriable\\Translation\\Tests\\Fixtures\\Schemas',
     );
 }
 
@@ -109,10 +109,10 @@ it('writes nothing when no discovery path is registered', function () {
         ->and(is_file(lang_path('en/identity/user-edit.php')))->toBeFalse();
 });
 
-it('includes discovered schema catalogs in the messages:extract command', function () {
+it('includes discovered schema catalogs in the translations:extract command', function () {
     discoverSchemaFixtures();
 
-    $this->artisan('messages:extract', ['--locale' => 'en,ar'])
+    $this->artisan('translations:extract', ['--locale' => 'en,ar'])
         ->assertSuccessful();
 
     $english = include lang_path('en/identity/user-edit.php');

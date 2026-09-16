@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog;
+namespace Syriable\Translation;
 
-use Syriable\MessageCatalog\Enums\MessageSlot;
-use Syriable\MessageCatalog\Enums\MessageSurface;
+use Syriable\Translation\Enums\MessageSlot;
+use Syriable\Translation\Enums\MessageSurface;
 
 class MessageIdentity
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Discovery;
+namespace Syriable\Translation\Discovery;
 
 use Filament\Schemas\Schema;
 
@@ -19,6 +19,10 @@ class DiscoveredDomain
 
     public function build(Schema $schema): mixed
     {
-        return call_user_func([$this->class, $this->method], $schema);
+        $builder = [$this->class, $this->method];
+
+        // DomainDiscoverer only constructs this for a builder it confirmed by
+        // reflection, so the guard is for the type checker, not for runtime.
+        return is_callable($builder) ? $builder($schema) : null;
     }
 }

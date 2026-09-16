@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Concerns;
+namespace Syriable\Translation\Concerns;
 
 use Illuminate\Contracts\Support\Htmlable;
-use Syriable\MessageCatalog\Discovery\DomainPrefixResolver;
-use Syriable\MessageCatalog\Discovery\DomainResolver;
-use Syriable\MessageCatalog\Enums\MessageSlot;
-use Syriable\MessageCatalog\Enums\MessageSurface;
-use Syriable\MessageCatalog\Support\NameNormalizer;
+use Syriable\Translation\Discovery\DomainPrefixResolver;
+use Syriable\Translation\Discovery\DomainResolver;
+use Syriable\Translation\Enums\MessageSlot;
+use Syriable\Translation\Enums\MessageSurface;
+use Syriable\Translation\Support\NameNormalizer;
 
-trait HasPageMessages
+trait HasPageTranslations
 {
     use ResolvesTranslationDomain;
 
@@ -38,7 +38,7 @@ trait HasPageMessages
 
     public function getTitle(): string|Htmlable
     {
-        $message = static::catalogPhrase(MessageSurface::Pages, MessageSlot::Title, path: static::phrasePagePath());
+        $message = static::catalogMessage(MessageSurface::Pages, MessageSlot::Title, path: static::messagePagePath());
 
         if ($message !== null) {
             return $message;
@@ -49,7 +49,7 @@ trait HasPageMessages
 
     public function getSubheading(): string|Htmlable|null
     {
-        $message = static::catalogPhrase(MessageSurface::Pages, MessageSlot::Subheading, path: static::phrasePagePath());
+        $message = static::catalogMessage(MessageSurface::Pages, MessageSlot::Subheading, path: static::messagePagePath());
 
         if ($message !== null) {
             return $message;
@@ -60,7 +60,7 @@ trait HasPageMessages
 
     public static function getNavigationLabel(): string
     {
-        $label = static::catalogPhrase(MessageSurface::Pages, MessageSlot::Label, path: static::phrasePagePath());
+        $label = static::catalogMessage(MessageSurface::Pages, MessageSlot::Label, path: static::messagePagePath());
 
         if (is_string($label)) {
             return $label;
@@ -72,7 +72,7 @@ trait HasPageMessages
     /**
      * @return array<int, string>
      */
-    protected static function phrasePagePath(): array
+    protected static function messagePagePath(): array
     {
         return [NameNormalizer::kebabClassBasename(static::class)];
     }

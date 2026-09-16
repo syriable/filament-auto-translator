@@ -1,6 +1,6 @@
-# syriable/laravel-message-catalog
+# syriable/laravel-translation
 
-Message catalogs for Filament and Livewire UI copy: identifiers in PHP, translations in language files.
+Translations for Filament and Livewire UI copy: identifiers in PHP, copy in language files.
 
 Filament already translates strings. This package removes the work of inventing and threading keys through every `label()`, heading, hint, and nested action. It works inside a Filament panel and on public Livewire pages alike. PHP keeps machine names. Language files keep the copy.
 
@@ -25,9 +25,9 @@ TextInput::make('email')  →    'form' => ['components' => ['email' => ['label'
 - [Overrides](#overrides)
 - [Manual lookup](#manual-lookup)
 - [Explaining a resolution](#explaining-a-resolution)
-- [`messages:debug`](#messagesdebug)
-- [`messages:extract`](#messagesextract)
-- [`messages:inline`](#messagesinline)
+- [`translations:debug`](#messagesdebug)
+- [`translations:extract`](#messagesextract)
+- [`translations:inline`](#messagesinline)
 - [Configuration](#configuration)
 - [Name rules](#name-rules)
 - [PHPStan](#phpstan)
@@ -51,15 +51,15 @@ Opt in per class. Classes without a `#[TranslationDomain]` attribute are left al
 ## Installation
 
 ```bash
-composer require syriable/laravel-message-catalog
+composer require syriable/laravel-translation
 ```
 
-The service provider is auto-discovered. It publishes config and registers `php artisan messages:debug`, `messages:extract`, and `messages:inline`.
+The service provider is auto-discovered. It publishes config and registers `php artisan translations:debug`, `translations:extract`, and `translations:inline`.
 
 Publish the config file:
 
 ```bash
-php artisan vendor:publish --tag=messages-config
+php artisan vendor:publish --tag=translations-config
 ```
 
 ### Register where your schemas live
@@ -67,10 +67,10 @@ php artisan vendor:publish --tag=messages-config
 **In a Filament panel** — register the plugin on each panel:
 
 ```php
-use Syriable\MessageCatalog\MessageCatalogPlugin;
+use Syriable\Translation\TranslationPlugin;
 
 $panel->plugin(
-    MessageCatalogPlugin::make()
+    TranslationPlugin::make()
         ->domainPrefixes([
             'Modules\\Billing' => 'billing',
             'App\\Filament' => 'filament',
@@ -83,10 +83,10 @@ register its directory instead. This also starts binding, so there is nothing
 else to call:
 
 ```php
-use Syriable\MessageCatalog\Messages;
+use Syriable\Translation\Translations;
 
 // in a module service provider's boot()
-Messages::discoverIn(
+Translations::discoverIn(
     __DIR__.'/../Livewire/Schemas',
     'Modules\\Identity\\Livewire\\Schemas',
 );
@@ -101,11 +101,11 @@ and using both together is fine.
 
 ```php
 use Filament\Resources\Resource;
-use Syriable\MessageCatalog\Concerns\HasModelMessages;
+use Syriable\Translation\Concerns\HasModelTranslations;
 
 class UserResource extends Resource
 {
-    use HasModelMessages;
+    use HasModelTranslations;
 }
 ```
 
@@ -116,7 +116,7 @@ Copy lives in `lang/{locale}/filament/user-resource.php`.
 A prefix ending in `::` names a registered translation namespace instead of a folder, so a module keeps its copy in its own lang directory:
 
 ```php
-MessageCatalogPlugin::make()
+TranslationPlugin::make()
     ->domainPrefixes(['Modules\\Identity' => 'identity::']);
 ```
 
@@ -128,26 +128,26 @@ To name the domain outright rather than derive it, put `#[TranslationDomain]` on
 #[TranslationDomain('identity::people')]
 class UserResource extends Resource
 {
-    use HasModelMessages;
+    use HasModelTranslations;
 }
 ```
 
 ### 2. Share that catalog on resource pages
 
-Schema components resolve the catalog from the **Livewire owner** (the page), not from the resource class. Use `HasPageMessages` on create / edit / list / view. Do **not** use `HasModelMessages` on a page: Filament pages declare instance `getModelLabel()`, and `HasModelMessages` declares it static.
+Schema components resolve the catalog from the **Livewire owner** (the page), not from the resource class. Use `HasPageTranslations` on create / edit / list / view. Do **not** use `HasModelTranslations` on a page: Filament pages declare instance `getModelLabel()`, and `HasModelTranslations` declares it static.
 
 ```php
 use Filament\Resources\Pages\EditRecord;
-use Syriable\MessageCatalog\Concerns\HasPageMessages;
-use Syriable\MessageCatalog\Attributes\TranslationDomain;
+use Syriable\Translation\Concerns\HasPageTranslations;
+use Syriable\Translation\Attributes\TranslationDomain;
 
 class EditUser extends EditRecord
 {
-    use HasPageMessages;
+    use HasPageTranslations;
 }
 ```
 
-`HasPageMessages` reads `getResource()` and reuses the resource translation domain, unless the page declares its own `#[TranslationDomain]`.
+`HasPageTranslations` reads `getResource()` and reuses the resource translation domain, unless the page declares its own `#[TranslationDomain]`.
 
 ### 3. Keep identifiers in PHP
 
@@ -485,7 +485,7 @@ return [
 | `group` | Navigation group | No |
 | `plural` | Plural model label | No |
 | `body` | Schema text content; optional notification body keyed by status | Schema text: yes. Notification: no |
-| `notification_title` | Extra action notification copy via `Messages::slot()` | No |
+| `notification_title` | Extra action notification copy via `Translations::slot()` | No |
 
 Required slots follow [mode](#missing-message-policy) when missing. Optional slots stay empty when missing.
 
@@ -664,10 +664,10 @@ Default id:
 
 Longest matching namespace wins. Equal-length overlaps throw `CatalogPrefixOverlapException`.
 
-Configure in `config/messages.php`, on the plugin, or both. Plugin values are merged on top of config (same namespace key: plugin wins).
+Configure in `config/translations.php`, on the plugin, or both. Plugin values are merged on top of config (same namespace key: plugin wins).
 
 ```php
-MessageCatalogPlugin::make()
+TranslationPlugin::make()
     ->domainPrefixes([
         'Modules\\Billing' => 'billing',
         'App\\Filament' => 'filament',
@@ -703,7 +703,7 @@ namespace Modules\Identity\Livewire\Schemas\User;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
-use Syriable\MessageCatalog\Attributes\TranslationDomain;
+use Syriable\Translation\Attributes\TranslationDomain;
 
 #[TranslationDomain('identity::user-edit')]
 class EditForm
@@ -718,7 +718,7 @@ class EditForm
 }
 ```
 
-`messages:debug`, `messages:extract`, and `messages:inline` walk these alongside resources. `identity.user-edit` writes to `lang/{locale}/identity/user-edit.php`:
+`translations:debug`, `translations:extract`, and `translations:inline` walk these alongside resources. `identity.user-edit` writes to `lang/{locale}/identity/user-edit.php`:
 
 ```php
 return [
@@ -735,15 +735,15 @@ The named class owns the domain, not the Livewire component that renders it. A
 single-file component points at it instead of repeating the literal:
 
 ```php
-use Syriable\MessageCatalog\Messages;
+use Syriable\Translation\Translations;
 
 public static function translationDomain(): string
 {
-    return Messages::domainFor(EditForm::class);
+    return Translations::domainFor(EditForm::class);
 }
 ```
 
-`HasModelMessages` and `HasPageMessages` stay on Filament resources and pages. A site Livewire component does not need them — the binder reads the catalog from the schema's owner.
+`HasModelTranslations` and `HasPageTranslations` stay on Filament resources and pages. A site Livewire component does not need them — the binder reads the catalog from the schema's owner.
 
 ### Register a directory, not a class list
 
@@ -752,7 +752,7 @@ Discovery mirrors `discoverResources()`: name a directory and its PSR-4 namespac
 From the panel plugin:
 
 ```php
-MessageCatalogPlugin::make()
+TranslationPlugin::make()
     ->domainPrefixes(['Modules\\Identity' => 'identity'])
     ->discoverIn(
         in: base_path('modules/identity/src/Livewire/Schemas'),
@@ -763,21 +763,21 @@ MessageCatalogPlugin::make()
 From a module service provider, for schemas that never appear in a panel:
 
 ```php
-use Syriable\MessageCatalog\Messages;
+use Syriable\Translation\Translations;
 
 public function boot(): void
 {
-    Messages::discoverIn(
+    Translations::discoverIn(
         __DIR__.'/../Livewire/Schemas',
         'Modules\\Identity\\Livewire\\Schemas',
     );
 }
 ```
 
-`Messages::discoverIn()` also starts binding, which the panel plugin does on boot.
+`Translations::discoverIn()` also starts binding, which the panel plugin does on boot.
 Outside a panel nothing else does, so this one call is all a module needs.
 
-Or from `config/messages.php`:
+Or from `config/translations.php`:
 
 ```php
 'discover_paths' => [
@@ -803,11 +803,11 @@ A namespaced translation key (`vendor::group.key`) is not a translation domain. 
 
 ### What is walked
 
-Only the schema the builder returns, under the `form` scope. Pruning is scoped to it: a component you delete from the schema loses its key on the next `messages:extract`, and keys in other scopes are left alone. Model, navigation, page, and table chrome stay exclusive to resources.
+Only the schema the builder returns, under the `form` scope. Pruning is scoped to it: a component you delete from the schema loses its key on the next `translations:extract`, and keys in other scopes are left alone. Model, navigation, page, and table chrome stay exclusive to resources.
 
 ## What is bound automatically
 
-After `MessageCatalogPlugin` boots, the binder fills **unset** slots on:
+After `TranslationPlugin` boots, the binder fills **unset** slots on:
 
 | Component | Slots | When it binds |
 | --- | --- | --- |
@@ -815,7 +815,7 @@ After `MessageCatalogPlugin` boots, the binder fills **unset** slots on:
 | `Filament\Infolists\Components\Entry` | `label`, `helper_text`, `hint`, `placeholder`, `before_content`, `after_content` | Same rules as fields; `TextEntry::make('info')` is the identifier |
 | `Filament\Schemas\Components\Section` | `heading`, `description` | Only when the heading is empty; optional; omit the catalog keys to keep the section untitled; description is optional, like helper text; use `->key()` for the machine name |
 | `Filament\Schemas\Components\Fieldset` | `label` | Only when the label is unset; optional; `Fieldset::make()->key('authorization')` fills `form.components.authorization.label`; omit the key to keep the fieldset untitled; children nest under `{layout}.schema` |
-| `Filament\Schemas\Components\Wizard` | `label` | When the wizard is keyed and the label is unset |
+| `Filament\Schemas\Components\Wizard` | `label` | When the wizard is keyed and the label is unset; optional, like a section heading: `translations:extract` keeps the key if you write one but never stubs it |
 | `Filament\Schemas\Components\Wizard\Step` | `label` | `Step::make('machine_name')` is the identifier; catalog copy fills the visible label unless `->label()` is set after `make()` |
 | `Filament\Schemas\Components\Tabs` | `label` | `Tabs::make('machine_name')` is the identifier |
 | `Filament\Schemas\Components\Tabs\Tab` | `label` | `Tab::make('machine_name')` is the identifier; same override rule as steps |
@@ -833,7 +833,7 @@ Vendor actions such as `DeleteAction` keep their Filament language file until **
 
 ## Resource chrome
 
-`HasModelMessages` is for **resources** (static Filament chrome):
+`HasModelTranslations` is for **resources** (static Filament chrome):
 
 | Method | Identity |
 | --- | --- |
@@ -843,7 +843,7 @@ Vendor actions such as `DeleteAction` keep their Filament language file until **
 | `getNavigationLabel()` | `navigation_label` |
 | `getNavigationGroup()` | `navigation_group` |
 
-`HasPageMessages` is for **resource pages**. It shares the resource catalog unless the page declares its own `#[TranslationDomain]`. Page keys use the class kebab (`EditUser` → `edit-user`), not the registered route name (`edit`):
+`HasPageTranslations` is for **resource pages**. It shares the resource catalog unless the page declares its own `#[TranslationDomain]`. Page keys use the class kebab (`EditUser` → `edit-user`), not the registered route name (`edit`):
 
 | Method | Identity |
 | --- | --- |
@@ -856,32 +856,32 @@ If the message is missing, the traits fall back to the parent Filament implement
 ## Missing-message policy
 
 What happens when a message has no line in the language file. Set it globally
-with `MESSAGES_ON_MISSING` / `config('messages.on_missing')`, or per panel:
+with `TRANSLATIONS_ON_MISSING` / `config('translations.on_missing')`, or per panel:
 
 ```php
-use Syriable\MessageCatalog\Enums\MissingMessagePolicy;
+use Syriable\Translation\Enums\MissingMessagePolicy;
 
-MessageCatalogPlugin::make()->onMissing(MissingMessagePolicy::Debug);
+TranslationPlugin::make()->onMissing(MissingMessagePolicy::Debug);
 ```
 
 | Policy | Missing **required** slot (`label`, `title`, schema `body`) | Missing **optional** slot |
 | --- | --- | --- |
-| `fallback` (default) | Keep Filament's own text | Empty |
+| `keep_vendor_label` (default) | Keep Filament's own text | Empty |
 | `debug` | Render the compiled key in the UI so you can paste it into a language file | Empty |
 | `strict` | Throw `MissingMessageException` | Empty |
 
-`fallback` is the default because `debug` puts raw keys in front of users: ship a
+`keep_vendor_label` is the default because `debug` puts raw keys in front of users: ship a
 screen before its copy and someone reads
 `identity::user-edit.form.components.tabs-user.label`. Use `debug` locally when
-you want to see what to add, and `messages:debug` to find gaps anywhere.
+you want to see what to add, and `translations:debug` to find gaps anywhere.
 
 A key present only in the **fallback locale** — English while the app runs in
 Arabic, say — is **not** treated as present in the current locale. The outcome is
-`used_fallback`, no policy rewrites that text, and you still see the English
-string. `messages:debug --fail-on-fallback` fails CI until the current locale has
+`used_fallback_locale`, no policy rewrites that text, and you still see the
+English string. `translations:debug --fail-on-fallback` fails CI until the current locale has
 its own line.
 
-An unknown `MESSAGES_ON_MISSING` value falls back to `fallback`.
+An unknown `TRANSLATIONS_ON_MISSING` value falls back to `keep_vendor_label`.
 
 ## Overrides
 
@@ -896,7 +896,7 @@ TextInput::make('email');                          // leaf = email
 TextInput::make('email')->messageName('billing_email'); // leaf = billing_email
 TextInput::make('email')->label('Work email');     // catalog not used for label
 
-AddressSchema::make()->catalog('shared.address');  // this subtree uses another translation domain
+AddressSchema::make()->domain('shared.address');   // this subtree uses another translation domain
 ```
 
 `messageName()` and `domain()` are macros on `Filament\Support\Components\Component`. They store bindings in a `WeakMap` (no dynamic properties on Filament objects).
@@ -906,18 +906,18 @@ AddressSchema::make()->catalog('shared.address');  // this subtree uses another 
 For option labels and other 1% cases the binder does not hook:
 
 ```php
-use Syriable\MessageCatalog\Enums\MessageSlot;
-use Syriable\MessageCatalog\Messages;
+use Syriable\Translation\Enums\MessageSlot;
+use Syriable\Translation\Translations;
 
 Select::make('role')
     ->options([
-        'admin' => Messages::slot($this, MessageSlot::Label, relative: 'options.admin'),
-        'member' => Messages::slot($this, MessageSlot::Label, relative: 'options.member'),
+        'admin' => Translations::slot($this, MessageSlot::Label, relative: 'options.admin'),
+        'member' => Translations::slot($this, MessageSlot::Label, relative: 'options.member'),
     ]);
 
-Messages::slot($action, MessageSlot::NotificationTitle, relative: 'success');
-Messages::slot($field, MessageSlot::Label, replace: ['name' => $user->name]);
-Messages::slot($field, MessageSlot::Label, number: $count);
+Translations::slot($action, MessageSlot::NotificationTitle, relative: 'success');
+Translations::slot($field, MessageSlot::Label, replace: ['name' => $user->name]);
+Translations::slot($field, MessageSlot::Label, number: $count);
 ```
 
 `relative` is appended to the compiled key (dots become nested array keys). `replace` and `number` use Laravel `__()` / `trans_choice()` on the compiled key.
@@ -925,13 +925,13 @@ Messages::slot($field, MessageSlot::Label, number: $count);
 ## Explaining a resolution
 
 ```php
-use Syriable\MessageCatalog\Enums\MessageSlot;
-use Syriable\MessageCatalog\Inspection\ResolutionExplainer;
+use Syriable\Translation\Enums\MessageSlot;
+use Syriable\Translation\Binding\ResolutionExplainer;
 
 $resolution = ResolutionExplainer::explain($component, MessageSlot::Label);
 
 $resolution->key;      // filament/user-resource.form.components.email.label
-$resolution->decision; // bound | missing | used_fallback | no_catalog | unbound | …
+$resolution->decision; // bound | missing | used_fallback_locale | no_catalog | unbound | …
 $resolution->text;
 $resolution->reason;
 $resolution->presentInCurrentLocale;
@@ -940,15 +940,15 @@ $resolution->presentInFallbackLocale;
 
 Use this when a label looks wrong and you need to know which identity was chosen.
 
-## messages:debug
+## translations:debug
 
 ```bash
-php artisan messages:debug
-php artisan messages:debug --locale=ar
-php artisan messages:debug --locale=ar --fail-on-missing --fail-on-fallback
+php artisan translations:debug
+php artisan translations:debug --locale=ar
+php artisan translations:debug --locale=ar --fail-on-missing --fail-on-fallback
 ```
 
-Walks opted-in Filament resources: form fields, table columns/filters/actions, action notification titles from `Notification::make()->success()` (and danger/info/warning) inside action closures, model and navigation labels, and page titles. Requires a booted panel with registered resources.
+Walks opted-in Filament resources: form fields, table columns/filters/actions, action notification titles from `Notification::make()->success()` (and danger/info/warning) inside action closures, model and navigation labels, and page titles. It boots the registered panels itself, so no request or panel setup is needed.
 
 | Option | Effect |
 | --- | --- |
@@ -961,19 +961,33 @@ A clean run prints `No message issues found.`
 You can also audit a list of identities in PHP:
 
 ```php
-use Syriable\MessageCatalog\Audit\MessageScanner;
+use Syriable\Translation\Extraction\MessageScanner;
 
 app(MessageScanner::class)->auditIdentities([$identity]);
 ```
 
-## messages:extract
+Or audit a list of components you built yourself, against a domain of your
+choosing — useful for asserting your own schemas resolve in a test:
+
+```php
+use Syriable\Translation\Extraction\MessageScanner;
+
+$findings = app(MessageScanner::class)->auditComponents(
+    $schema->getComponents(),
+    'identity::user-edit',
+);
+```
+
+Each finding is `['key' => …, 'catalog' => …, 'decision' => …, 'locale' => …, 'text' => …]`.
+
+## translations:extract
 
 ```bash
-php artisan messages:extract
-php artisan messages:extract --locale=ar
-php artisan messages:extract --locale=en,ar
-php artisan messages:extract --locale=ar --dry-run
-php artisan messages:extract --no-prune
+php artisan translations:extract
+php artisan translations:extract --locale=ar
+php artisan translations:extract --locale=en,ar
+php artisan translations:extract --locale=ar --dry-run
+php artisan translations:extract --no-prune
 ```
 
 Creates missing catalog language files and nested keys. It also **removes** keys whose component is no longer in the walked resource (for example `Text::make('or')` after you delete that component). It does **not** overwrite copy that is already in the file. Optional slots under a live component stay (`placeholder`, `options.*`, notification `body`). Page action keys stay while that page is still registered. Missing keys get a humanized stub (`is_featured` → `Is featured`). A key present only in the fallback locale is copied into the current locale file so you can translate it.
@@ -990,17 +1004,17 @@ It walks registered Filament resources **and** discovered [schema domains](#sche
 
 The commands boot every registered panel before they walk it. A panel plugin is configured in `Panel::boot()`, which a console command never triggers on its own, so without this the CLI would read no domain prefixes, no plugin discovery paths and no missing-message policy — and write copy to a different file than the browser reads from.
 
-Keep `messages:debug` for CI. Use `messages:extract` while scaffolding a resource, then replace stubs with real copy.
+Keep `translations:debug` for CI. Use `translations:extract` while scaffolding a resource, then replace stubs with real copy.
 
-## messages:inline
+## translations:inline
 
 ```bash
-php artisan messages:inline
-php artisan messages:inline --locale=en
-php artisan messages:inline --locale=en --dry-run
+php artisan translations:inline
+php artisan translations:inline --locale=en
+php artisan translations:inline --locale=en --dry-run
 ```
 
-The reverse of `messages:extract`. Reads keys that **already exist** in the catalog language file and writes matching Filament setters onto `::make('…')` chains, plus resource chrome methods (`getModelLabel()`, `getPluralModelLabel()`, `getPluralLabel()`, `getNavigationLabel()`, `getNavigationGroup()`) and page `getTitle()`, `getSubheading()`, and `getNavigationLabel()` when those keys exist.
+The reverse of `translations:extract`. Reads keys that **already exist** in the catalog language file and writes matching Filament setters onto `::make('…')` chains, plus resource chrome methods (`getModelLabel()`, `getPluralModelLabel()`, `getPluralLabel()`, `getNavigationLabel()`, `getNavigationGroup()`) and page `getTitle()`, `getSubheading()`, and `getNavigationLabel()` when those keys exist.
 
 ```php
 TextInput::make('name')
@@ -1031,25 +1045,24 @@ public static function getModelLabel(): string
 
 It walks registered Filament resources and discovered [schema domains](#schema-domains-outside-resources). A schema domain's setters are written into that catalog class's own file.
 
-Identifier-only PHP remains the default. Use `messages:inline` only when you want keys visible in PHP.
+Identifier-only PHP remains the default. Use `translations:inline` only when you want keys visible in PHP.
 
 ## Configuration
 
-`config/messages.php` (after publish):
+`config/translations.php` (after publish):
 
 | Key | Env | Default | Role |
 | --- | --- | --- | --- |
-| `on_missing` | `MESSAGES_ON_MISSING` | `fallback` | `fallback`, `debug`, or `strict` — see [policy](#missing-message-policy) |
+| `on_missing` | `TRANSLATIONS_ON_MISSING` | `keep_vendor_label` | `keep_vendor_label`, `debug`, or `strict` — see [policy](#missing-message-policy) |
 | `default_domain_prefix` | — | `filament` | Prefix when no namespace map matches |
 | `domain_prefixes` | — | `[]` | `['Modules\\Billing' => 'billing']` |
 | `discover_paths` | — | `[]` | `[['path' => …, 'namespace' => …]]` — directories scanned for [schema domains](#schema-domains-outside-resources) |
-| `debug_query` | — | `messages` | Reserved query-string key for request-level dumps (not consumed by the binder yet) |
 | `max_parent_depth` | — | `32` | Cap when walking parent schema components; exceeding it throws `ParentDepthExceededException` |
 
 Panel plugin options:
 
 ```php
-MessageCatalogPlugin::make()
+TranslationPlugin::make()
     ->domainPrefixes([/* … */])   // merged over config
     ->discoverIn(                 // merged with config paths
         in: base_path('modules/identity/src/Livewire/Schemas'),
@@ -1072,18 +1085,16 @@ MessageCatalogPlugin::make()
 ```neon
 parameters:
     stubFiles:
-        - vendor/syriable/laravel-message-catalog/stubs/filament-components.stub
+        - vendor/syriable/laravel-translation/stubs/filament-components.stub
 ```
 
 Inside this monorepo the stub is already listed in the application `phpstan.neon`.
 
 ## Current limits
 
-The package binds the slots listed above. Widgets, relation-manager chrome, and import/export are not hooked yet; use `->label()` / `Messages::slot()` there.
+The package binds the slots listed above. Widgets, relation-manager chrome, and import/export are not hooked yet; use `->label()` / `Translations::slot()` there.
 
-`messages:debug` and `messages:extract` walk registered resource forms, tables, action notification titles from action closures, model/navigation chrome, and page titles, plus discovered schema domains. They do not yet walk widgets or relation-manager chrome.
-
-`debug_query` is reserved configuration only.
+`translations:debug` and `translations:extract` walk registered resource forms, tables, action notification titles from action closures, model/navigation chrome, and page titles, plus discovered schema domains. They do not yet walk widgets or relation-manager chrome.
 
 Heading-only sections never become catalog path segments.
 
@@ -1092,7 +1103,6 @@ Heading-only sections never become catalog path segments.
 Run the suite **from the package**, not from the host application:
 
 ```bash
-cd packages/filament-messages
 composer install
 composer test
 ```

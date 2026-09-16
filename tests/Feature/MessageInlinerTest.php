@@ -7,10 +7,10 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\File;
-use Syriable\MessageCatalog\Apply\PhrasePhpApplier;
-use Syriable\MessageCatalog\Binding\MessageBinder;
-use Syriable\MessageCatalog\Catalog\CatalogWriter;
-use Syriable\MessageCatalog\Extraction\ExtractionHost;
+use Syriable\Translation\Apply\MessageInliner;
+use Syriable\Translation\Binding\MessageBinder;
+use Syriable\Translation\Catalog\CatalogWriter;
+use Syriable\Translation\Extraction\ExtractionHost;
 
 beforeEach(function () {
     $this->langPath = sys_get_temp_dir().'/messages-apply-lang-'.uniqid('', true);
@@ -49,7 +49,7 @@ PHP);
         TextInput::make('name')->required(),
     ]);
 
-    $writes = app(PhrasePhpApplier::class)->applyComponents(
+    $writes = app(MessageInliner::class)->applyComponents(
         $schema->getComponents(),
         [$phpPath],
         'filament.user-resource',
@@ -91,7 +91,7 @@ PHP);
         TextInput::make('name')->required(),
     ]);
 
-    $writes = app(PhrasePhpApplier::class)->applyComponents(
+    $writes = app(MessageInliner::class)->applyComponents(
         $schema->getComponents(),
         [$phpPath],
         'filament.user-resource',
@@ -132,7 +132,7 @@ PHP);
         TextInput::make('name')->required(),
     ]);
 
-    app(PhrasePhpApplier::class)->applyComponents(
+    app(MessageInliner::class)->applyComponents(
         $schema->getComponents(),
         [$phpPath],
         'filament.user-resource',
@@ -187,7 +187,7 @@ PHP);
             }),
     ]);
 
-    $writes = app(PhrasePhpApplier::class)->applyComponents(
+    $writes = app(MessageInliner::class)->applyComponents(
         $schema->getComponents(),
         [$phpPath],
         'filament.user-resource',
@@ -215,7 +215,7 @@ class UserResource
 }
 PHP);
 
-    $writes = app(PhrasePhpApplier::class)->applyClassMethods($phpPath, [
+    $writes = app(MessageInliner::class)->applyClassMethods($phpPath, [
         [
             'method' => 'getModelLabel',
             'key' => 'filament/user-resource.model_label',

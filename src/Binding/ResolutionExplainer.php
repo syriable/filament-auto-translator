@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Binding;
+namespace Syriable\Translation\Binding;
 
-use Syriable\MessageCatalog\Enums\MessageSlot;
-use Syriable\MessageCatalog\Resolution;
+use Syriable\Translation\Enums\MessageSlot;
+use Syriable\Translation\Resolution;
 
 class ResolutionExplainer
 {

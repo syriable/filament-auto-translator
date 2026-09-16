@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Console;
+namespace Syriable\Translation\Console;
 
 use Illuminate\Console\Command;
-use Syriable\MessageCatalog\Extraction\ExtractionWrite;
-use Syriable\MessageCatalog\Extraction\MessageExtractor;
+use Syriable\Translation\Extraction\ExtractionWrite;
+use Syriable\Translation\Extraction\MessageExtractor;
 
 class ExtractMessagesCommand extends Command
 {
-    protected $signature = 'messages:extract
+    protected $signature = 'translations:extract
         {--locale= : Locale to write, or comma-separated locales}
         {--dry-run : Show missing and orphan keys without writing files}
         {--no-prune : Keep language keys for components that were removed}';

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Tests\Fixtures;
+namespace Syriable\Translation\Tests\Fixtures;
 
-use Syriable\MessageCatalog\Attributes\TranslationDomain;
-use Syriable\MessageCatalog\Concerns\HasPageMessages;
+use Syriable\Translation\Attributes\TranslationDomain;
+use Syriable\Translation\Concerns\HasPageTranslations;
 
 /**
  * A page that keeps its own domain instead of sharing its resource's.
@@ -13,5 +13,5 @@ use Syriable\MessageCatalog\Concerns\HasPageMessages;
 #[TranslationDomain('identity::people-edit')]
 class DeclaredDomainPage extends CatalogPageParent
 {
-    use HasPageMessages;
+    use HasPageTranslations;
 }

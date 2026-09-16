@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Extraction;
+namespace Syriable\Translation\Extraction;
 
 use Closure;
 use Filament\Actions\Action;

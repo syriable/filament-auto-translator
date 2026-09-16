@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Tests\Fixtures;
+namespace Syriable\Translation\Tests\Fixtures;
 
 use Filament\Actions\Action;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Livewire\Component;
-use Syriable\MessageCatalog\Discovery\DomainPrefixResolver;
+use Syriable\Translation\Discovery\DomainPrefixResolver;
 
 class DomainForm extends Component implements HasSchemas
 {

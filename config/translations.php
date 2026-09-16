@@ -6,19 +6,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Phrase Mode
+    | Missing Message Policy
     |--------------------------------------------------------------------------
     |
-    | This value controls how missing catalog copy is handled. Inspect shows
-    | the compiled translation key in the panel so you can add it to a lang
-    | file. Strict throws when a required phrase is missing. Lenient keeps
-    | Filament's default text and logs the gap.
+    | What happens when a message has no line in the language file.
     |
-    | Supported: "inspect", "strict", "lenient"
+    |   keep_vendor_label  Keep Filament's own label and carry on. The default.
+    |   debug              Render the compiled key, so you can see what to add.
+    |   strict             Throw.
+    |
+    | This is not about the fallback locale, which is separate: a key missing
+    | in the current locale but present in the fallback one is used, and this
+    | policy never comes into it.
     |
     */
 
-    'on_missing' => env('MESSAGES_ON_MISSING', 'fallback'),
+    'on_missing' => env('TRANSLATIONS_ON_MISSING', 'keep_vendor_label'),
 
     /*
     |--------------------------------------------------------------------------
@@ -64,16 +67,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Schema Catalog Paths
+    | Discovery Paths
     |--------------------------------------------------------------------------
     |
-    | Directories scanned for phrase catalogs that own a schema but are not
-    | Filament resources, such as Livewire form schemas on the public site.
-    | A class is collected when it implements the PhraseCatalog contract and
-    | exposes a public static form(Schema) or configure(Schema) builder.
+    | Directories scanned for classes that own a schema but are not Filament
+    | resources, such as Livewire form schemas on the public site. A class is
+    | collected when it carries a #[TranslationDomain] attribute and exposes a
+    | public static form(Schema) or configure(Schema) builder.
     |
-    | Register a module once. Panel plugins can do the same through
-    | MessageCatalogPlugin::make()->discoverDiscoveredDomains(in: ..., for: ...).
+    | Register a module once. A service provider can do the same through
+    | Translations::discoverIn($path, $namespace), and a panel plugin through
+    | TranslationPlugin::make()->discoverIn(in: ..., for: ...).
     |
     */
 
@@ -86,23 +90,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Inspect Query Parameter
-    |--------------------------------------------------------------------------
-    |
-    | When this query string key is present on a request, inspect mode may
-    | dump phrase resolutions for that request (for example ?phrases=1).
-    | Leave this as a dedicated key so it does not collide with app filters.
-    |
-    */
-
-    'debug_query' => 'messages',
-
-    /*
-    |--------------------------------------------------------------------------
     | Maximum Parent Depth
     |--------------------------------------------------------------------------
     |
-    | Phrase identity walks parent schema and action components to build a
+    | Message identity walks parent schema and action components to build a
     | stable path. This cap stops infinite walks on cyclic or unexpectedly
     | deep trees. Exceeding it throws ParentDepthExceededException.
     |

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Binding;
+namespace Syriable\Translation\Binding;
 
 use WeakMap;
 

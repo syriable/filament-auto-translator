@@ -6,19 +6,19 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\File;
-use Syriable\MessageCatalog\Binding\MessageBinder;
-use Syriable\MessageCatalog\Binding\ResolutionExplainer;
-use Syriable\MessageCatalog\Catalog\CatalogWriter;
-use Syriable\MessageCatalog\Enums\MessageSlot;
-use Syriable\MessageCatalog\Enums\MessageSurface;
-use Syriable\MessageCatalog\Enums\ResolutionOutcome;
-use Syriable\MessageCatalog\Extraction\ExtractionHost;
-use Syriable\MessageCatalog\Extraction\MessageExtractor;
-use Syriable\MessageCatalog\Extraction\MessageScanner;
-use Syriable\MessageCatalog\MessageIdentity;
+use Syriable\Translation\Binding\MessageBinder;
+use Syriable\Translation\Binding\ResolutionExplainer;
+use Syriable\Translation\Catalog\CatalogWriter;
+use Syriable\Translation\Enums\MessageSlot;
+use Syriable\Translation\Enums\MessageSurface;
+use Syriable\Translation\Enums\ResolutionOutcome;
+use Syriable\Translation\Extraction\ExtractionHost;
+use Syriable\Translation\Extraction\MessageExtractor;
+use Syriable\Translation\Extraction\MessageScanner;
+use Syriable\Translation\MessageIdentity;
 
 beforeEach(function () {
-    $this->langPath = sys_get_temp_dir().'/messages-phrases-'.uniqid('', true);
+    $this->langPath = sys_get_temp_dir().'/translations-messages-'.uniqid('', true);
     File::ensureDirectoryExists($this->langPath);
     app()->useLangPath($this->langPath);
 });
@@ -85,7 +85,7 @@ it('adds a missing nested key to an existing language file', function () {
         ->and($loaded['form']['components']['name']['label'])->toBe('Name');
 });
 
-it('does not overwrite an existing phrase value', function () {
+it('does not overwrite an existing message value', function () {
     $path = lang_path('en/filament/user-resource.php');
     app(CatalogWriter::class)->persist($path, [
         'form' => [
@@ -214,7 +214,7 @@ it('keeps nested layout keys when the catalog is bound on the walk owner', funct
 });
 
 it('reports that there is nothing to write when no catalogs are missing keys', function () {
-    $this->artisan('messages:extract', ['--locale' => 'en', '--dry-run' => true])
+    $this->artisan('translations:extract', ['--locale' => 'en', '--dry-run' => true])
         ->expectsOutput('No message catalog changes.')
         ->assertSuccessful();
 });

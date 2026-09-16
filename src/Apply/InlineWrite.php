@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Apply;
+namespace Syriable\Translation\Apply;
 
-class PhraseApplyWrite
+class InlineWrite
 {
     public function __construct(
         public string $path,
