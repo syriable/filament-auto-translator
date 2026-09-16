@@ -1,0 +1,19 @@
+# Normalise line endings so a checkout is identical on every platform.
+* text=auto eol=lf
+
+*.md      diff=markdown
+*.php     diff=php
+
+# Keep development material out of the distributed package. Everything below
+# is needed to work ON this package and useless to an application that merely
+# depends on it — docs/ in particular holds the internal design record.
+/.github         export-ignore
+/docs            export-ignore
+/tests           export-ignore
+/.editorconfig   export-ignore
+/.gitattributes  export-ignore
+/.gitignore      export-ignore
+/composer.lock   export-ignore
+/phpunit.xml     export-ignore
+/phpstan.neon    export-ignore
+/pint.json       export-ignore

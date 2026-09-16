@@ -13,6 +13,10 @@
         "filament-translation"
     ],
     "homepage": "https://github.com/syriable/filament-auto-translator",
+    "support": {
+        "issues": "https://github.com/syriable/filament-auto-translator/issues",
+        "source": "https://github.com/syriable/filament-auto-translator"
+    },
     "license": "MIT",
     "authors": [
         {
@@ -27,10 +31,11 @@
         "spatie/laravel-package-tools": "^1.16"
     },
     "require-dev": {
+        "larastan/larastan": "^3.0",
         "laravel/framework": "^13.23",
+        "laravel/pint": "^1.27",
         "orchestra/testbench": "^11.1",
         "pestphp/pest": "^5.1",
-        "laravel/pint": "^1.27",
         "pestphp/pest-plugin-laravel": "^5.0"
     },
     "autoload": {
@@ -51,7 +56,8 @@
         }
     },
     "scripts": {
-        "test": "vendor/bin/pest --compact"
+        "test": "vendor/bin/pest --compact",
+        "analyse": "vendor/bin/phpstan analyse"
     },
     "config": {
         "allow-plugins": {
