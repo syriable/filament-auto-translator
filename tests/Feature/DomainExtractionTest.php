@@ -134,16 +134,17 @@ it('walks the chrome a catalog builds around its schema', function () {
         ->toContain('identity/user-chrome.form.components.account.schema.terms.body');
 });
 
-it('keeps the schema keys where they were when a catalog gains chrome', function () {
+it('lends a keyed wrapper its segment to the schema it embeds', function () {
     discoverSchemaFixtures();
 
     $keys = array_column(app(MessageScanner::class)->audit('en'), 'key');
 
-    // the embedded schema node is skipped, so the field keeps its own path
-    // rather than moving under the wrapping section
+    // the field is inside the section as surely as the footer button beside
+    // it is, so it reads the same path; being reached through an embedded
+    // schema is how Filament renders it, not where it lives
     expect($keys)
-        ->toContain('identity/user-chrome.form.components.nickname.label')
-        ->not->toContain('identity/user-chrome.form.components.account.schema.nickname.label');
+        ->toContain('identity/user-chrome.form.components.account.schema.nickname.label')
+        ->not->toContain('identity/user-chrome.form.components.nickname.label');
 });
 
 it('keeps a validation attribute the walk never stubs', function () {
@@ -184,4 +185,42 @@ it('prunes a validation attribute whose field left the schema', function () {
     $written = require $path;
 
     expect($written['form']['components'])->not->toHaveKey('deleted_field');
+});
+
+it('writes a first language file into a module that has none', function () {
+    File::ensureDirectoryExists(base_path('modules/billing'));
+
+    try {
+        $writes = app(MessageExtractor::class)->writeFindings([[
+            'key' => 'billing::invoice.form.components.total.label',
+            'catalog' => 'billing::invoice',
+            'decision' => 'missing',
+            'locale' => 'en',
+            'text' => null,
+        ]], 'en');
+
+        $written = base_path('modules/billing/resources/lang/en/invoice.php');
+
+        expect($writes)->toHaveCount(1)
+            ->and(is_file($written))->toBeTrue()
+            ->and(include $written)->toBe(['form' => ['components' => ['total' => ['label' => 'Total']]]])
+            ->and(app(CatalogWriter::class)->registeredNamespaces())
+            ->toBe(['billing' => base_path('modules/billing').'/resources/lang']);
+    } finally {
+        File::deleteDirectory(base_path('modules'));
+    }
+});
+
+it('reports the namespace it had to register itself', function () {
+    File::ensureDirectoryExists(base_path('modules/billing'));
+
+    try {
+        app(CatalogWriter::class)->ensureNamespace('billing::invoice');
+
+        $this->artisan('translations:extract')
+            ->expectsOutputToContain('Registered the translation namespace [billing]')
+            ->assertSuccessful();
+    } finally {
+        File::deleteDirectory(base_path('modules'));
+    }
 });

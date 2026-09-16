@@ -9,6 +9,7 @@ use Syriable\Translation\Binding\ResolutionCache;
 use Syriable\Translation\Catalog\CatalogWriter;
 use Syriable\Translation\Catalog\ObsoleteMessagePruner;
 use Syriable\Translation\Enums\ResolutionOutcome;
+use Syriable\Translation\Exceptions\UnknownDomainNamespaceException;
 use Syriable\Translation\MessageIdentity;
 
 class MessageExtractor
@@ -115,6 +116,8 @@ class MessageExtractor
      */
     private function writeCatalog(string $catalogId, string $locale, array $findings, bool $dryRun): array
     {
+        $this->writer->ensureNamespace($catalogId);
+
         $path = $this->writer->pathFor($catalogId, $locale);
         $tree = $this->writer->load($path);
         $changed = false;
@@ -178,7 +181,14 @@ class MessageExtractor
             return [];
         }
 
-        $path = $this->writer->pathFor($catalogId, $locale);
+        try {
+            $path = $this->writer->pathFor($catalogId, $locale);
+        } catch (UnknownDomainNamespaceException) {
+            // nothing is registered under the name, so there is no file to
+            // prune; the write pass is where an unknown namespace is reported
+            return [];
+        }
+
         $tree = $this->writer->load($path);
 
         if ($tree === []) {

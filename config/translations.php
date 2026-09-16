@@ -90,6 +90,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Module Path
+    |--------------------------------------------------------------------------
+    |
+    | Where modules live, relative to the base path. A catalog named for a
+    | translation namespace that nothing has registered — a module whose
+    | resources/lang directory does not exist yet, so the module package never
+    | registered it — is looked for here, and extraction registers the
+    | namespace itself rather than stopping.
+    |
+    | A name that matches no module directory stays unknown and still throws.
+    | When a module package is installed, it is asked first and this is only
+    | the fallback.
+    |
+    */
+
+    'module_path' => 'modules',
+
+    /*
+    |--------------------------------------------------------------------------
     | Maximum Parent Depth
     |--------------------------------------------------------------------------
     |

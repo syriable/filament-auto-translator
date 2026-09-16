@@ -40,6 +40,17 @@ use Throwable;
 class MessageScanner
 {
     /**
+     * The name a Livewire component caches its schema under when the catalog's
+     * chrome names no other one.
+     */
+    private const DEFAULT_SCHEMA_NAME = 'form';
+
+    /**
+     * The name the walk caches a catalog's chrome under on its host.
+     */
+    private const CHROME_SCHEMA_NAME = 'content';
+
+    /**
      * @var array<int, array{key: string, catalog: string, decision: string, locale: string, text: ?string}>
      */
     private array $findings = [];
@@ -180,8 +191,10 @@ class MessageScanner
         $owner = new ExtractionHost;
         $this->binder->setCatalogId($owner, $catalogId);
 
+        $chrome = $this->mountDomainContent($catalog, $owner);
+
         try {
-            $schema = $catalog->build(Schema::make($owner));
+            $schema = $catalog->build(Schema::make($owner)->key($chrome['embedded'] ?? self::DEFAULT_SCHEMA_NAME));
         } catch (Throwable) {
             return;
         }
@@ -190,59 +203,74 @@ class MessageScanner
             return;
         }
 
-        $this->walkedScopes[$catalogId]['form'] = true;
+        if ($chrome['built']) {
+            $this->walkedScopes[$catalogId]['form'] = true;
+        }
 
         foreach ($schema->getComponents() as $component) {
             $this->auditComponent($component, $catalogId);
         }
 
-        $this->auditDomainContent($catalog, $catalogId, $owner);
+        foreach ($chrome['children'] as $component) {
+            $this->auditComponent($component, $catalogId);
+        }
     }
 
     /**
-     * Walks the chrome a catalog builds around its schema.
+     * Mounts the chrome a catalog builds around its schema.
      *
-     * The components live in the same form scope as the schema's own, because
-     * they are the same form; the embedded schema node is skipped so the
-     * fields are not walked a second time under the wrapper's path, which
-     * would move every key a consumer already has.
+     * This runs before the schema itself, because the wrapper is what lends
+     * the schema its path: the node embedding it has to exist before a field
+     * inside can ask which component it hangs from. The name that node
+     * embeds is handed back so the schema can be keyed with it, the way a
+     * Livewire component keys the schema it caches.
+     *
+     * The chrome components live in the same form scope as the schema's own,
+     * because they are the same form; the embedded node itself is not walked,
+     * or the fields would be recorded a second time under their own path.
      *
      * A builder that throws — one reading the signed-in user, say — leaves the
      * scope unpruned rather than letting its keys look orphaned, since
      * deleting live copy is the one failure that cannot be undone by a rerun.
+     *
+     * @return array{built: bool, embedded: ?string, children: array<int, mixed>}
      */
-    private function auditDomainContent(DiscoveredDomain $catalog, string $catalogId, ExtractionHost $owner): void
+    private function mountDomainContent(DiscoveredDomain $catalog, ExtractionHost $owner): array
     {
         if ($catalog->contentMethod === null) {
-            return;
+            return ['built' => true, 'embedded' => null, 'children' => []];
         }
 
         try {
             $content = $catalog->buildContent();
 
             if (! $content instanceof SchemaComponent) {
-                return;
+                return ['built' => true, 'embedded' => null, 'children' => []];
             }
 
             // the builder hands back a loose component; the walk reads parents
             // and owners through the container, and getComponents() is what
             // binds it — without that call every child lookup throws
-            $mounted = Schema::make($owner)->components([$content])->getComponents();
+            $chrome = Schema::make($owner)->components([$content]);
+            $mounted = $chrome->getComponents();
+
+            // the walk reaches the chrome the way a page does, through the
+            // Livewire component, so a field inside the embedded schema can
+            // find the node that embeds it
+            $owner->rememberSchema(self::CHROME_SCHEMA_NAME, $chrome);
 
             $children = [];
+            $embedded = null;
 
             foreach ($mounted as $component) {
+                $embedded ??= $this->embeddedSchemaName($component);
                 $children = [...$children, ...$this->contentChildren($component)];
             }
         } catch (Throwable) {
-            unset($this->walkedScopes[$catalogId]['form']);
-
-            return;
+            return ['built' => false, 'embedded' => null, 'children' => []];
         }
 
-        foreach ($children as $component) {
-            $this->auditComponent($component, $catalogId);
-        }
+        return ['built' => true, 'embedded' => $embedded, 'children' => $children];
     }
 
     /**
@@ -267,6 +295,40 @@ class MessageScanner
         }
 
         return $children;
+    }
+
+    /**
+     * The name of the first schema the chrome embeds, if it embeds one.
+     */
+    private function embeddedSchemaName(mixed $component, int $depth = 0): ?string
+    {
+        if (! $component instanceof SchemaComponent) {
+            return null;
+        }
+
+        if ($component instanceof EmbeddedSchema) {
+            return $component->getName();
+        }
+
+        if ($depth >= (int) config('translations.max_parent_depth', 32)) {
+            return null;
+        }
+
+        try {
+            $childSchemas = $component->getChildSchemas();
+        } catch (Throwable) {
+            return null;
+        }
+
+        $name = null;
+
+        foreach ($childSchemas as $childSchema) {
+            foreach ($childSchema->getComponents() as $child) {
+                $name ??= $this->embeddedSchemaName($child, $depth + 1);
+            }
+        }
+
+        return $name;
     }
 
     /**
@@ -415,6 +477,10 @@ class MessageScanner
             $this->record($this->binder->explain($component, MessageSlot::Body), $catalogId);
         }
 
+        if ($this->isKeyedCustomComponent($component)) {
+            $this->record($this->binder->explain($component, MessageSlot::Label), $catalogId);
+        }
+
         if ($component instanceof SchemaComponent) {
             // every child schema, not only the default one: a section's footer
             // and header are child schemas too, and the copy in them is copy
@@ -495,6 +561,32 @@ class MessageScanner
     private function relatedActionsOf(Field|Entry $component): array
     {
         return array_values($component->getHintActions());
+    }
+
+    /**
+     * A component from outside Filament's own set that names itself with
+     * ->key() and carries a label — a package's separator, say.
+     *
+     * The binder fills those now, so extraction has to offer the key or the
+     * pruner would read it as dead on the next run.
+     */
+    private function isKeyedCustomComponent(mixed $component): bool
+    {
+        if (! $component instanceof SchemaComponent) {
+            return false;
+        }
+
+        foreach ([Field::class, Entry::class, Section::class, Fieldset::class, Wizard::class, Step::class, Tabs::class, Tab::class, EmptyState::class, Callout::class, SchemaText::class] as $dedicated) {
+            if ($component instanceof $dedicated) {
+                return false;
+            }
+        }
+
+        if (! method_exists($component, 'getLabel') || ! method_exists($component, 'hasCustomLabel')) {
+            return false;
+        }
+
+        return filled($component->getKey(isAbsolute: false));
     }
 
     private function auditFieldChrome(Field|Entry $component, string $catalogId): void

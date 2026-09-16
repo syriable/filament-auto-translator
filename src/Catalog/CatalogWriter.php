@@ -11,6 +11,11 @@ use Syriable\Translation\Exceptions\UnknownDomainNamespaceException;
 
 class CatalogWriter
 {
+    /**
+     * @var array<string, string>
+     */
+    private array $registeredNamespaces = [];
+
     public function pathFor(string $catalogId, string $locale): string
     {
         [$namespace, $group] = $this->split($catalogId);
@@ -50,6 +55,98 @@ class CatalogWriter
     private function namespacePath(string $namespace): ?string
     {
         $path = Lang::getLoader()->namespaces()[$namespace] ?? null;
+
+        return is_string($path) ? $path : null;
+    }
+
+    /**
+     * Registers a namespaced catalog's language directory, creating it when
+     * the module that owns the name has none yet.
+     *
+     * Laravel knows a translation namespace only once something registers it,
+     * and a module registers its own only when the directory is there. A
+     * module that has never been translated therefore has no namespace, and
+     * the one command whose job is to write its first language file would
+     * stop on it instead.
+     *
+     * Nothing is guessed: the name has to match a module that exists on disk,
+     * so a typo is still an unknown namespace and still throws. Only the
+     * namespace is registered here — the directory itself appears with the
+     * first file written into it, so a dry run stays a dry run. Writing that
+     * file is also the lasting fix, because the directory is what a module
+     * package looks for when it registers the namespace on the next boot.
+     */
+    public function ensureNamespace(string $catalogId): ?string
+    {
+        [$namespace] = $this->split($catalogId);
+
+        if ($namespace === null || $this->namespacePath($namespace) !== null) {
+            return null;
+        }
+
+        $path = $this->moduleLangPath($namespace);
+
+        if ($path === null) {
+            return null;
+        }
+
+        Lang::addNamespace($namespace, $path);
+
+        return $this->registeredNamespaces[$namespace] = $path;
+    }
+
+    /**
+     * The namespaces this run had to register itself, by name.
+     *
+     * @return array<string, string>
+     */
+    public function registeredNamespaces(): array
+    {
+        return $this->registeredNamespaces;
+    }
+
+    private function moduleLangPath(string $namespace): ?string
+    {
+        if (! preg_match('/^[A-Za-z0-9_-]+$/', $namespace)) {
+            return null;
+        }
+
+        $registered = $this->moduleRegistryLangPath($namespace);
+
+        if ($registered !== null) {
+            return $registered;
+        }
+
+        $configured = config('translations.module_path', 'modules');
+        $base = base_path(trim(is_string($configured) ? $configured : 'modules', '/\\').'/'.$namespace);
+
+        return is_dir($base) ? $base.'/resources/lang' : null;
+    }
+
+    /**
+     * Asks a module package where the module lives, when one is installed.
+     */
+    private function moduleRegistryLangPath(string $namespace): ?string
+    {
+        $registry = 'InterNACHI\\Modular\\Support\\ModuleRegistry';
+
+        if (! class_exists($registry) || ! app()->bound($registry)) {
+            return null;
+        }
+
+        $modules = app($registry);
+
+        if (! is_object($modules) || ! method_exists($modules, 'module')) {
+            return null;
+        }
+
+        $module = $modules->module($namespace);
+
+        if (! is_object($module) || ! method_exists($module, 'path')) {
+            return null;
+        }
+
+        $path = $module->path('resources/lang');
 
         return is_string($path) ? $path : null;
     }

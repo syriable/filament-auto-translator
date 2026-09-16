@@ -840,18 +840,55 @@ final class LoginForm
         return $schema->components([TextInput::make('email')]);
     }
 }
-// form.components.login.heading            optional, never stubbed
+// form.components.login.heading                   optional, never stubbed
 // form.components.login.schema.terms.body
-// form.components.email.label              unchanged by the chrome walk
+// form.components.login.schema.email.label        the field, under the section
 ```
 
-The embedded schema node is skipped, so the fields keep the paths they already
-had rather than moving under the wrapper — **a catalog that gains chrome does
-not move a single existing key.**
+A keyed wrapper lends its segment to the schema it embeds, exactly as it does
+to the components beside it: the field above reads
+`form.components.login.schema.email.label`, the same path its neighbour in the
+footer reads. Being reached through an `EmbeddedSchema` is how Filament renders
+a field, not where the field lives.
+
+**Key a wrapper only when you mean to.** An unkeyed `Section::make()` adds
+nothing, so chrome without keys leaves every existing key where it is; adding
+`->key()` to a wrapper that already has copy underneath moves those keys, and
+the copy has to move with them. `translations:extract` writes the new keys and
+prunes the old ones, so run it and check the diff.
 
 A chrome builder that throws, one reading the signed-in user say, leaves the
 `form` scope unpruned for that catalog rather than letting its keys look
 orphaned. Deleting live copy is the one failure a rerun cannot undo.
+
+### A module with no language directory
+
+A module keeps its copy under its own translation namespace, and Laravel knows
+that namespace only because something registered it — which a module package
+does only once `resources/lang` is there. A module that has never been
+translated therefore has no namespace, and `translations:extract`, the command
+whose job is to write its first language file, used to stop on it:
+
+```
+Catalog id [billing::invoice] is namespaced under [billing], but no translation
+namespace by that name is registered.
+```
+
+Extraction now registers the namespace itself and carries on, reporting it:
+
+```
+Registered the translation namespace [billing] at modules/billing/resources/lang;
+the module had no language directory yet.
+```
+
+The module has to exist: the name is looked up through the module package when
+one is installed, and otherwise under [`module_path`](#configuration). A name
+matching no module is still unknown and still throws, so a typo stays loud.
+
+Only the namespace is registered — the directory arrives with the first file
+written into it, so `--dry-run` writes nothing. That first file is also the
+lasting fix, because the directory is what the module package looks for when it
+registers the namespace on the next boot.
 
 ## What is bound automatically
 
@@ -878,6 +915,26 @@ After `TranslationPlugin` boots, the binder fills **unset** slots on:
 The Livewire owner must carry a `#[TranslationDomain]` attribute, or expose a `translationDomain()` method. Notifications inherit the catalog from the action that sent them. Otherwise the decision is `no_catalog` and Filament defaults stay.
 
 Vendor actions such as `DeleteAction` keep their Filament language file until **your** catalog defines that action’s label.
+
+### Components from other packages
+
+Filament is extensible, and a component another package ships — a separator, a
+divider, anything extending `Filament\Schemas\Components\Component` with a
+label — is bound too, on one condition: **it has to name itself with
+`->key()`.**
+
+```php
+Separator::make()->key('separator');
+// form.components.separator.label
+```
+
+The key is required rather than guessed. A component with no key has no
+identity, and the `make()` argument is not a safe substitute — on a separator
+that argument *is* the visible label, not a name.
+
+Whatever label the component carries when it is built stays as the fallback,
+so a component that sets its own default keeps it until the catalog has a
+line. An explicit `->label()` after `make()` wins, as everywhere else.
 
 ## Resource chrome
 
@@ -970,7 +1027,30 @@ Without a declared replacement nothing changes, and a slot the catalog did not
 supply is left alone — `messageReplace()` never turns a missing message into a
 present one.
 
-`messageName()`, `domain()` and `messageReplace()` are macros on `Filament\Support\Components\Component`. They store bindings in a `WeakMap` (no dynamic properties on Filament objects).
+### Copy that is markup
+
+Filament escapes a `Text` body, which is what copy should be: a line is text,
+not HTML. Footer copy that carries a link is the exception, and it says so at
+the call site:
+
+```php
+Text::make('footer')
+    ->messageHtml()
+    ->messageReplace(['terms_url' => fn (): string => route('terms')]);
+// 'By signing in you accept our <a href=":terms_url">terms</a>.'
+```
+
+`messageHtml()` marks **this component's** line as markup, so it renders as
+markup. Nothing is guessed: a catalog line is never treated as HTML because it
+happens to contain a tag, or one translator's `<` would quietly stop a whole
+catalog being escaped.
+
+Replacements are the reason the opt-in is per component rather than per line.
+The line is the author's, but what is poured into it may not be, so under
+`messageHtml()` every replacement is escaped — pass an `Illuminate\Support\HtmlString`
+when a replacement is meant to be markup of its own.
+
+`messageName()`, `domain()`, `messageReplace()` and `messageHtml()` are macros on `Filament\Support\Components\Component`. They store bindings in a `WeakMap` (no dynamic properties on Filament objects).
 
 ## Manual lookup
 
@@ -1128,6 +1208,7 @@ Identifier-only PHP remains the default. Use `translations:inline` only when you
 | `default_domain_prefix` | — | `filament` | Prefix when no namespace map matches |
 | `domain_prefixes` | — | `[]` | `['Modules\\Billing' => 'billing']` |
 | `discover_paths` | — | `[]` | `[['path' => …, 'namespace' => …]]` — directories scanned for [schema domains](#schema-domains-outside-resources) |
+| `module_path` | — | `modules` | Where modules live, relative to the base path — see [a module with no language directory](#a-module-with-no-language-directory) |
 | `max_parent_depth` | — | `32` | Cap when walking parent schema components; exceeding it throws `ParentDepthExceededException` |
 
 Panel plugin options:

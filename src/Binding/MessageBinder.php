@@ -14,6 +14,7 @@ use Filament\Infolists\Components\Entry;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\Component as SchemaComponent;
+use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\EmptyState;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
@@ -27,7 +28,9 @@ use Filament\Support\Components\Component as SupportComponent;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Filters\BaseFilter;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\HtmlString;
 use Illuminate\Translation\Translator;
 use Livewire\Livewire;
 use Syriable\Translation\Catalog\MessageResolver;
@@ -54,12 +57,15 @@ class MessageBinder
      */
     private array $actionStack = [];
 
+    private bool $resolvingEmbeddedParent = false;
+
     public function __construct(
         private MessageResolver $resolver,
         private ComponentBindings $bindings,
         private MessageOverrides $registry,
         private DomainResolver $domains,
         private Translator $translator,
+        private EmbeddedSchemas $embeds,
     ) {}
 
     public function registerHooks(): void
@@ -91,6 +97,12 @@ class MessageBinder
         };
 
         SupportComponent::macro('messageReplace', $messageReplace);
+
+        SupportComponent::macro('messageHtml', function (bool $condition = true) use ($binder): static {
+            $binder->setMessageHtml($this, $condition);
+
+            return $this;
+        });
 
         Field::configureUsing(function (Field $field) use ($binder): void {
             $binder->bindNamedChrome($field);
@@ -148,6 +160,10 @@ class MessageBinder
 
         Notification::configureUsing(function (Notification $notification) use ($binder): void {
             $binder->bindNotification($notification);
+        });
+
+        SchemaComponent::configureUsing(function (SchemaComponent $component) use ($binder): void {
+            $binder->bindKeyedComponentLabel($component);
         });
 
         Action::configureUsing(function (Action $action) use ($binder): void {
@@ -221,9 +237,22 @@ class MessageBinder
     private function replacementsFor(object $component): array
     {
         $replace = $this->bindings->replace($component);
+        $isHtml = $this->bindings->isHtml($component);
 
         return array_map(
-            fn (mixed $value): mixed => $value instanceof Closure ? $value() : $value,
+            function (mixed $value) use ($isHtml): mixed {
+                if ($value instanceof Closure) {
+                    $value = $value();
+                }
+
+                if (! $isHtml) {
+                    return $value;
+                }
+
+                // the line is markup, so what is poured into it has to be
+                // escaped, unless the caller hands over markup of its own
+                return $value instanceof Htmlable ? $value->toHtml() : e(is_scalar($value) ? (string) $value : '');
+            },
             $replace,
         );
     }
@@ -234,6 +263,31 @@ class MessageBinder
     public function setMessageReplace(object $component, array $replace): void
     {
         $this->bindings->setReplace($component, $replace);
+    }
+
+    public function setMessageHtml(object $component, bool $html): void
+    {
+        $this->bindings->setHtml($component, $html);
+    }
+
+    /**
+     * The catalog line, as markup when the component asked for markup.
+     *
+     * Filament escapes a plain string, which is what copy should be. A
+     * component that declares its copy is markup says so once, at the call
+     * site, rather than the package deciding by looking for tags: a line that
+     * happens to contain a tag is not a licence to stop escaping a whole
+     * catalog, and the replacements poured into it are not the author's text.
+     */
+    private function boundContent(object $component, MessageSlot $slot): string|Htmlable|null
+    {
+        $text = $this->boundText($component, $slot);
+
+        if ($text === null || ! $this->bindings->isHtml($component)) {
+            return $text;
+        }
+
+        return new HtmlString($text);
     }
 
     private function boundPresentText(object $component, MessageSlot $slot): ?string
@@ -504,6 +558,70 @@ class MessageBinder
         $component->belowLabel(fn (): ?string => $this->boundText($component, MessageSlot::BelowLabel));
     }
 
+    /**
+     * Components this package binds through a dedicated hook.
+     *
+     * The generic hook below runs for every schema component, so it has to
+     * step aside for the ones already handled — otherwise a field would be
+     * bound twice, the second call overwriting the first.
+     *
+     * @var array<int, class-string>
+     */
+    private const DEDICATED_BINDINGS = [
+        Field::class,
+        Entry::class,
+        Section::class,
+        Fieldset::class,
+        Wizard::class,
+        Step::class,
+        Tabs::class,
+        Tab::class,
+        EmptyState::class,
+        Callout::class,
+        SchemaText::class,
+    ];
+
+    /**
+     * A component outside Filament's own set, named with ->key().
+     *
+     * Filament is extensible, and a package's component — a separator, a
+     * divider, anything using HasLabel — was invisible here: its copy could
+     * not come from the catalog however it was written. Identity already
+     * worked, since leafName() falls through to the machine key; only the
+     * binding was missing.
+     *
+     * The key is required rather than inferred. A component with no key has
+     * no identity, and guessing one from the make() argument would be wrong:
+     * on Separator that argument is the visible label, not a name.
+     */
+    public function bindKeyedComponentLabel(SchemaComponent $component): void
+    {
+        foreach (self::DEDICATED_BINDINGS as $dedicated) {
+            if ($component instanceof $dedicated) {
+                return;
+            }
+        }
+
+        // the key is set after make(), so it cannot be checked here; the closure
+        // below resolves nothing when there is still no key at render time
+        if (! method_exists($component, 'label') || ! method_exists($component, 'getLabel')) {
+            return;
+        }
+
+        // hasCustomLabel() is no guide outside Filament's own set: a component
+        // whose make() takes the label has one before anyone sets it. So the
+        // label present here is captured and kept as the fallback, the way
+        // steps and tabs are handled, and an explicit ->label() after make()
+        // still wins by overwriting this closure.
+        $captured = $component->getLabel();
+
+        $component->label(function () use ($component, $captured): mixed {
+            $text = $this->boundText($component, MessageSlot::Label);
+
+            return $text ?? $captured;
+        });
+    }
+
     private function bindMakeArgumentLabel(Step|Tab|Tabs $component): void
     {
         $captured = $component->getLabel();
@@ -641,7 +759,7 @@ class MessageBinder
                 return $this->boundText($owner, $slot);
             }
 
-            $text = $this->boundText($component, MessageSlot::Body);
+            $text = $this->boundContent($component, MessageSlot::Body);
 
             if ($text !== null) {
                 return $text;
@@ -846,18 +964,10 @@ class MessageBinder
                 return MessageSurface::Form;
             }
 
-            $container = $this->schemaContainerOf($component);
+            $parent = $this->parentComponentOf($this->schemaContainerOf($component));
 
-            if (is_object($container) && method_exists($container, 'getParentComponent')) {
-                try {
-                    $parent = $container->getParentComponent();
-                } catch (Throwable) {
-                    $parent = null;
-                }
-
-                if ($parent instanceof SchemaComponent) {
-                    return $this->formScope($parent);
-                }
+            if ($parent instanceof SchemaComponent) {
+                return $this->formScope($parent);
             }
         }
 
@@ -898,17 +1008,7 @@ class MessageBinder
      */
     private function schemaActionPath(Action $action): array
     {
-        $container = $this->schemaContainerOf($action);
-
-        if (! is_object($container) || ! method_exists($container, 'getParentComponent')) {
-            return ['actions'];
-        }
-
-        try {
-            $parent = $container->getParentComponent();
-        } catch (Throwable) {
-            $parent = null;
-        }
+        $parent = $this->parentComponentOf($this->schemaContainerOf($action));
 
         if (! $parent instanceof SchemaComponent) {
             return ['actions'];
@@ -1005,6 +1105,7 @@ class MessageBinder
         $names = [];
         $current = $component;
         $depth = 0;
+        $crossed = [];
         $maxDepth = (int) config('translations.max_parent_depth', 32);
 
         while ($depth < $maxDepth) {
@@ -1013,6 +1114,16 @@ class MessageBinder
 
             if ($parent === null) {
                 break;
+            }
+
+            if ($parent instanceof EmbeddedSchema) {
+                $node = spl_object_id($parent);
+
+                if (isset($crossed[$node])) {
+                    break;
+                }
+
+                $crossed[$node] = true;
             }
 
             if ($this->bindings->domain($parent) !== null) {
@@ -1038,9 +1149,68 @@ class MessageBinder
     private function parentSchemaComponent(SchemaComponent $component): ?SchemaComponent
     {
         try {
-            return $component->getContainer()->getParentComponent();
+            $container = $component->getContainer();
         } catch (Throwable) {
             return null;
+        }
+
+        return $this->parentComponentOf($container);
+    }
+
+    /**
+     * The component a schema hangs from.
+     *
+     * A schema embedded in another one has no parent component of its own:
+     * it is a schema on the Livewire component, reached by name. The node
+     * that embeds it stands in for the missing parent, so a keyed wrapper
+     * lends its segment to the components inside, exactly as it does to the
+     * components beside them.
+     */
+    private function parentComponentOf(mixed $container): ?SchemaComponent
+    {
+        if (! $container instanceof Schema) {
+            return null;
+        }
+
+        try {
+            $parent = $container->getParentComponent();
+        } catch (Throwable) {
+            $parent = null;
+        }
+
+        if ($parent instanceof SchemaComponent) {
+            return $parent;
+        }
+
+        return $this->embeddingComponent($container);
+    }
+
+    /**
+     * The node embedding this schema, if one does.
+     *
+     * Reading the name off the container can evaluate a closure, which can
+     * ask for a message and land back here, so the lookup refuses to nest.
+     */
+    private function embeddingComponent(Schema $container): ?EmbeddedSchema
+    {
+        if ($this->resolvingEmbeddedParent) {
+            return null;
+        }
+
+        $this->resolvingEmbeddedParent = true;
+
+        try {
+            $name = $container->getKey(isAbsolute: false);
+
+            if (! is_string($name)) {
+                return null;
+            }
+
+            return $this->embeds->embedding($name, $container->getLivewire());
+        } catch (Throwable) {
+            return null;
+        } finally {
+            $this->resolvingEmbeddedParent = false;
         }
     }
 

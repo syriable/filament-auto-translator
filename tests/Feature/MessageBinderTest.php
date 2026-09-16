@@ -19,14 +19,18 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\HtmlString;
 use Syriable\Translation\Binding\MessageBinder;
 use Syriable\Translation\Binding\ResolutionExplainer;
 use Syriable\Translation\Enums\MessageSlot;
 use Syriable\Translation\Enums\ResolutionOutcome;
+use Syriable\Translation\Tests\Fixtures\CustomSeparator;
 use Syriable\Translation\Tests\Fixtures\DomainForm;
 use Syriable\Translation\Tests\Fixtures\DomainTable;
 use Syriable\Translation\Tests\Fixtures\EditUser;
+use Syriable\Translation\Tests\Fixtures\EmbeddedSchemaHost;
 use Syriable\Translation\Tests\Fixtures\Schemas\User\ChromeForm;
 
 beforeEach(function () {
@@ -1423,4 +1427,153 @@ it('does not overwrite a validation attribute set after make', function () {
     ]);
 
     expect(textInput($schema)->getValidationAttribute())->toBe('work email');
+});
+
+it('fills the label of a keyed component from outside Filament', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.separator.label' => 'or',
+    ], 'en');
+
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        CustomSeparator::make()->key('separator'),
+    ]);
+
+    expect($schema->getComponents()[0]->getLabel())->toBe('or');
+});
+
+it('leaves an unkeyed custom component alone', function () {
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        CustomSeparator::make(),
+    ]);
+
+    // no key means no identity, so there is nothing to look up and nothing to fill
+    expect($schema->getComponents()[0]->getLabel())->toBeNull();
+});
+
+it('does not overwrite a custom component label set after make', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.separator.label' => 'or',
+    ], 'en');
+
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        CustomSeparator::make()->key('separator')->label('OR'),
+    ]);
+
+    expect($schema->getComponents()[0]->getLabel())->toBe('OR');
+});
+
+it('lends a keyed wrapper its segment to a field in the schema it embeds', function () {
+    Lang::addLines([
+        'filament/embedded-schema-host.form.components.account.schema.nickname.label' => 'Your nickname',
+    ], 'en');
+
+    $host = app(EmbeddedSchemaHost::class);
+    $host->getSchema('content')->getComponents();
+
+    $field = $host->getSchema('form')->getComponents()[0];
+
+    expect($field->getLabel())->toBe('Your nickname');
+});
+
+it('adds nothing to the path when the wrapper has no key', function () {
+    Lang::addLines([
+        'filament/embedded-schema-host.form.components.nickname.label' => 'Your nickname',
+    ], 'en');
+
+    $host = app(EmbeddedSchemaHost::class);
+    $host->wrapperKey = null;
+    $host->getSchema('content')->getComponents();
+
+    $field = $host->getSchema('form')->getComponents()[0];
+
+    expect($field->getLabel())->toBe('Your nickname');
+});
+
+it('leaves a field alone when no node embeds its schema', function () {
+    Lang::addLines([
+        'filament/embedded-schema-host.form.components.nickname.label' => 'Your nickname',
+    ], 'en');
+
+    $host = app(EmbeddedSchemaHost::class);
+
+    $field = $host->getSchema('form')->getComponents()[0];
+
+    expect($field->getLabel())->toBe('Your nickname');
+});
+
+it('lends a keyed wrapper its segment to an action in the schema it embeds', function () {
+    Lang::addLines([
+        'filament/embedded-schema-host.form.components.account.schema.actions.submit.label' => 'Sign in',
+    ], 'en');
+
+    $host = app(EmbeddedSchemaHost::class);
+    $host->getSchema('content')->getComponents();
+
+    $action = $host->getSchema('form')->getComponents()[1];
+
+    expect($action->getLabel())->toBe('Sign in');
+});
+
+it('renders catalog markup when the text asks for markup', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.footer.body' => 'Read the <a href="/terms">terms</a>.',
+    ], 'en');
+
+    $schema = Schema::make(app(DomainForm::class))->components([
+        Text::make('footer')->messageHtml(),
+    ]);
+
+    $text = $schema->getComponents()[0];
+
+    expect($text->getContent())->toBeInstanceOf(Htmlable::class)
+        ->and($text->toEmbeddedHtml())->toContain('<a href="/terms">terms</a>');
+});
+
+it('escapes catalog markup when the text does not ask for it', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.footer.body' => 'Read the <a href="/terms">terms</a>.',
+    ], 'en');
+
+    $schema = Schema::make(app(DomainForm::class))->components([
+        Text::make('footer'),
+    ]);
+
+    $text = $schema->getComponents()[0];
+
+    expect($text->getContent())->toBeString()
+        ->and($text->toEmbeddedHtml())->toContain('&lt;a href=&quot;/terms&quot;&gt;');
+});
+
+it('escapes a replacement poured into a line of markup', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.footer.body' => 'Signed in as <b>:name</b>.',
+    ], 'en');
+
+    $schema = Schema::make(app(DomainForm::class))->components([
+        Text::make('footer')
+            ->messageHtml()
+            ->messageReplace(['name' => '<script>alert(1)</script>']),
+    ]);
+
+    $html = $schema->getComponents()[0]->toEmbeddedHtml();
+
+    expect($html)->toContain('<b>')
+        ->and($html)->not->toContain('<script>');
+});
+
+it('keeps a replacement that is markup of its own', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.footer.body' => 'Read the :link.',
+    ], 'en');
+
+    $schema = Schema::make(app(DomainForm::class))->components([
+        Text::make('footer')
+            ->messageHtml()
+            ->messageReplace(['link' => new HtmlString('<a href="/terms">terms</a>')]),
+    ]);
+
+    expect($schema->getComponents()[0]->toEmbeddedHtml())->toContain('<a href="/terms">terms</a>');
 });

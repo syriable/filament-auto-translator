@@ -9,7 +9,7 @@ use WeakMap;
 class ComponentBindings
 {
     /**
-     * @var WeakMap<object, array{messageName:?string, domain:?string, owner:?object, replace:array<string, mixed>}>
+     * @var WeakMap<object, array{messageName:?string, domain:?string, owner:?object, replace:array<string, mixed>, html:bool}>
      */
     private WeakMap $bindings;
 
@@ -42,6 +42,13 @@ class ComponentBindings
         $this->bindings[$component] = $current;
     }
 
+    public function setHtml(object $component, bool $html): void
+    {
+        $current = $this->binding($component);
+        $current['html'] = $html;
+        $this->bindings[$component] = $current;
+    }
+
     public function setOwner(object $component, object $owner): void
     {
         $current = $this->binding($component);
@@ -64,6 +71,11 @@ class ComponentBindings
         return $this->binding($component)['owner'];
     }
 
+    public function isHtml(object $component): bool
+    {
+        return $this->binding($component)['html'];
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -73,7 +85,7 @@ class ComponentBindings
     }
 
     /**
-     * @return array{messageName:?string, domain:?string, owner:?object, replace:array<string, mixed>}
+     * @return array{messageName:?string, domain:?string, owner:?object, replace:array<string, mixed>, html:bool}
      */
     private function binding(object $component): array
     {
@@ -82,6 +94,7 @@ class ComponentBindings
             'domain' => null,
             'owner' => null,
             'replace' => [],
+            'html' => false,
         ];
     }
 }

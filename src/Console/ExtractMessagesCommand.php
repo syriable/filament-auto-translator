@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Syriable\Translation\Console;
 
 use Illuminate\Console\Command;
+use Syriable\Translation\Catalog\CatalogWriter;
 use Syriable\Translation\Extraction\ExtractionWrite;
 use Syriable\Translation\Extraction\MessageExtractor;
 
@@ -17,7 +18,7 @@ class ExtractMessagesCommand extends Command
 
     protected $description = 'Create missing message catalog keys and remove copy for deleted components.';
 
-    public function handle(MessageExtractor $syncer): int
+    public function handle(MessageExtractor $syncer, CatalogWriter $writer): int
     {
         $dryRun = (bool) $this->option('dry-run');
         $prune = ! (bool) $this->option('no-prune');
@@ -25,6 +26,10 @@ class ExtractMessagesCommand extends Command
 
         foreach ($this->locales() as $locale) {
             $writes = [...$writes, ...$syncer->sync($locale, $dryRun, $prune)];
+        }
+
+        foreach ($writer->registeredNamespaces() as $namespace => $path) {
+            $this->info("Registered the translation namespace [{$namespace}] at {$path}; the module had no language directory yet.");
         }
 
         if ($writes === []) {

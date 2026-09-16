@@ -12,6 +12,43 @@ document and no earlier behaviour to preserve.
 
 ### Added
 
+- **A keyed wrapper reaches the schema it embeds.** A form class describes its
+  chrome in `make()` and its fields in `configure()`, and the chrome reaches
+  the fields through `EmbeddedSchema` — which Filament renders by name rather
+  than by nesting, so the fields' container has no parent component and the
+  walk stopped there. A button in a section's footer read
+  `form.components.account.schema.actions.register.label` while a field the
+  same section wrapped read `form.components.nickname.label`. The walk now
+  crosses that gap, so both read the section's path. An unkeyed wrapper still
+  contributes nothing, so chrome without keys leaves every key where it is;
+  adding `->key()` to a wrapper that already has copy underneath moves those
+  keys, and `translations:extract` writes the new ones and prunes the old.
+
+- **`messageHtml()`.** Marks a component's catalog line as markup, so footer
+  copy carrying a link renders as a link instead of printing its own source.
+  Nothing is guessed from the line's contents: a stray `<` never changes how a
+  catalog is escaped. Under `messageHtml()` the line is trusted and every
+  replacement poured into it is escaped, unless the caller hands over an
+  `HtmlString` of its own.
+
+- **A module with no language directory no longer stops extraction.** Laravel
+  knows a module's translation namespace only because the module package
+  registered it, which it does only once `resources/lang` exists — so a module
+  that has never been translated threw `UnknownDomainNamespaceException` and
+  `translations:extract` wrote nothing at all, for any catalog. It now
+  registers the namespace itself and reports it. The module has to exist on
+  disk, asked of the module package when one is installed and otherwise looked
+  for under the new `module_path` config key, so a typo is still unknown and
+  still throws. Only the namespace is registered: the directory arrives with
+  the first file written into it, so `--dry-run` still writes nothing.
+
+- **Components from other packages are bound.** Anything extending
+  `Filament\Schemas\Components\Component` with a label — a separator shipped by
+  a plugin, say — was invisible: its copy could not come from the catalog
+  however it was written. Identity already worked; only the binding was
+  missing. It applies to a component that names itself with `->key()`, and
+  keeps whatever label the component was built with as the fallback.
+
 - **`validation_attribute` and `below_label` are bound slots.** A field's name in
   validation messages, and the line under its label, come from the catalog at
   the field's own path rather than from copy an application had to keep
@@ -30,8 +67,8 @@ document and no earlier behaviour to preserve.
 - **The chrome builder.** A public static `make()` taking no required argument
   and returning a schema component is walked alongside `form()`/`configure()`,
   so the section a form class wraps its fields in — its heading, its footer —
-  no longer needs its copy written by hand. The embedded schema node is skipped,
-  so no existing key moves; a builder that throws leaves its scope unpruned.
+  no longer needs its copy written by hand. A builder that throws leaves its
+  scope unpruned.
 - **Every child schema is walked**, not only a component's default one, so copy
   in a section's footer or header is reached. Catalogs using those will see new
   optional keys offered on the next `translations:extract`; nothing already
