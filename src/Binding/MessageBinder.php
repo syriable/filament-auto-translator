@@ -28,7 +28,9 @@ use Filament\Support\Components\Component as SupportComponent;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Filters\BaseFilter;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\HtmlString;
 use Illuminate\Translation\Translator;
 use Livewire\Livewire;
 use Syriable\Translation\Catalog\MessageResolver;
@@ -95,6 +97,12 @@ class MessageBinder
         };
 
         SupportComponent::macro('messageReplace', $messageReplace);
+
+        SupportComponent::macro('messageHtml', function (bool $condition = true) use ($binder): static {
+            $binder->setMessageHtml($this, $condition);
+
+            return $this;
+        });
 
         Field::configureUsing(function (Field $field) use ($binder): void {
             $binder->bindNamedChrome($field);
@@ -229,9 +237,22 @@ class MessageBinder
     private function replacementsFor(object $component): array
     {
         $replace = $this->bindings->replace($component);
+        $isHtml = $this->bindings->isHtml($component);
 
         return array_map(
-            fn (mixed $value): mixed => $value instanceof Closure ? $value() : $value,
+            function (mixed $value) use ($isHtml): mixed {
+                if ($value instanceof Closure) {
+                    $value = $value();
+                }
+
+                if (! $isHtml) {
+                    return $value;
+                }
+
+                // the line is markup, so what is poured into it has to be
+                // escaped, unless the caller hands over markup of its own
+                return $value instanceof Htmlable ? $value->toHtml() : e(is_scalar($value) ? (string) $value : '');
+            },
             $replace,
         );
     }
@@ -242,6 +263,31 @@ class MessageBinder
     public function setMessageReplace(object $component, array $replace): void
     {
         $this->bindings->setReplace($component, $replace);
+    }
+
+    public function setMessageHtml(object $component, bool $html): void
+    {
+        $this->bindings->setHtml($component, $html);
+    }
+
+    /**
+     * The catalog line, as markup when the component asked for markup.
+     *
+     * Filament escapes a plain string, which is what copy should be. A
+     * component that declares its copy is markup says so once, at the call
+     * site, rather than the package deciding by looking for tags: a line that
+     * happens to contain a tag is not a licence to stop escaping a whole
+     * catalog, and the replacements poured into it are not the author's text.
+     */
+    private function boundContent(object $component, MessageSlot $slot): string|Htmlable|null
+    {
+        $text = $this->boundText($component, $slot);
+
+        if ($text === null || ! $this->bindings->isHtml($component)) {
+            return $text;
+        }
+
+        return new HtmlString($text);
     }
 
     private function boundPresentText(object $component, MessageSlot $slot): ?string
@@ -713,7 +759,7 @@ class MessageBinder
                 return $this->boundText($owner, $slot);
             }
 
-            $text = $this->boundText($component, MessageSlot::Body);
+            $text = $this->boundContent($component, MessageSlot::Body);
 
             if ($text !== null) {
                 return $text;

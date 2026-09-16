@@ -19,7 +19,9 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\HtmlString;
 use Syriable\Translation\Binding\MessageBinder;
 use Syriable\Translation\Binding\ResolutionExplainer;
 use Syriable\Translation\Enums\MessageSlot;
@@ -1513,4 +1515,65 @@ it('lends a keyed wrapper its segment to an action in the schema it embeds', fun
     $action = $host->getSchema('form')->getComponents()[1];
 
     expect($action->getLabel())->toBe('Sign in');
+});
+
+it('renders catalog markup when the text asks for markup', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.footer.body' => 'Read the <a href="/terms">terms</a>.',
+    ], 'en');
+
+    $schema = Schema::make(app(DomainForm::class))->components([
+        Text::make('footer')->messageHtml(),
+    ]);
+
+    $text = $schema->getComponents()[0];
+
+    expect($text->getContent())->toBeInstanceOf(Htmlable::class)
+        ->and($text->toEmbeddedHtml())->toContain('<a href="/terms">terms</a>');
+});
+
+it('escapes catalog markup when the text does not ask for it', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.footer.body' => 'Read the <a href="/terms">terms</a>.',
+    ], 'en');
+
+    $schema = Schema::make(app(DomainForm::class))->components([
+        Text::make('footer'),
+    ]);
+
+    $text = $schema->getComponents()[0];
+
+    expect($text->getContent())->toBeString()
+        ->and($text->toEmbeddedHtml())->toContain('&lt;a href=&quot;/terms&quot;&gt;');
+});
+
+it('escapes a replacement poured into a line of markup', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.footer.body' => 'Signed in as <b>:name</b>.',
+    ], 'en');
+
+    $schema = Schema::make(app(DomainForm::class))->components([
+        Text::make('footer')
+            ->messageHtml()
+            ->messageReplace(['name' => '<script>alert(1)</script>']),
+    ]);
+
+    $html = $schema->getComponents()[0]->toEmbeddedHtml();
+
+    expect($html)->toContain('<b>')
+        ->and($html)->not->toContain('<script>');
+});
+
+it('keeps a replacement that is markup of its own', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.footer.body' => 'Read the :link.',
+    ], 'en');
+
+    $schema = Schema::make(app(DomainForm::class))->components([
+        Text::make('footer')
+            ->messageHtml()
+            ->messageReplace(['link' => new HtmlString('<a href="/terms">terms</a>')]),
+    ]);
+
+    expect($schema->getComponents()[0]->toEmbeddedHtml())->toContain('<a href="/terms">terms</a>');
 });

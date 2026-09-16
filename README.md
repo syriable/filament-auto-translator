@@ -998,7 +998,30 @@ Without a declared replacement nothing changes, and a slot the catalog did not
 supply is left alone — `messageReplace()` never turns a missing message into a
 present one.
 
-`messageName()`, `domain()` and `messageReplace()` are macros on `Filament\Support\Components\Component`. They store bindings in a `WeakMap` (no dynamic properties on Filament objects).
+### Copy that is markup
+
+Filament escapes a `Text` body, which is what copy should be: a line is text,
+not HTML. Footer copy that carries a link is the exception, and it says so at
+the call site:
+
+```php
+Text::make('footer')
+    ->messageHtml()
+    ->messageReplace(['terms_url' => fn (): string => route('terms')]);
+// 'By signing in you accept our <a href=":terms_url">terms</a>.'
+```
+
+`messageHtml()` marks **this component's** line as markup, so it renders as
+markup. Nothing is guessed: a catalog line is never treated as HTML because it
+happens to contain a tag, or one translator's `<` would quietly stop a whole
+catalog being escaped.
+
+Replacements are the reason the opt-in is per component rather than per line.
+The line is the author's, but what is poured into it may not be, so under
+`messageHtml()` every replacement is escaped — pass an `Illuminate\Support\HtmlString`
+when a replacement is meant to be markup of its own.
+
+`messageName()`, `domain()`, `messageReplace()` and `messageHtml()` are macros on `Filament\Support\Components\Component`. They store bindings in a `WeakMap` (no dynamic properties on Filament objects).
 
 ## Manual lookup
 
