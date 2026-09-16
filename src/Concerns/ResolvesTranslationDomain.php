@@ -6,6 +6,7 @@ namespace Syriable\MessageCatalog\Concerns;
 
 use Syriable\MessageCatalog\Binding\MessageBinder;
 use Syriable\MessageCatalog\Discovery\DomainPrefixResolver;
+use Syriable\MessageCatalog\Discovery\DomainResolver;
 use Syriable\MessageCatalog\Enums\MessageSlot;
 use Syriable\MessageCatalog\Enums\MessageSurface;
 use Syriable\MessageCatalog\Enums\ResolutionOutcome;
@@ -13,9 +14,14 @@ use Syriable\MessageCatalog\MessageIdentity;
 
 trait ResolvesTranslationDomain
 {
+    /**
+     * A declared #[TranslationDomain] wins over the prefix map, so a class
+     * names its own domain the same way everywhere.
+     */
     public static function translationDomain(): string
     {
-        return app(DomainPrefixResolver::class)->idFor(static::class);
+        return app(DomainResolver::class)->declaredOn(static::class)
+            ?? app(DomainPrefixResolver::class)->idFor(static::class);
     }
 
     /**

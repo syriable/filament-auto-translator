@@ -24,7 +24,10 @@ document and no earlier behaviour to preserve.
   its code.
 - **Resource domains from a prefix map.** Resources and their pages derive a
   domain from `domainPrefixes()` instead of declaring one, via
-  `HasModelMessages` and `HasPageMessages`.
+  `HasModelMessages` and `HasPageMessages`. A prefix ending in `::` names a
+  translation namespace rather than a folder, so `'Modules\Identity' =>
+  'identity::'` puts a module's resource copy in the module. A resource or page
+  that declares `#[TranslationDomain]` keeps that domain instead.
 - **Discovery.** `Messages::discoverIn($path, $namespace)` registers a directory
   the way `discoverResources()` does. It works with or without a Filament panel,
   because a schema may render on a public Livewire page where no panel boots, and

@@ -6,6 +6,7 @@ namespace Syriable\MessageCatalog\Concerns;
 
 use Illuminate\Contracts\Support\Htmlable;
 use Syriable\MessageCatalog\Discovery\DomainPrefixResolver;
+use Syriable\MessageCatalog\Discovery\DomainResolver;
 use Syriable\MessageCatalog\Enums\MessageSlot;
 use Syriable\MessageCatalog\Enums\MessageSurface;
 use Syriable\MessageCatalog\Support\NameNormalizer;
@@ -14,8 +15,18 @@ trait HasPageMessages
 {
     use ResolvesTranslationDomain;
 
+    /**
+     * A page declaring its own #[TranslationDomain] keeps it; otherwise it
+     * shares the resource's, and falls back to the prefix map.
+     */
     public static function translationDomain(): string
     {
+        $declared = app(DomainResolver::class)->declaredOn(static::class);
+
+        if ($declared !== null) {
+            return $declared;
+        }
+
         $resource = call_user_func([static::class, 'getResource']);
 
         if (method_exists($resource, 'translationDomain')) {

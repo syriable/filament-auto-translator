@@ -64,3 +64,27 @@ class ChildOfDomainedParent extends DomainedParent {}
 
 #[TranslationDomain('identity::base')]
 abstract class DomainedBase {}
+
+it('reports the declared domain, ignoring a translationDomain method', function () {
+    $class = new #[TranslationDomain('identity::declared')] class
+    {
+        public static function translationDomain(): string
+        {
+            return 'identity::from-method';
+        }
+    };
+
+    expect(app(DomainResolver::class)->declaredOn($class::class))->toBe('identity::declared');
+});
+
+it('reports no declared domain for a class that only has a translationDomain method', function () {
+    $class = new class
+    {
+        public static function translationDomain(): string
+        {
+            return 'identity::from-method';
+        }
+    };
+
+    expect(app(DomainResolver::class)->declaredOn($class::class))->toBeNull();
+});
