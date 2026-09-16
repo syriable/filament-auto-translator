@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Attributes;
+namespace Syriable\Translation\Attributes;
 
 use Attribute;
 

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Catalog;
+namespace Syriable\Translation\Catalog;
 
-use Syriable\MessageCatalog\Enums\MessageSlot;
+use Syriable\Translation\Enums\MessageSlot;
 
 class ObsoleteMessagePruner
 {

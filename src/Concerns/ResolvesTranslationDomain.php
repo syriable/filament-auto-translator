@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Concerns;
+namespace Syriable\Translation\Concerns;
 
-use Syriable\MessageCatalog\Binding\MessageBinder;
-use Syriable\MessageCatalog\Discovery\DomainPrefixResolver;
-use Syriable\MessageCatalog\Discovery\DomainResolver;
-use Syriable\MessageCatalog\Enums\MessageSlot;
-use Syriable\MessageCatalog\Enums\MessageSurface;
-use Syriable\MessageCatalog\Enums\ResolutionOutcome;
-use Syriable\MessageCatalog\MessageIdentity;
+use Syriable\Translation\Binding\MessageBinder;
+use Syriable\Translation\Discovery\DomainPrefixResolver;
+use Syriable\Translation\Discovery\DomainResolver;
+use Syriable\Translation\Enums\MessageSlot;
+use Syriable\Translation\Enums\MessageSurface;
+use Syriable\Translation\Enums\ResolutionOutcome;
+use Syriable\Translation\MessageIdentity;
 
 trait ResolvesTranslationDomain
 {
@@ -27,7 +27,7 @@ trait ResolvesTranslationDomain
     /**
      * @param  array<int, string>  $path
      */
-    protected static function catalogPhrase(MessageSurface $scope, MessageSlot $slot, array $path = []): ?string
+    protected static function catalogMessage(MessageSurface $scope, MessageSlot $slot, array $path = []): ?string
     {
         $resolution = app(MessageBinder::class)->resolveIdentity(new MessageIdentity(
             catalogId: static::translationDomain(),
@@ -37,7 +37,7 @@ trait ResolvesTranslationDomain
             slot: $slot,
         ));
 
-        if (in_array($resolution->decision, [ResolutionOutcome::Bound, ResolutionOutcome::UsedFallback], true)) {
+        if (in_array($resolution->decision, [ResolutionOutcome::Bound, ResolutionOutcome::UsedFallbackLocale], true)) {
             return $resolution->text;
         }
 

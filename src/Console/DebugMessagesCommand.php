@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Console;
+namespace Syriable\Translation\Console;
 
 use Illuminate\Console\Command;
-use Syriable\MessageCatalog\Enums\ResolutionOutcome;
-use Syriable\MessageCatalog\Extraction\MessageScanner;
+use Syriable\Translation\Enums\ResolutionOutcome;
+use Syriable\Translation\Extraction\MessageScanner;
 
 class DebugMessagesCommand extends Command
 {
-    protected $signature = 'messages:debug
+    protected $signature = 'translations:debug
         {--locale= : Locale to check}
         {--fail-on-missing : Fail when required messages are missing}
         {--fail-on-fallback : Fail when the current locale uses the fallback locale}';
@@ -48,7 +48,7 @@ class DebugMessagesCommand extends Command
                 return self::FAILURE;
             }
 
-            if ($failOnFallback && $finding['decision'] === ResolutionOutcome::UsedFallback->value) {
+            if ($failOnFallback && $finding['decision'] === ResolutionOutcome::UsedFallbackLocale->value) {
                 return self::FAILURE;
             }
         }

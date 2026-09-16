@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use Syriable\MessageCatalog\Binding\MessageOverrides;
-use Syriable\MessageCatalog\Discovery\DomainPrefixResolver;
+use Syriable\Translation\Binding\MessageOverrides;
+use Syriable\Translation\Discovery\DomainPrefixResolver;
 
 it('builds a catalog id from the longest matching namespace prefix', function () {
-    config()->set('messages.domain_prefixes', [
+    config()->set('translations.domain_prefixes', [
         'App\\Filament' => 'filament',
         'Modules\\Billing' => 'billing',
     ]);
@@ -20,8 +20,8 @@ it('builds a catalog id from the longest matching namespace prefix', function ()
 });
 
 it('does not change the catalog id when the class is renamed but translationDomain stays the same', function () {
-    config()->set('messages.default_domain_prefix', 'filament');
-    config()->set('messages.domain_prefixes', []);
+    config()->set('translations.default_domain_prefix', 'filament');
+    config()->set('translations.domain_prefixes', []);
 
     $resolver = new DomainPrefixResolver(new MessageOverrides);
 
@@ -30,8 +30,8 @@ it('does not change the catalog id when the class is renamed but translationDoma
 });
 
 it('uses the configured default prefix when no namespace matches', function () {
-    config()->set('messages.default_domain_prefix', 'filament');
-    config()->set('messages.domain_prefixes', []);
+    config()->set('translations.default_domain_prefix', 'filament');
+    config()->set('translations.domain_prefixes', []);
 
     $resolver = new DomainPrefixResolver(new MessageOverrides);
 
@@ -40,7 +40,7 @@ it('uses the configured default prefix when no namespace matches', function () {
 });
 
 it('prefers the longest namespace prefix when one namespace contains another', function () {
-    config()->set('messages.domain_prefixes', [
+    config()->set('translations.domain_prefixes', [
         'App\\Filament' => 'filament',
         'App\\Filament\\Admin' => 'admin',
     ]);
@@ -54,7 +54,7 @@ it('prefers the longest namespace prefix when one namespace contains another', f
 });
 
 it('keeps a module resource copy in that module when the prefix names a namespace', function () {
-    config()->set('messages.domain_prefixes', [
+    config()->set('translations.domain_prefixes', [
         'Modules\\Identity' => 'identity::',
         'Modules\\Billing' => 'billing',
     ]);
@@ -68,8 +68,8 @@ it('keeps a module resource copy in that module when the prefix names a namespac
 });
 
 it('accepts a namespaced default prefix', function () {
-    config()->set('messages.domain_prefixes', []);
-    config()->set('messages.default_domain_prefix', 'app::');
+    config()->set('translations.domain_prefixes', []);
+    config()->set('translations.default_domain_prefix', 'app::');
 
     $resolver = new DomainPrefixResolver(new MessageOverrides);
 
@@ -77,7 +77,7 @@ it('accepts a namespaced default prefix', function () {
 });
 
 it('builds an id that is a valid translation domain', function (string $prefix, string $expected) {
-    config()->set('messages.domain_prefixes', ['Modules\\Identity' => $prefix]);
+    config()->set('translations.domain_prefixes', ['Modules\\Identity' => $prefix]);
 
     $id = (new DomainPrefixResolver(new MessageOverrides))
         ->idFor('Modules\\Identity\\Filament\\Resources\\Users\\UserResource');

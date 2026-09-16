@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Discovery;
+namespace Syriable\Translation\Discovery;
 
 use ReflectionClass;
-use Syriable\MessageCatalog\Attributes\TranslationDomain;
+use Syriable\Translation\Attributes\TranslationDomain;
 use Throwable;
 
 /**

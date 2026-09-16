@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog;
+namespace Syriable\Translation;
 
 use Countable;
 use Illuminate\Translation\Translator;
-use Syriable\MessageCatalog\Binding\MessageBinder;
-use Syriable\MessageCatalog\Binding\ResolutionExplainer;
-use Syriable\MessageCatalog\Discovery\DomainRegistry;
-use Syriable\MessageCatalog\Discovery\DomainResolver;
-use Syriable\MessageCatalog\Enums\MessageSlot;
+use Syriable\Translation\Binding\MessageBinder;
+use Syriable\Translation\Binding\ResolutionExplainer;
+use Syriable\Translation\Discovery\DomainRegistry;
+use Syriable\Translation\Discovery\DomainResolver;
+use Syriable\Translation\Enums\MessageSlot;
 
-class Messages
+class Translations
 {
     /**
      * Registers a directory of schema classes, and starts binding.

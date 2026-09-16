@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Binding;
+namespace Syriable\Translation\Binding;
 
-use Syriable\MessageCatalog\Enums\MissingMessagePolicy;
+use Syriable\Translation\Enums\MissingMessagePolicy;
 
 class MessageOverrides
 {

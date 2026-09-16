@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Binding;
+namespace Syriable\Translation\Binding;
 
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -28,16 +28,16 @@ use Filament\Tables\Filters\BaseFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Event;
 use Livewire\Livewire;
-use Syriable\MessageCatalog\Catalog\MessageResolver;
-use Syriable\MessageCatalog\Discovery\DomainResolver;
-use Syriable\MessageCatalog\Enums\MessageSlot;
-use Syriable\MessageCatalog\Enums\MessageSurface;
-use Syriable\MessageCatalog\Enums\MissingMessagePolicy;
-use Syriable\MessageCatalog\Enums\ResolutionOutcome;
-use Syriable\MessageCatalog\Exceptions\ParentDepthExceededException;
-use Syriable\MessageCatalog\MessageIdentity;
-use Syriable\MessageCatalog\Resolution;
-use Syriable\MessageCatalog\Support\NameNormalizer;
+use Syriable\Translation\Catalog\MessageResolver;
+use Syriable\Translation\Discovery\DomainResolver;
+use Syriable\Translation\Enums\MessageSlot;
+use Syriable\Translation\Enums\MessageSurface;
+use Syriable\Translation\Enums\MissingMessagePolicy;
+use Syriable\Translation\Enums\ResolutionOutcome;
+use Syriable\Translation\Exceptions\ParentDepthExceededException;
+use Syriable\Translation\MessageIdentity;
+use Syriable\Translation\Resolution;
+use Syriable\Translation\Support\NameNormalizer;
 use Throwable;
 
 class MessageBinder
@@ -176,7 +176,7 @@ class MessageBinder
     {
         $resolution = $this->evaluate($component, $slot);
 
-        if (! in_array($resolution->decision, [ResolutionOutcome::Bound, ResolutionOutcome::UsedFallback], true)) {
+        if (! in_array($resolution->decision, [ResolutionOutcome::Bound, ResolutionOutcome::UsedFallbackLocale], true)) {
             return null;
         }
 
@@ -321,7 +321,7 @@ class MessageBinder
                 return $captured;
             }
 
-            if ($resolution->decision === ResolutionOutcome::Missing && $resolution->mode === MissingMessagePolicy::Fallback) {
+            if ($resolution->decision === ResolutionOutcome::Missing && $resolution->mode === MissingMessagePolicy::KeepVendorLabel) {
                 return $captured;
             }
 
@@ -917,7 +917,7 @@ class MessageBinder
         $names = [];
         $current = $component;
         $depth = 0;
-        $maxDepth = (int) config('messages.max_parent_depth', 32);
+        $maxDepth = (int) config('translations.max_parent_depth', 32);
 
         while ($depth < $maxDepth) {
             $depth++;
@@ -1056,7 +1056,7 @@ class MessageBinder
 
         $current = $component;
         $depth = 0;
-        $maxDepth = (int) config('messages.max_parent_depth', 32);
+        $maxDepth = (int) config('translations.max_parent_depth', 32);
 
         while (is_object($current) && $depth < $maxDepth) {
             $override = $this->bindings->domain($current);
@@ -1166,7 +1166,7 @@ class MessageBinder
         $current = $component;
         $container = null;
         $depth = 0;
-        $maxDepth = (int) config('messages.max_parent_depth', 32);
+        $maxDepth = (int) config('translations.max_parent_depth', 32);
 
         while ($depth < $maxDepth) {
             $depth++;

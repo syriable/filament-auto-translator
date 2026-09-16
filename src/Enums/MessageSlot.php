@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Enums;
+namespace Syriable\Translation\Enums;
 
 enum MessageSlot: string
 {

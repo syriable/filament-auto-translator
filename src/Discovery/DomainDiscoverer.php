@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Discovery;
+namespace Syriable\Translation\Discovery;
 
 use Filament\Resources\Resource as FilamentResource;
 use Filament\Schemas\Schema;
@@ -10,7 +10,7 @@ use Illuminate\Filesystem\Filesystem;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionNamedType;
-use Syriable\MessageCatalog\Exceptions\InvalidTranslationDomainException;
+use Syriable\Translation\Exceptions\InvalidTranslationDomainException;
 
 /**
  * Turns a directory and its PSR-4 namespace into the message catalogs it holds,

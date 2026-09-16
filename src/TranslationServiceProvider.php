@@ -2,32 +2,32 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog;
+namespace Syriable\Translation;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Syriable\MessageCatalog\Binding\ComponentBindings;
-use Syriable\MessageCatalog\Binding\MessageBinder;
-use Syriable\MessageCatalog\Binding\MessageOverrides;
-use Syriable\MessageCatalog\Binding\ResolutionCache;
-use Syriable\MessageCatalog\Binding\ResolutionExplainer;
-use Syriable\MessageCatalog\Catalog\MessageResolver;
-use Syriable\MessageCatalog\Console\DebugMessagesCommand;
-use Syriable\MessageCatalog\Console\ExtractMessagesCommand;
-use Syriable\MessageCatalog\Console\InlineMessagesCommand;
-use Syriable\MessageCatalog\Discovery\DomainPrefixResolver;
-use Syriable\MessageCatalog\Discovery\DomainRegistry;
-use Syriable\MessageCatalog\Discovery\DomainResolver;
-use Syriable\MessageCatalog\Discovery\PanelResources;
-use Syriable\MessageCatalog\Extraction\MessageScanner;
+use Syriable\Translation\Binding\ComponentBindings;
+use Syriable\Translation\Binding\MessageBinder;
+use Syriable\Translation\Binding\MessageOverrides;
+use Syriable\Translation\Binding\ResolutionCache;
+use Syriable\Translation\Binding\ResolutionExplainer;
+use Syriable\Translation\Catalog\MessageResolver;
+use Syriable\Translation\Console\DebugMessagesCommand;
+use Syriable\Translation\Console\ExtractMessagesCommand;
+use Syriable\Translation\Console\InlineMessagesCommand;
+use Syriable\Translation\Discovery\DomainPrefixResolver;
+use Syriable\Translation\Discovery\DomainRegistry;
+use Syriable\Translation\Discovery\DomainResolver;
+use Syriable\Translation\Discovery\PanelResources;
+use Syriable\Translation\Extraction\MessageScanner;
 
-class MessageCatalogServiceProvider extends PackageServiceProvider
+class TranslationServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
         $package
-            ->name('messages')
-            ->hasConfigFile('messages')
+            ->name('translations')
+            ->hasConfigFile('translations')
             ->hasCommands(
                 DebugMessagesCommand::class,
                 ExtractMessagesCommand::class,

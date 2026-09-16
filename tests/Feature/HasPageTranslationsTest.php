@@ -3,16 +3,16 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Lang;
-use Syriable\MessageCatalog\Binding\MessageOverrides;
-use Syriable\MessageCatalog\Enums\MissingMessagePolicy;
-use Syriable\MessageCatalog\Tests\Fixtures\CatalogBoundPage;
-use Syriable\MessageCatalog\Tests\Fixtures\CatalogOwner;
-use Syriable\MessageCatalog\Tests\Fixtures\DeclaredDomainPage;
+use Syriable\Translation\Binding\MessageOverrides;
+use Syriable\Translation\Enums\MissingMessagePolicy;
+use Syriable\Translation\Tests\Fixtures\CatalogBoundPage;
+use Syriable\Translation\Tests\Fixtures\CatalogOwner;
+use Syriable\Translation\Tests\Fixtures\DeclaredDomainPage;
 
 beforeEach(function () {
-    config()->set('messages.on_missing', 'debug');
-    config()->set('messages.default_domain_prefix', 'filament');
-    config()->set('messages.domain_prefixes', []);
+    config()->set('translations.on_missing', 'debug');
+    config()->set('translations.default_domain_prefix', 'filament');
+    config()->set('translations.domain_prefixes', []);
     app(MessageOverrides::class)->mode = null;
 });
 
@@ -34,12 +34,12 @@ it('fills page chrome from the shared resource catalog', function () {
         ->and(CatalogBoundPage::getNavigationLabel())->toBe('Edit');
 });
 
-it('surfaces the compiled page title key when the phrase is missing in inspect mode', function () {
+it('surfaces the compiled page title key when the message is missing in debug mode', function () {
     expect((new CatalogBoundPage)->getTitle())->toBe('filament/catalog-owner.pages.catalog-bound-page.title');
 });
 
-it('keeps parent page chrome when phrases are missing in lenient mode', function () {
-    app(MessageOverrides::class)->mode = MissingMessagePolicy::Fallback;
+it('keeps parent page chrome when messages are missing under the keep-vendor-label policy', function () {
+    app(MessageOverrides::class)->mode = MissingMessagePolicy::KeepVendorLabel;
 
     $page = new CatalogBoundPage;
 

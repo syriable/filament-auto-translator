@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Catalog;
+namespace Syriable\Translation\Catalog;
 
 use Illuminate\Translation\Translator;
-use Syriable\MessageCatalog\Binding\MessageOverrides;
-use Syriable\MessageCatalog\Binding\ResolutionCache;
-use Syriable\MessageCatalog\Enums\MissingMessagePolicy;
-use Syriable\MessageCatalog\Enums\ResolutionOutcome;
-use Syriable\MessageCatalog\Exceptions\MissingMessageException;
-use Syriable\MessageCatalog\MessageIdentity;
-use Syriable\MessageCatalog\MessageKeyBuilder;
-use Syriable\MessageCatalog\Resolution;
+use Syriable\Translation\Binding\MessageOverrides;
+use Syriable\Translation\Binding\ResolutionCache;
+use Syriable\Translation\Enums\MissingMessagePolicy;
+use Syriable\Translation\Enums\ResolutionOutcome;
+use Syriable\Translation\Exceptions\MissingMessageException;
+use Syriable\Translation\MessageIdentity;
+use Syriable\Translation\MessageKeyBuilder;
+use Syriable\Translation\Resolution;
 
 class MessageResolver
 {
@@ -64,7 +64,7 @@ class MessageResolver
             $resolution = new Resolution(
                 identity: $identity,
                 key: $key,
-                decision: ResolutionOutcome::UsedFallback,
+                decision: ResolutionOutcome::UsedFallbackLocale,
                 text: is_string($text) ? $text : null,
                 locale: $locale,
                 presentInCurrentLocale: false,
@@ -93,7 +93,7 @@ class MessageResolver
 
     public function applyMode(Resolution $resolution): Resolution
     {
-        if ($resolution->decision === ResolutionOutcome::UsedFallback) {
+        if ($resolution->decision === ResolutionOutcome::UsedFallbackLocale) {
             return $resolution;
         }
 
@@ -119,6 +119,6 @@ class MessageResolver
     public function mode(): MissingMessagePolicy
     {
         return $this->registry->mode
-            ?? MissingMessagePolicy::fromConfig((string) config('messages.on_missing', 'fallback'));
+            ?? MissingMessagePolicy::fromConfig((string) config('translations.on_missing', 'keep_vendor_label'));
     }
 }

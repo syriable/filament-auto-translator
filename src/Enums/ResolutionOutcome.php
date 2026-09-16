@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Enums;
+namespace Syriable\Translation\Enums;
 
 enum ResolutionOutcome: string
 {
@@ -10,7 +10,7 @@ enum ResolutionOutcome: string
     case CustomSlot = 'custom_slot';
     case Missing = 'missing';
     case Unbound = 'unbound';
-    case UsedFallback = 'used_fallback';
+    case UsedFallbackLocale = 'used_fallback_locale';
     case VendorDefault = 'vendor_default';
     case NoCatalog = 'no_catalog';
 }

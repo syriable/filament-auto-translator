@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Extraction;
+namespace Syriable\Translation\Extraction;
 
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -23,17 +23,17 @@ use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
-use Syriable\MessageCatalog\Binding\MessageBinder;
-use Syriable\MessageCatalog\Catalog\MessageResolver;
-use Syriable\MessageCatalog\Discovery\DiscoveredDomain;
-use Syriable\MessageCatalog\Discovery\DomainRegistry;
-use Syriable\MessageCatalog\Discovery\PanelResources;
-use Syriable\MessageCatalog\Enums\MessageSlot;
-use Syriable\MessageCatalog\Enums\MessageSurface;
-use Syriable\MessageCatalog\Enums\ResolutionOutcome;
-use Syriable\MessageCatalog\MessageIdentity;
-use Syriable\MessageCatalog\Resolution;
-use Syriable\MessageCatalog\Support\NameNormalizer;
+use Syriable\Translation\Binding\MessageBinder;
+use Syriable\Translation\Catalog\MessageResolver;
+use Syriable\Translation\Discovery\DiscoveredDomain;
+use Syriable\Translation\Discovery\DomainRegistry;
+use Syriable\Translation\Discovery\PanelResources;
+use Syriable\Translation\Enums\MessageSlot;
+use Syriable\Translation\Enums\MessageSurface;
+use Syriable\Translation\Enums\ResolutionOutcome;
+use Syriable\Translation\MessageIdentity;
+use Syriable\Translation\Resolution;
+use Syriable\Translation\Support\NameNormalizer;
 use Throwable;
 
 class MessageScanner

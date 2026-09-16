@@ -9,15 +9,15 @@ use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Lang;
-use Syriable\MessageCatalog\Binding\MessageBinder;
-use Syriable\MessageCatalog\Enums\MessageSlot;
-use Syriable\MessageCatalog\Enums\MessageSurface;
-use Syriable\MessageCatalog\Enums\ResolutionOutcome;
-use Syriable\MessageCatalog\Extraction\ExtractionHost;
-use Syriable\MessageCatalog\Extraction\MessageScanner;
-use Syriable\MessageCatalog\MessageIdentity;
+use Syriable\Translation\Binding\MessageBinder;
+use Syriable\Translation\Enums\MessageSlot;
+use Syriable\Translation\Enums\MessageSurface;
+use Syriable\Translation\Enums\ResolutionOutcome;
+use Syriable\Translation\Extraction\ExtractionHost;
+use Syriable\Translation\Extraction\MessageScanner;
+use Syriable\Translation\MessageIdentity;
 
-it('reports a missing required phrase as a finding', function () {
+it('reports a missing required message as a finding', function () {
     $findings = app(MessageScanner::class)->auditIdentities([
         new MessageIdentity(
             catalogId: 'filament.user-resource',
@@ -33,7 +33,7 @@ it('reports a missing required phrase as a finding', function () {
         ->and($findings[0]['key'])->toBe('filament/user-resource.form.components.email.label');
 });
 
-it('does not report a present phrase as a finding', function () {
+it('does not report a present message as a finding', function () {
     Lang::addLines([
         'filament/user-resource.form.components.email.label' => 'Email address',
     ], 'en');

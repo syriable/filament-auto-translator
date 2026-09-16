@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Discovery;
+namespace Syriable\Translation\Discovery;
 
 /**
  * Holds the directories message catalogs are discovered in. Register a module
@@ -75,7 +75,7 @@ class DomainRegistry
      */
     private function configured(): array
     {
-        $entries = config('messages.discover_paths', []);
+        $entries = config('translations.discover_paths', []);
         $definitions = [];
 
         if (! is_array($entries)) {

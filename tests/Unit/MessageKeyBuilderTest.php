@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use Syriable\MessageCatalog\Enums\MessageSlot;
-use Syriable\MessageCatalog\Enums\MessageSurface;
-use Syriable\MessageCatalog\Exceptions\InvalidMessageNameException;
-use Syriable\MessageCatalog\MessageIdentity;
-use Syriable\MessageCatalog\MessageKeyBuilder;
+use Syriable\Translation\Enums\MessageSlot;
+use Syriable\Translation\Enums\MessageSurface;
+use Syriable\Translation\Exceptions\InvalidMessageNameException;
+use Syriable\Translation\MessageIdentity;
+use Syriable\Translation\MessageKeyBuilder;
 
 it('compiles a form field key from catalog identity', function () {
     $compiler = new MessageKeyBuilder;

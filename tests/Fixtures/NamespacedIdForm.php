@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Tests\Fixtures;
+namespace Syriable\Translation\Tests\Fixtures;
 
 use Filament\Schemas\Schema;
-use Syriable\MessageCatalog\Attributes\TranslationDomain;
+use Syriable\Translation\Attributes\TranslationDomain;
 
 #[TranslationDomain('identity::users.edit')]
 class NamespacedIdForm

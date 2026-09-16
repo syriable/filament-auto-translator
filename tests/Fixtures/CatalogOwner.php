@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Tests\Fixtures;
+namespace Syriable\Translation\Tests\Fixtures;
 
-use Syriable\MessageCatalog\Concerns\HasModelMessages;
+use Syriable\Translation\Concerns\HasModelTranslations;
 
 class CatalogOwner extends CatalogChromeParent
 {
-    use HasModelMessages;
+    use HasModelTranslations;
 }

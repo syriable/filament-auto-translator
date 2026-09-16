@@ -3,19 +3,19 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Lang;
-use Syriable\MessageCatalog\Binding\MessageOverrides;
-use Syriable\MessageCatalog\Enums\MissingMessagePolicy;
-use Syriable\MessageCatalog\Tests\Fixtures\CatalogOwner;
-use Syriable\MessageCatalog\Tests\Fixtures\DeclaredDomainOwner;
+use Syriable\Translation\Binding\MessageOverrides;
+use Syriable\Translation\Enums\MissingMessagePolicy;
+use Syriable\Translation\Tests\Fixtures\CatalogOwner;
+use Syriable\Translation\Tests\Fixtures\DeclaredDomainOwner;
 
 beforeEach(function () {
-    config()->set('messages.on_missing', 'debug');
-    config()->set('messages.default_domain_prefix', 'filament');
-    config()->set('messages.domain_prefixes', []);
+    config()->set('translations.on_missing', 'debug');
+    config()->set('translations.default_domain_prefix', 'filament');
+    config()->set('translations.domain_prefixes', []);
     app(MessageOverrides::class)->mode = null;
 });
 
-it('fills resource chrome from the phrase catalog', function () {
+it('fills resource chrome from the message catalog', function () {
     Lang::addLines([
         'filament/catalog-owner.model_label' => 'User',
         'filament/catalog-owner.plural_model_label' => 'Users',
@@ -31,12 +31,12 @@ it('fills resource chrome from the phrase catalog', function () {
         ->and(CatalogOwner::getNavigationGroup())->toBe('Access');
 });
 
-it('surfaces compiled chrome keys when required phrases are missing in inspect mode', function () {
+it('surfaces compiled chrome keys when required messages are missing in debug mode', function () {
     expect(CatalogOwner::getModelLabel())->toBe('filament/catalog-owner.model_label');
 });
 
-it('keeps parent chrome when required phrases are missing in lenient mode', function () {
-    app(MessageOverrides::class)->mode = MissingMessagePolicy::Fallback;
+it('keeps the vendor label when required messages are missing under that policy', function () {
+    app(MessageOverrides::class)->mode = MissingMessagePolicy::KeepVendorLabel;
 
     expect(CatalogOwner::getModelLabel())->toBe('parent model')
         ->and(CatalogOwner::getPluralModelLabel())->toBe('parent models')
@@ -46,8 +46,8 @@ it('keeps parent chrome when required phrases are missing in lenient mode', func
 });
 
 it('prefers a declared domain over the prefix map', function () {
-    config()->set('messages.domain_prefixes', [
-        'Syriable\\MessageCatalog\\Tests\\Fixtures' => 'fixtures',
+    config()->set('translations.domain_prefixes', [
+        'Syriable\\Translation\\Tests\\Fixtures' => 'fixtures',
     ]);
 
     expect(DeclaredDomainOwner::translationDomain())->toBe('identity::people')

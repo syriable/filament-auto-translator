@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-use Syriable\MessageCatalog\Enums\MissingMessagePolicy;
+use Syriable\Translation\Enums\MissingMessagePolicy;
 
 it('falls back rather than exposing keys when nothing is configured', function () {
-    expect(MissingMessagePolicy::fromConfig(''))->toBe(MissingMessagePolicy::Fallback)
-        ->and(MissingMessagePolicy::fromConfig('nonsense'))->toBe(MissingMessagePolicy::Fallback);
+    expect(MissingMessagePolicy::fromConfig(''))->toBe(MissingMessagePolicy::KeepVendorLabel)
+        ->and(MissingMessagePolicy::fromConfig('nonsense'))->toBe(MissingMessagePolicy::KeepVendorLabel);
 });
 
 it('ships a safe default in the published config', function () {
-    $config = require dirname(__DIR__, 2).'/config/messages.php';
+    $config = require dirname(__DIR__, 2).'/config/translations.php';
 
-    expect($config['on_missing'])->toBe('fallback');
+    expect($config['on_missing'])->toBe('keep_vendor_label');
 });
 
 it('resolves each policy from its configured value', function (string $value, MissingMessagePolicy $expected) {
@@ -20,5 +20,5 @@ it('resolves each policy from its configured value', function (string $value, Mi
 })->with([
     ['debug', MissingMessagePolicy::Debug],
     ['strict', MissingMessagePolicy::Strict],
-    ['fallback', MissingMessagePolicy::Fallback],
+    ['keep_vendor_label', MissingMessagePolicy::KeepVendorLabel],
 ]);

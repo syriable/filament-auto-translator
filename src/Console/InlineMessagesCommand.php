@@ -2,34 +2,34 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Console;
+namespace Syriable\Translation\Console;
 
 use Illuminate\Console\Command;
-use Syriable\MessageCatalog\Apply\PhraseApplyWrite;
-use Syriable\MessageCatalog\Apply\PhrasePhpApplier;
+use Syriable\Translation\Apply\InlineWrite;
+use Syriable\Translation\Apply\MessageInliner;
 
 class InlineMessagesCommand extends Command
 {
-    protected $signature = 'messages:inline
+    protected $signature = 'translations:inline
         {--locale= : Locale whose language file supplies the keys}
         {--dry-run : Show methods that would be written without changing PHP}';
 
     protected $description = 'Write Filament setter calls for message keys that already exist in the language file.';
 
-    public function handle(PhrasePhpApplier $applier): int
+    public function handle(MessageInliner $applier): int
     {
         $locale = $this->locale();
         $dryRun = (bool) $this->option('dry-run');
         $writes = $applier->apply($locale, $dryRun);
 
         if ($writes === []) {
-            $this->info('No phrase methods to write.');
+            $this->info('No setter calls to write.');
 
             return self::SUCCESS;
         }
 
         $this->table(['PHP file', 'make()', 'Method', 'Key', 'Action'], array_map(
-            fn (PhraseApplyWrite $write): array => [
+            fn (InlineWrite $write): array => [
                 $write->path,
                 $write->make,
                 $write->method,
@@ -42,12 +42,12 @@ class InlineMessagesCommand extends Command
         $count = count($writes);
 
         if ($dryRun) {
-            $this->info("Would write {$count} phrase methods.");
+            $this->info("Would write {$count} setter calls.");
 
             return self::SUCCESS;
         }
 
-        $this->info("Wrote {$count} phrase methods.");
+        $this->info("Wrote {$count} setter calls.");
 
         return self::SUCCESS;
     }

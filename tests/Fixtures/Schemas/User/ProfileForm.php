@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Tests\Fixtures\Schemas\User;
+namespace Syriable\Translation\Tests\Fixtures\Schemas\User;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
-use Syriable\MessageCatalog\Attributes\TranslationDomain;
+use Syriable\Translation\Attributes\TranslationDomain;
 
 #[TranslationDomain('identity.user-profile')]
 class ProfileForm

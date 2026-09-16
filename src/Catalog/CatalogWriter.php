@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Catalog;
+namespace Syriable\Translation\Catalog;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Lang;
-use Syriable\MessageCatalog\Exceptions\UnknownDomainNamespaceException;
+use Syriable\Translation\Exceptions\UnknownDomainNamespaceException;
 
 class CatalogWriter
 {

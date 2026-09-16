@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog;
+namespace Syriable\Translation;
 
-use Syriable\MessageCatalog\Enums\MissingMessagePolicy;
-use Syriable\MessageCatalog\Enums\ResolutionOutcome;
+use Syriable\Translation\Enums\MissingMessagePolicy;
+use Syriable\Translation\Enums\ResolutionOutcome;
 
 class Resolution
 {
@@ -24,6 +24,6 @@ class Resolution
     public function isBound(): bool
     {
         return $this->decision === ResolutionOutcome::Bound
-            || $this->decision === ResolutionOutcome::UsedFallback;
+            || $this->decision === ResolutionOutcome::UsedFallbackLocale;
     }
 }

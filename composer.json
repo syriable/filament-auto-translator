@@ -1,6 +1,6 @@
 {
-    "name": "syriable/laravel-message-catalog",
-    "description": "Message catalogs for Filament and Livewire UI copy: identifiers in PHP, translations in language files.",
+    "name": "syriable/laravel-translation",
+    "description": "Translations for Filament and Livewire UI copy: identifiers in PHP, copy in language files.",
     "keywords": [
         "syriable",
         "laravel",
@@ -9,7 +9,8 @@
         "translation",
         "i18n",
         "l10n",
-        "message-catalog"
+        "message-catalog",
+        "filament-translation"
     ],
     "homepage": "https://github.com/syriable/filament-auto-translator",
     "license": "MIT",
@@ -34,18 +35,18 @@
     },
     "autoload": {
         "psr-4": {
-            "Syriable\\MessageCatalog\\": "src/"
+            "Syriable\\Translation\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Syriable\\MessageCatalog\\Tests\\": "tests/"
+            "Syriable\\Translation\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Syriable\\MessageCatalog\\MessageCatalogServiceProvider"
+                "Syriable\\Translation\\TranslationServiceProvider"
             ]
         }
     },

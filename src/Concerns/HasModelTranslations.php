@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Syriable\MessageCatalog\Concerns;
+namespace Syriable\Translation\Concerns;
 
-use Syriable\MessageCatalog\Enums\MessageSlot;
-use Syriable\MessageCatalog\Enums\MessageSurface;
+use Syriable\Translation\Enums\MessageSlot;
+use Syriable\Translation\Enums\MessageSurface;
 use UnitEnum;
 
-trait HasModelMessages
+trait HasModelTranslations
 {
     use ResolvesTranslationDomain;
 
     public static function getModelLabel(): string
     {
-        $label = static::catalogPhrase(MessageSurface::Model, MessageSlot::Label)
+        $label = static::catalogMessage(MessageSurface::Model, MessageSlot::Label)
             ?? static::callParentChrome('getModelLabel');
 
         return is_string($label) ? $label : 'resource';
@@ -22,7 +22,7 @@ trait HasModelMessages
 
     public static function getPluralModelLabel(): string
     {
-        $label = static::catalogPhrase(MessageSurface::Model, MessageSlot::Plural)
+        $label = static::catalogMessage(MessageSurface::Model, MessageSlot::Plural)
             ?? static::callParentChrome('getPluralModelLabel');
 
         return is_string($label) ? $label : static::getModelLabel();
@@ -30,7 +30,7 @@ trait HasModelMessages
 
     public static function getPluralLabel(): ?string
     {
-        $label = static::catalogPhrase(MessageSurface::Model, MessageSlot::PluralLabel)
+        $label = static::catalogMessage(MessageSurface::Model, MessageSlot::PluralLabel)
             ?? static::callParentChrome('getPluralLabel');
 
         return is_string($label) ? $label : null;
@@ -38,7 +38,7 @@ trait HasModelMessages
 
     public static function getNavigationLabel(): string
     {
-        $label = static::catalogPhrase(MessageSurface::Navigation, MessageSlot::Label)
+        $label = static::catalogMessage(MessageSurface::Navigation, MessageSlot::Label)
             ?? static::callParentChrome('getNavigationLabel');
 
         return is_string($label) ? $label : static::getPluralModelLabel();
@@ -46,7 +46,7 @@ trait HasModelMessages
 
     public static function getNavigationGroup(): string|UnitEnum|null
     {
-        $group = static::catalogPhrase(MessageSurface::Navigation, MessageSlot::Group)
+        $group = static::catalogMessage(MessageSurface::Navigation, MessageSlot::Group)
             ?? static::callParentChrome('getNavigationGroup');
 
         if ($group instanceof UnitEnum || is_string($group) || $group === null) {

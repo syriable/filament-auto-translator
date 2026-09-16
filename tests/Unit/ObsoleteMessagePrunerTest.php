@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Syriable\MessageCatalog\Catalog\ObsoleteMessagePruner;
+use Syriable\Translation\Catalog\ObsoleteMessagePruner;
 
 it('removes a form key whose component is no longer live', function () {
     $pruner = new ObsoleteMessagePruner;
