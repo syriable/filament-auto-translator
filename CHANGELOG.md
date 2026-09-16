@@ -12,6 +12,13 @@ document and no earlier behaviour to preserve.
 
 ### Added
 
+- **Components from other packages are bound.** Anything extending
+  `Filament\Schemas\Components\Component` with a label — a separator shipped by
+  a plugin, say — was invisible: its copy could not come from the catalog
+  however it was written. Identity already worked; only the binding was
+  missing. It applies to a component that names itself with `->key()`, and
+  keeps whatever label the component was built with as the fallback.
+
 - **`validation_attribute` and `below_label` are bound slots.** A field's name in
   validation messages, and the line under its label, come from the catalog at
   the field's own path rather than from copy an application had to keep

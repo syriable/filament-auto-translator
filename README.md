@@ -879,6 +879,26 @@ The Livewire owner must carry a `#[TranslationDomain]` attribute, or expose a `t
 
 Vendor actions such as `DeleteAction` keep their Filament language file until **your** catalog defines that action’s label.
 
+### Components from other packages
+
+Filament is extensible, and a component another package ships — a separator, a
+divider, anything extending `Filament\Schemas\Components\Component` with a
+label — is bound too, on one condition: **it has to name itself with
+`->key()`.**
+
+```php
+Separator::make()->key('separator');
+// form.components.separator.label
+```
+
+The key is required rather than guessed. A component with no key has no
+identity, and the `make()` argument is not a safe substitute — on a separator
+that argument *is* the visible label, not a name.
+
+Whatever label the component carries when it is built stays as the fallback,
+so a component that sets its own default keeps it until the catalog has a
+line. An explicit `->label()` after `make()` wins, as everywhere else.
+
 ## Resource chrome
 
 `HasModelTranslations` is for **resources** (static Filament chrome):
