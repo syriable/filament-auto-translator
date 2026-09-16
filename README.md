@@ -1043,7 +1043,7 @@ Identifier-only PHP remains the default. Use `translations:inline` only when you
 | `default_domain_prefix` | — | `filament` | Prefix when no namespace map matches |
 | `domain_prefixes` | — | `[]` | `['Modules\\Billing' => 'billing']` |
 | `discover_paths` | — | `[]` | `[['path' => …, 'namespace' => …]]` — directories scanned for [schema domains](#schema-domains-outside-resources) |
-| `debug_query` | — | `messages` | Reserved query-string key for request-level dumps (not consumed by the binder yet) |
+| `debug_query` | — | `translations` | Reserved query-string key for request-level dumps (not consumed by the binder yet) |
 | `max_parent_depth` | — | `32` | Cap when walking parent schema components; exceeding it throws `ParentDepthExceededException` |
 
 Panel plugin options:
