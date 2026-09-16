@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Syriable\Translation\Binding\MessageBinder;
 use Syriable\Translation\Discovery\DomainRegistry;
-use Syriable\Translation\Translations;
 use Syriable\Translation\Tests\Fixtures\Schemas\User\EditForm;
+use Syriable\Translation\Translations;
 
 it('discovers a directory and starts binding in one call', function () {
     Translations::discoverIn(

@@ -58,6 +58,10 @@ class MessageInliner
         $resources = $this->catalogResources();
 
         foreach ($resources as $resource) {
+            if (! method_exists($resource, 'translationDomain')) {
+                continue;
+            }
+
             $catalogId = $resource::translationDomain();
 
             if (! $this->writer->isSafeCatalogId($catalogId)) {

@@ -49,13 +49,7 @@ class CatalogWriter
 
     private function namespacePath(string $namespace): ?string
     {
-        $loader = Lang::getLoader();
-
-        if (! method_exists($loader, 'namespaces')) {
-            return null;
-        }
-
-        $path = $loader->namespaces()[$namespace] ?? null;
+        $path = Lang::getLoader()->namespaces()[$namespace] ?? null;
 
         return is_string($path) ? $path : null;
     }
