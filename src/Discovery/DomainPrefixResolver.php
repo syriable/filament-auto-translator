@@ -17,8 +17,14 @@ class DomainPrefixResolver
     public function idFor(string $class): string
     {
         $prefix = $this->prefixFor($class);
+        $group = NameNormalizer::kebabClassBasename($class);
 
-        return "{$prefix}.".NameNormalizer::kebabClassBasename($class);
+        // A prefix ending in :: names a translation namespace rather than a
+        // folder, so the group follows it directly: a module keeps its copy in
+        // its own lang directory instead of the application's.
+        return str_ends_with($prefix, '::')
+            ? $prefix.$group
+            : $prefix.'.'.$group;
     }
 
     public function prefixFor(string $class): string

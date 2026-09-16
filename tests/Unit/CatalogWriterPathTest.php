@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Lang;
+use Syriable\MessageCatalog\Binding\MessageOverrides;
 use Syriable\MessageCatalog\Catalog\CatalogWriter;
+use Syriable\MessageCatalog\Discovery\DomainPrefixResolver;
 use Syriable\MessageCatalog\Exceptions\UnknownDomainNamespaceException;
 
 it('writes a dotted catalog into the application lang path', function () {
@@ -65,3 +67,15 @@ it('still rejects catalog ids that could escape the lang path', function (string
     'identity::user edit',
     '',
 ]);
+
+it('routes a prefix-derived module domain into that module lang path', function () {
+    Lang::getLoader()->addNamespace('identity', '/modules/identity/resources/lang');
+    config()->set('messages.domain_prefixes', ['Modules\\Identity' => 'identity::']);
+
+    $domain = (new DomainPrefixResolver(
+        new MessageOverrides
+    ))->idFor('Modules\\Identity\\Filament\\Resources\\Users\\UserResource');
+
+    expect((new CatalogWriter)->pathFor($domain, 'ar'))
+        ->toBe('/modules/identity/resources/lang/ar/user-resource.php');
+});
