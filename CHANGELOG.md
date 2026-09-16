@@ -35,6 +35,10 @@ document and no earlier behaviour to preserve.
 - **`messages:extract`** creates the language keys a walked schema needs, and
   removes keys for components that no longer exist. It never overwrites copy that
   is already translated. `--dry-run` previews; `--no-prune` keeps orphans.
+- **Console commands see panel configuration.** `messages:extract`, `messages:debug`
+  and `messages:inline` boot every registered panel before walking it, so
+  prefixes, discovery paths and the missing-message policy registered on a panel
+  plugin apply on the CLI exactly as they do in the browser.
 - **`messages:debug`** reports missing and obsolete messages for a locale without
   writing anything, so it is safe in CI. `--fail-on-missing` and
   `--fail-on-fallback` turn findings into a non-zero exit.

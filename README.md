@@ -988,6 +988,8 @@ If `form()` or `table()` throws, that scope is not pruned. `syncIdentities()` ne
 
 It walks registered Filament resources **and** discovered [schema domains](#schema-domains-outside-resources) in one pass — there is no separate command for them.
 
+The commands boot every registered panel before they walk it. A panel plugin is configured in `Panel::boot()`, which a console command never triggers on its own, so without this the CLI would read no domain prefixes, no plugin discovery paths and no missing-message policy — and write copy to a different file than the browser reads from.
+
 Keep `messages:debug` for CI. Use `messages:extract` while scaffolding a resource, then replace stubs with real copy.
 
 ## messages:inline

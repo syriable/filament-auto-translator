@@ -6,7 +6,6 @@ namespace Syriable\MessageCatalog\Apply;
 
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
-use Filament\Facades\Filament;
 use Filament\Forms\Components\Field;
 use Filament\Infolists\Components\Entry;
 use Filament\Notifications\Notification;
@@ -23,6 +22,7 @@ use Syriable\MessageCatalog\Binding\MessageBinder;
 use Syriable\MessageCatalog\Catalog\CatalogWriter;
 use Syriable\MessageCatalog\Discovery\DiscoveredDomain;
 use Syriable\MessageCatalog\Discovery\DomainRegistry;
+use Syriable\MessageCatalog\Discovery\PanelResources;
 use Syriable\MessageCatalog\Enums\MessageSlot;
 use Syriable\MessageCatalog\Enums\ResolutionOutcome;
 use Syriable\MessageCatalog\Extraction\ExtractionHost;
@@ -40,6 +40,7 @@ class PhrasePhpApplier
         private SlotMethodMap $methods,
         private NotificationScanner $notifications,
         private DomainRegistry $schemaCatalogs,
+        private PanelResources $panels,
     ) {}
 
     /**
@@ -843,30 +844,6 @@ class PhrasePhpApplier
      */
     private function catalogResources(): array
     {
-        $resources = [];
-
-        if (! app()->bound('filament')) {
-            return [];
-        }
-
-        try {
-            $registered = Filament::getResources();
-        } catch (Throwable) {
-            return [];
-        }
-
-        foreach ($registered as $resource) {
-            if (! is_subclass_of($resource, FilamentResource::class)) {
-                continue;
-            }
-
-            if (! method_exists($resource, 'translationDomain')) {
-                continue;
-            }
-
-            $resources[] = $resource;
-        }
-
-        return $resources;
+        return $this->panels->catalogs();
     }
 }
