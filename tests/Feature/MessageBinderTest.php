@@ -24,6 +24,7 @@ use Syriable\Translation\Binding\MessageBinder;
 use Syriable\Translation\Binding\ResolutionExplainer;
 use Syriable\Translation\Enums\MessageSlot;
 use Syriable\Translation\Enums\ResolutionOutcome;
+use Syriable\Translation\Tests\Fixtures\CustomSeparator;
 use Syriable\Translation\Tests\Fixtures\DomainForm;
 use Syriable\Translation\Tests\Fixtures\DomainTable;
 use Syriable\Translation\Tests\Fixtures\EditUser;
@@ -1423,4 +1424,40 @@ it('does not overwrite a validation attribute set after make', function () {
     ]);
 
     expect(textInput($schema)->getValidationAttribute())->toBe('work email');
+});
+
+it('fills the label of a keyed component from outside Filament', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.separator.label' => 'or',
+    ], 'en');
+
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        CustomSeparator::make()->key('separator'),
+    ]);
+
+    expect($schema->getComponents()[0]->getLabel())->toBe('or');
+});
+
+it('leaves an unkeyed custom component alone', function () {
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        CustomSeparator::make(),
+    ]);
+
+    // no key means no identity, so there is nothing to look up and nothing to fill
+    expect($schema->getComponents()[0]->getLabel())->toBeNull();
+});
+
+it('does not overwrite a custom component label set after make', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.separator.label' => 'or',
+    ], 'en');
+
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        CustomSeparator::make()->key('separator')->label('OR'),
+    ]);
+
+    expect($schema->getComponents()[0]->getLabel())->toBe('OR');
 });

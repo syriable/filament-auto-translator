@@ -150,6 +150,10 @@ class MessageBinder
             $binder->bindNotification($notification);
         });
 
+        SchemaComponent::configureUsing(function (SchemaComponent $component) use ($binder): void {
+            $binder->bindKeyedComponentLabel($component);
+        });
+
         Action::configureUsing(function (Action $action) use ($binder): void {
             $binder->bindActionLabel($action);
             $binder->bindActionModalChrome($action);
@@ -502,6 +506,70 @@ class MessageBinder
         $component->beforeContent(fn (): ?string => $this->boundText($component, MessageSlot::BeforeContent));
         $component->afterContent(fn (): ?string => $this->boundText($component, MessageSlot::AfterContent));
         $component->belowLabel(fn (): ?string => $this->boundText($component, MessageSlot::BelowLabel));
+    }
+
+    /**
+     * Components this package binds through a dedicated hook.
+     *
+     * The generic hook below runs for every schema component, so it has to
+     * step aside for the ones already handled — otherwise a field would be
+     * bound twice, the second call overwriting the first.
+     *
+     * @var array<int, class-string>
+     */
+    private const DEDICATED_BINDINGS = [
+        Field::class,
+        Entry::class,
+        Section::class,
+        Fieldset::class,
+        Wizard::class,
+        Step::class,
+        Tabs::class,
+        Tab::class,
+        EmptyState::class,
+        Callout::class,
+        SchemaText::class,
+    ];
+
+    /**
+     * A component outside Filament's own set, named with ->key().
+     *
+     * Filament is extensible, and a package's component — a separator, a
+     * divider, anything using HasLabel — was invisible here: its copy could
+     * not come from the catalog however it was written. Identity already
+     * worked, since leafName() falls through to the machine key; only the
+     * binding was missing.
+     *
+     * The key is required rather than inferred. A component with no key has
+     * no identity, and guessing one from the make() argument would be wrong:
+     * on Separator that argument is the visible label, not a name.
+     */
+    public function bindKeyedComponentLabel(SchemaComponent $component): void
+    {
+        foreach (self::DEDICATED_BINDINGS as $dedicated) {
+            if ($component instanceof $dedicated) {
+                return;
+            }
+        }
+
+        // the key is set after make(), so it cannot be checked here; the closure
+        // below resolves nothing when there is still no key at render time
+        if (! method_exists($component, 'label') || ! method_exists($component, 'getLabel')) {
+            return;
+        }
+
+        // hasCustomLabel() is no guide outside Filament's own set: a component
+        // whose make() takes the label has one before anyone sets it. So the
+        // label present here is captured and kept as the fallback, the way
+        // steps and tabs are handled, and an explicit ->label() after make()
+        // still wins by overwriting this closure.
+        $captured = $component->getLabel();
+
+        $component->label(function () use ($component, $captured): mixed {
+            $text = $this->boundText($component, MessageSlot::Label);
+
+            return $text ?? $captured;
+        });
     }
 
     private function bindMakeArgumentLabel(Step|Tab|Tabs $component): void

@@ -415,6 +415,10 @@ class MessageScanner
             $this->record($this->binder->explain($component, MessageSlot::Body), $catalogId);
         }
 
+        if ($this->isKeyedCustomComponent($component)) {
+            $this->record($this->binder->explain($component, MessageSlot::Label), $catalogId);
+        }
+
         if ($component instanceof SchemaComponent) {
             // every child schema, not only the default one: a section's footer
             // and header are child schemas too, and the copy in them is copy
@@ -495,6 +499,32 @@ class MessageScanner
     private function relatedActionsOf(Field|Entry $component): array
     {
         return array_values($component->getHintActions());
+    }
+
+    /**
+     * A component from outside Filament's own set that names itself with
+     * ->key() and carries a label — a package's separator, say.
+     *
+     * The binder fills those now, so extraction has to offer the key or the
+     * pruner would read it as dead on the next run.
+     */
+    private function isKeyedCustomComponent(mixed $component): bool
+    {
+        if (! $component instanceof SchemaComponent) {
+            return false;
+        }
+
+        foreach ([Field::class, Entry::class, Section::class, Fieldset::class, Wizard::class, Step::class, Tabs::class, Tab::class, EmptyState::class, Callout::class, SchemaText::class] as $dedicated) {
+            if ($component instanceof $dedicated) {
+                return false;
+            }
+        }
+
+        if (! method_exists($component, 'getLabel') || ! method_exists($component, 'hasCustomLabel')) {
+            return false;
+        }
+
+        return filled($component->getKey(isAbsolute: false));
     }
 
     private function auditFieldChrome(Field|Entry $component, string $catalogId): void
