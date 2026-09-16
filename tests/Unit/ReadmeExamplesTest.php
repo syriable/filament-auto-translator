@@ -35,7 +35,7 @@ it('ships the config keys the README documents', function () {
 
     expect(array_keys($config))->toEqualCanonicalizing([
         'on_missing', 'default_domain_prefix', 'domain_prefixes',
-        'discover_paths', 'debug_query', 'max_parent_depth',
+        'discover_paths', 'max_parent_depth',
     ]);
 });
 

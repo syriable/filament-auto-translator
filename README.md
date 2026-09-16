@@ -966,6 +966,20 @@ use Syriable\Translation\Extraction\MessageScanner;
 app(MessageScanner::class)->auditIdentities([$identity]);
 ```
 
+Or audit a list of components you built yourself, against a domain of your
+choosing — useful for asserting your own schemas resolve in a test:
+
+```php
+use Syriable\Translation\Extraction\MessageScanner;
+
+$findings = app(MessageScanner::class)->auditComponents(
+    $schema->getComponents(),
+    'identity::user-edit',
+);
+```
+
+Each finding is `['key' => …, 'catalog' => …, 'decision' => …, 'locale' => …, 'text' => …]`.
+
 ## translations:extract
 
 ```bash
@@ -1043,7 +1057,6 @@ Identifier-only PHP remains the default. Use `translations:inline` only when you
 | `default_domain_prefix` | — | `filament` | Prefix when no namespace map matches |
 | `domain_prefixes` | — | `[]` | `['Modules\\Billing' => 'billing']` |
 | `discover_paths` | — | `[]` | `[['path' => …, 'namespace' => …]]` — directories scanned for [schema domains](#schema-domains-outside-resources) |
-| `debug_query` | — | `translations` | Reserved query-string key for request-level dumps (not consumed by the binder yet) |
 | `max_parent_depth` | — | `32` | Cap when walking parent schema components; exceeding it throws `ParentDepthExceededException` |
 
 Panel plugin options:
@@ -1082,8 +1095,6 @@ Inside this monorepo the stub is already listed in the application `phpstan.neon
 The package binds the slots listed above. Widgets, relation-manager chrome, and import/export are not hooked yet; use `->label()` / `Translations::slot()` there.
 
 `translations:debug` and `translations:extract` walk registered resource forms, tables, action notification titles from action closures, model/navigation chrome, and page titles, plus discovered schema domains. They do not yet walk widgets or relation-manager chrome.
-
-`debug_query` is reserved configuration only.
 
 Heading-only sections never become catalog path segments.
 

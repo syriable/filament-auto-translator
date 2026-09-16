@@ -20,10 +20,4 @@ class Resolution
         public MissingMessagePolicy $mode = MissingMessagePolicy::Debug,
         public string $reason = '',
     ) {}
-
-    public function isBound(): bool
-    {
-        return $this->decision === ResolutionOutcome::Bound
-            || $this->decision === ResolutionOutcome::UsedFallbackLocale;
-    }
 }

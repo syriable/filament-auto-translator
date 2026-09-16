@@ -67,6 +67,11 @@ class MessageScanner
     ) {}
 
     /**
+     * Plumbing MessageExtractor reads back after a walk. Public only because
+     * PHP has no package-private; not part of the supported surface.
+     *
+     * @internal
+     *
      * @return array<string, array<string, true>>
      */
     public function livePrefixes(): array
@@ -75,6 +80,11 @@ class MessageScanner
     }
 
     /**
+     * Plumbing MessageExtractor reads back after a walk. Public only because
+     * PHP has no package-private; not part of the supported surface.
+     *
+     * @internal
+     *
      * @return array<string, array<string, true>>
      */
     public function livePages(): array
@@ -83,6 +93,11 @@ class MessageScanner
     }
 
     /**
+     * Plumbing MessageExtractor reads back after a walk. Public only because
+     * PHP has no package-private; not part of the supported surface.
+     *
+     * @internal
+     *
      * @return array<string, array<string, true>>
      */
     public function walkedScopes(): array

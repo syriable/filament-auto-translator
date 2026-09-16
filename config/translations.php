@@ -90,19 +90,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Debug Query Parameter
-    |--------------------------------------------------------------------------
-    |
-    | When this query string key is present on a request, debug mode may dump
-    | message resolutions for that request (for example ?translations=1).
-    | Leave this as a dedicated key so it does not collide with app filters.
-    |
-    */
-
-    'debug_query' => 'translations',
-
-    /*
-    |--------------------------------------------------------------------------
     | Maximum Parent Depth
     |--------------------------------------------------------------------------
     |
