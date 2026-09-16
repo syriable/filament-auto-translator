@@ -502,6 +502,7 @@ class MessageScanner
         foreach ([
             'before_content' => MessageSlot::BeforeContent,
             'after_content' => MessageSlot::AfterContent,
+            'below_label' => MessageSlot::BelowLabel,
         ] as $key => $slot) {
             try {
                 $schema = $component->getChildSchema($key);

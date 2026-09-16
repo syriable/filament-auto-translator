@@ -12,6 +12,16 @@ document and no earlier behaviour to preserve.
 
 ### Added
 
+- **`validation_attribute` and `below_label` are bound slots.** A field's name in
+  validation messages, and the line under its label, come from the catalog at
+  the field's own path rather than from copy an application had to keep
+  somewhere else and look up by hand. Both are optional: with no key,
+  `validation_attribute` leaves Filament its default (the label lowercased),
+  so write it only where the two differ. Adding them to `MessageSlot` is also
+  what keeps the keys from being pruned — the pruner recognises a trailing
+  slot name and checks the field above it, which a key outside the enum could
+  never benefit from.
+
 - **`messageReplace()`.** Declares what a bound line's `:placeholder` stands for,
   so copy needing a URL, a count or a name stays automatic instead of falling
   back to a hand-written `__()`. A closure is resolved when the slot renders,

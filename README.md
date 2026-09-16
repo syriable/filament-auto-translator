@@ -296,7 +296,8 @@ pages.{page}.actions.{name}.notifications.{status}.body   # optional
 
 # Form
 form.components.{field}.label
-form.components.{field}.helper_text|hint|placeholder|before_content|after_content   # optional
+form.components.{field}.helper_text|hint|placeholder|before_content|after_content|below_label   # optional
+form.components.{field}.validation_attribute       # optional; what a validation message calls the field
 form.components.{field}.actions.{name}.label
 form.components.{layout}.heading|description          # keyed Section, optional
 form.components.{layout}.label                        # keyed Fieldset, optional
@@ -858,7 +859,7 @@ After `TranslationPlugin` boots, the binder fills **unset** slots on:
 
 | Component | Slots | When it binds |
 | --- | --- | --- |
-| `Filament\Forms\Components\Field` | `label`, `helper_text`, `hint`, `placeholder`, `before_content`, `after_content` | Label if `hasCustomLabel()` is false; hint if `hasHint()` is false; helper, placeholder, before content, and after content from catalog unless you set them after `make()`; placeholder only when the field has `placeholder()` |
+| `Filament\Forms\Components\Field` | `label`, `helper_text`, `hint`, `placeholder`, `before_content`, `after_content`, `below_label`, `validation_attribute` | Label if `hasCustomLabel()` is false; hint if `hasHint()` is false; helper, placeholder, below label, before content, and after content from catalog unless you set them after `make()`; placeholder only when the field has `placeholder()`; `validation_attribute` names the field in validation messages, and with no key Filament keeps its own default, the label lowercased — so write it only where the two differ |
 | `Filament\Infolists\Components\Entry` | `label`, `helper_text`, `hint`, `placeholder`, `before_content`, `after_content` | Same rules as fields; `TextEntry::make('info')` is the identifier |
 | `Filament\Schemas\Components\Section` | `heading`, `description` | Only when the heading is empty; optional; omit the catalog keys to keep the section untitled; description is optional, like helper text; use `->key()` for the machine name |
 | `Filament\Schemas\Components\Fieldset` | `label` | Only when the label is unset; optional; `Fieldset::make()->key('authorization')` fills `form.components.authorization.label`; omit the key to keep the fieldset untitled; children nest under `{layout}.schema` |
