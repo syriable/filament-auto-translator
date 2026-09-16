@@ -425,10 +425,6 @@ class MessageScanner
             }
 
             foreach ($childSchemas as $childSchema) {
-                if (! $childSchema instanceof Schema) {
-                    continue;
-                }
-
                 foreach ($childSchema->getComponents() as $child) {
                     if ($child instanceof EmbeddedSchema) {
                         continue;

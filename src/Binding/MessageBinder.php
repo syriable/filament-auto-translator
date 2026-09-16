@@ -83,11 +83,14 @@ class MessageBinder
             return $this;
         });
 
-        SupportComponent::macro('messageReplace', function (array $replace) use ($binder): static {
+        /** @param array<string, mixed> $replace */
+        $messageReplace = function (array $replace) use ($binder): static {
             $binder->setMessageReplace($this, $replace);
 
             return $this;
-        });
+        };
+
+        SupportComponent::macro('messageReplace', $messageReplace);
 
         Field::configureUsing(function (Field $field) use ($binder): void {
             $binder->bindNamedChrome($field);
