@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use Filament\Forms\Components\TextInput;
 use Illuminate\Contracts\Console\Kernel;
+use Syriable\Translation\Binding\MessageBinder;
 use Syriable\Translation\Enums\MissingMessagePolicy;
 use Syriable\Translation\TranslationPlugin;
 use Syriable\Translation\Translations;
@@ -57,3 +59,10 @@ it('imports only classes that exist in every README example', function () {
             ->toBeTrue("README imports {$class}, which does not exist");
     }
 });
+
+it('registers the override macros the README demonstrates', function () {
+    app(MessageBinder::class)->registerHooks();
+
+    expect(TextInput::hasMacro('messageName'))->toBeTrue('README documents ->messageName()')
+        ->and(TextInput::hasMacro('domain'))->toBeTrue('README documents ->domain()');
+})->skip(! class_exists(TextInput::class), 'Filament forms not installed');

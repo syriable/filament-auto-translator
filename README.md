@@ -815,7 +815,7 @@ After `TranslationPlugin` boots, the binder fills **unset** slots on:
 | `Filament\Infolists\Components\Entry` | `label`, `helper_text`, `hint`, `placeholder`, `before_content`, `after_content` | Same rules as fields; `TextEntry::make('info')` is the identifier |
 | `Filament\Schemas\Components\Section` | `heading`, `description` | Only when the heading is empty; optional; omit the catalog keys to keep the section untitled; description is optional, like helper text; use `->key()` for the machine name |
 | `Filament\Schemas\Components\Fieldset` | `label` | Only when the label is unset; optional; `Fieldset::make()->key('authorization')` fills `form.components.authorization.label`; omit the key to keep the fieldset untitled; children nest under `{layout}.schema` |
-| `Filament\Schemas\Components\Wizard` | `label` | When the wizard is keyed and the label is unset |
+| `Filament\Schemas\Components\Wizard` | `label` | When the wizard is keyed and the label is unset; optional, like a section heading: `translations:extract` keeps the key if you write one but never stubs it |
 | `Filament\Schemas\Components\Wizard\Step` | `label` | `Step::make('machine_name')` is the identifier; catalog copy fills the visible label unless `->label()` is set after `make()` |
 | `Filament\Schemas\Components\Tabs` | `label` | `Tabs::make('machine_name')` is the identifier |
 | `Filament\Schemas\Components\Tabs\Tab` | `label` | `Tab::make('machine_name')` is the identifier; same override rule as steps |
@@ -896,7 +896,7 @@ TextInput::make('email');                          // leaf = email
 TextInput::make('email')->messageName('billing_email'); // leaf = billing_email
 TextInput::make('email')->label('Work email');     // catalog not used for label
 
-AddressSchema::make()->catalog('shared.address');  // this subtree uses another translation domain
+AddressSchema::make()->domain('shared.address');   // this subtree uses another translation domain
 ```
 
 `messageName()` and `domain()` are macros on `Filament\Support\Components\Component`. They store bindings in a `WeakMap` (no dynamic properties on Filament objects).
@@ -948,7 +948,7 @@ php artisan translations:debug --locale=ar
 php artisan translations:debug --locale=ar --fail-on-missing --fail-on-fallback
 ```
 
-Walks opted-in Filament resources: form fields, table columns/filters/actions, action notification titles from `Notification::make()->success()` (and danger/info/warning) inside action closures, model and navigation labels, and page titles. Requires a booted panel with registered resources.
+Walks opted-in Filament resources: form fields, table columns/filters/actions, action notification titles from `Notification::make()->success()` (and danger/info/warning) inside action closures, model and navigation labels, and page titles. It boots the registered panels itself, so no request or panel setup is needed.
 
 | Option | Effect |
 | --- | --- |
@@ -1092,7 +1092,6 @@ Heading-only sections never become catalog path segments.
 Run the suite **from the package**, not from the host application:
 
 ```bash
-cd packages/filament-messages
 composer install
 composer test
 ```
