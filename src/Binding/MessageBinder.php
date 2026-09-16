@@ -461,6 +461,28 @@ class MessageBinder
 
         $this->bindFieldPlaceholder($component);
         $this->bindFieldChromeContent($component);
+        $this->bindFieldValidationAttribute($component);
+    }
+
+    /**
+     * The name a validation message calls this field.
+     *
+     * Optional, like helper text: with no line in the catalog the closure
+     * returns null and Filament falls back to its own default, which is the
+     * label lowercased. Write the key only where the two differ — "email
+     * address" against a label of "Email".
+     *
+     * Entries are not validated, so this is for fields alone.
+     */
+    private function bindFieldValidationAttribute(Field|Entry $component): void
+    {
+        if (! $component instanceof Field) {
+            return;
+        }
+
+        $component->validationAttribute(
+            fn (): ?string => $this->boundPresentText($component, MessageSlot::ValidationAttribute),
+        );
     }
 
     private function bindFieldPlaceholder(Field|Entry $component): void
@@ -479,6 +501,7 @@ class MessageBinder
     {
         $component->beforeContent(fn (): ?string => $this->boundText($component, MessageSlot::BeforeContent));
         $component->afterContent(fn (): ?string => $this->boundText($component, MessageSlot::AfterContent));
+        $component->belowLabel(fn (): ?string => $this->boundText($component, MessageSlot::BelowLabel));
     }
 
     private function bindMakeArgumentLabel(Step|Tab|Tabs $component): void
@@ -692,6 +715,7 @@ class MessageBinder
         return [
             'before_content' => MessageSlot::BeforeContent,
             'after_content' => MessageSlot::AfterContent,
+            'below_label' => MessageSlot::BelowLabel,
         ];
     }
 

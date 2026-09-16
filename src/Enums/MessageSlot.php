@@ -21,6 +21,7 @@ enum MessageSlot: string
     case Body = 'body';
     case NotificationTitle = 'notification_title';
     case BeforeContent = 'before_content';
+    case BelowLabel = 'below_label';
     case AfterContent = 'after_content';
     case ModalHeading = 'modal_heading';
     case ModalDescription = 'modal_description';
@@ -28,6 +29,7 @@ enum MessageSlot: string
     case ModalSubmitActionLabel = 'modal_submit_action_label';
     case Indicator = 'indicator';
     case Prefix = 'prefix';
+    case ValidationAttribute = 'validation_attribute';
 
     /**
      * @param  array<int, string>  $path

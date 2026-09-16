@@ -145,3 +145,43 @@ it('keeps the schema keys where they were when a catalog gains chrome', function
         ->toContain('identity/user-chrome.form.components.nickname.label')
         ->not->toContain('identity/user-chrome.form.components.account.schema.nickname.label');
 });
+
+it('keeps a validation attribute the walk never stubs', function () {
+    discoverSchemaFixtures();
+
+    $writer = app(CatalogWriter::class);
+    $path = $writer->pathFor('identity.user-edit', 'en');
+    File::ensureDirectoryExists(dirname($path));
+    File::put($path, '<?php return '.var_export([
+        'form' => ['components' => [
+            'name' => ['label' => 'Name', 'validation_attribute' => 'full name'],
+        ]],
+    ], true).';');
+
+    app(MessageExtractor::class)->sync('en');
+
+    $written = require $path;
+
+    // an optional slot is never stubbed, so it must not be pruned either:
+    // the key sits under a field the walk reached, which keeps it alive
+    expect($written['form']['components']['name']['validation_attribute'])->toBe('full name');
+});
+
+it('prunes a validation attribute whose field left the schema', function () {
+    discoverSchemaFixtures();
+
+    $writer = app(CatalogWriter::class);
+    $path = $writer->pathFor('identity.user-edit', 'en');
+    File::ensureDirectoryExists(dirname($path));
+    File::put($path, '<?php return '.var_export([
+        'form' => ['components' => [
+            'deleted_field' => ['label' => 'Gone', 'validation_attribute' => 'gone'],
+        ]],
+    ], true).';');
+
+    app(MessageExtractor::class)->sync('en');
+
+    $written = require $path;
+
+    expect($written['form']['components'])->not->toHaveKey('deleted_field');
+});

@@ -1382,3 +1382,45 @@ it('fills a section heading built outside the schema builder', function () {
 
     expect($section->getHeading())->toBe('Your account');
 });
+
+it('names a field in validation messages from the catalog', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.email.label' => 'Email',
+        'filament/domain-form.form.components.email.validation_attribute' => 'email address',
+    ], 'en');
+
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        TextInput::make('email'),
+    ]);
+
+    expect(textInput($schema)->getValidationAttribute())->toBe('email address');
+});
+
+it('leaves Filament its own validation attribute when the catalog has none', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.nickname.label' => 'Nickname',
+    ], 'en');
+
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        TextInput::make('nickname'),
+    ]);
+
+    // Filament's default is the label lowercased, which is why the key is
+    // written only where the two differ
+    expect(textInput($schema)->getValidationAttribute())->toBe('nickname');
+});
+
+it('does not overwrite a validation attribute set after make', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.email.validation_attribute' => 'email address',
+    ], 'en');
+
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        TextInput::make('email')->validationAttribute('work email'),
+    ]);
+
+    expect(textInput($schema)->getValidationAttribute())->toBe('work email');
+});
