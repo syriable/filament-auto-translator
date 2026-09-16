@@ -154,6 +154,10 @@ class MessageScanner
      */
     private function auditResource(string $resource): void
     {
+        if (! method_exists($resource, 'translationDomain')) {
+            return;
+        }
+
         $catalogId = $resource::translationDomain();
 
         $this->auditChrome($resource, $catalogId);

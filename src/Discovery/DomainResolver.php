@@ -23,6 +23,10 @@ class DomainResolver
     {
         $class = is_object($subject) ? $subject::class : $subject;
 
+        if (! class_exists($class)) {
+            return null;
+        }
+
         if (array_key_exists($class, $this->memo)) {
             return $this->memo[$class];
         }
@@ -40,10 +44,6 @@ class DomainResolver
      */
     private function resolve(string $class): ?string
     {
-        if (! class_exists($class)) {
-            return null;
-        }
-
         $declared = $this->declaredOn($class);
 
         if ($declared !== null) {

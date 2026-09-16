@@ -4,8 +4,18 @@ includes:
 parameters:
     level: 8
 
+    # config/ holds one file that returns a static array. Analysing it buys
+    # nothing and makes larastan's noEnvCallsOutsideOfConfig rule fire, since
+    # that rule looks for an application's config path and a package has none.
     paths:
         - src
-        - config
 
     tmpDir: build/phpstan
+
+    ignoreErrors:
+        # These traits are the package's public API: consumers use them on
+        # their resources and pages. Nothing inside src/ uses them, which is
+        # the point, so "used zero times" is the expected reading here.
+        -
+            identifier: trait.unused
+            path: src/Concerns/*.php
