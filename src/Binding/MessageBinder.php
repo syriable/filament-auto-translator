@@ -1168,7 +1168,7 @@ class MessageBinder
      */
     private function parentComponentOf(mixed $container): ?SchemaComponent
     {
-        if (! is_object($container) || ! method_exists($container, 'getParentComponent')) {
+        if (! $container instanceof Schema) {
             return null;
         }
 
@@ -1191,13 +1191,9 @@ class MessageBinder
      * Reading the name off the container can evaluate a closure, which can
      * ask for a message and land back here, so the lookup refuses to nest.
      */
-    private function embeddingComponent(object $container): ?EmbeddedSchema
+    private function embeddingComponent(Schema $container): ?EmbeddedSchema
     {
         if ($this->resolvingEmbeddedParent) {
-            return null;
-        }
-
-        if (! method_exists($container, 'getKey') || ! method_exists($container, 'getLivewire')) {
             return null;
         }
 
@@ -1205,13 +1201,12 @@ class MessageBinder
 
         try {
             $name = $container->getKey(isAbsolute: false);
-            $livewire = $container->getLivewire();
 
-            if (! is_string($name) || ! is_object($livewire)) {
+            if (! is_string($name)) {
                 return null;
             }
 
-            return $this->embeds->embedding($name, $livewire);
+            return $this->embeds->embedding($name, $container->getLivewire());
         } catch (Throwable) {
             return null;
         } finally {
