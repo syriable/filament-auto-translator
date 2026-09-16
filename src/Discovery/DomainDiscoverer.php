@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Syriable\Translation\Discovery;
 
 use Filament\Resources\Resource as FilamentResource;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Schema;
 use Illuminate\Filesystem\Filesystem;
 use ReflectionClass;
@@ -24,6 +25,18 @@ class DomainDiscoverer
      * @var array<int, string>
      */
     public const SCHEMA_METHODS = ['form', 'configure'];
+
+    /**
+     * Static builders that return a whole component rather than a schema.
+     *
+     * A form class often describes its chrome — the section that wraps the
+     * fields, its heading, its footer — in a second builder that takes no
+     * Schema, so the schema walk never reaches it and its copy has to be
+     * written by hand. This is that builder.
+     *
+     * @var array<int, string>
+     */
+    public const CONTENT_METHODS = ['make'];
 
     public function __construct(
         private Filesystem $filesystem,
@@ -86,6 +99,8 @@ class DomainDiscoverer
             return null;
         }
 
+        $contentMethod = $this->contentMethodOn($reflection);
+
         $catalogId = $this->domains->for($class);
 
         if ($catalogId === null) {
@@ -100,6 +115,7 @@ class DomainDiscoverer
             class: $class,
             method: $method,
             catalogId: $catalogId,
+            contentMethod: $contentMethod,
         );
     }
 
@@ -121,6 +137,43 @@ class DomainDiscoverer
         }
 
         return null;
+    }
+
+    /**
+     * @param  ReflectionClass<object>  $reflection
+     */
+    private function contentMethodOn(ReflectionClass $reflection): ?string
+    {
+        foreach (self::CONTENT_METHODS as $name) {
+            if (! $reflection->hasMethod($name)) {
+                continue;
+            }
+
+            if ($this->buildsContent($reflection->getMethod($name))) {
+                return $name;
+            }
+        }
+
+        return null;
+    }
+
+    private function buildsContent(ReflectionMethod $method): bool
+    {
+        if (! $method->isStatic() || ! $method->isPublic()) {
+            return false;
+        }
+
+        if ($method->getNumberOfRequiredParameters() > 0) {
+            return false;
+        }
+
+        $type = $method->getReturnType();
+
+        if (! $type instanceof ReflectionNamedType) {
+            return false;
+        }
+
+        return is_a($type->getName(), Component::class, true);
     }
 
     private function buildsSchema(ReflectionMethod $method): bool

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Syriable\Translation\Binding;
 
+use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\Events\ActionCalled;
@@ -27,6 +28,7 @@ use Filament\Tables\Columns\Column;
 use Filament\Tables\Filters\BaseFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Translation\Translator;
 use Livewire\Livewire;
 use Syriable\Translation\Catalog\MessageResolver;
 use Syriable\Translation\Discovery\DomainResolver;
@@ -57,6 +59,7 @@ class MessageBinder
         private ComponentBindings $bindings,
         private MessageOverrides $registry,
         private DomainResolver $domains,
+        private Translator $translator,
     ) {}
 
     public function registerHooks(): void
@@ -76,6 +79,12 @@ class MessageBinder
 
         SupportComponent::macro('domain', function (string $id) use ($binder): static {
             $binder->setCatalogId($this, $id);
+
+            return $this;
+        });
+
+        SupportComponent::macro('messageReplace', function (array $replace) use ($binder): static {
+            $binder->setMessageReplace($this, $replace);
 
             return $this;
         });
@@ -169,7 +178,59 @@ class MessageBinder
     {
         $resolution = $this->evaluate($component, $slot);
 
-        return $resolution->text;
+        return $this->withReplacements($component, $resolution);
+    }
+
+    /**
+     * Re-reads the line with the component's declared replacements.
+     *
+     * The resolver caches by identity and locale, which a per-component
+     * replacement must not poison, so this runs after the cache and only when
+     * the component actually declared any.
+     */
+    private function withReplacements(object $component, Resolution $resolution): ?string
+    {
+        if ($resolution->text === null) {
+            return null;
+        }
+
+        $replace = $this->replacementsFor($component);
+
+        if ($replace === []) {
+            return $resolution->text;
+        }
+
+        if (! in_array($resolution->decision, [ResolutionOutcome::Bound, ResolutionOutcome::UsedFallbackLocale], true)) {
+            return $resolution->text;
+        }
+
+        $text = $this->translator->get($resolution->key, $replace, $resolution->locale);
+
+        return is_string($text) ? $text : $resolution->text;
+    }
+
+    /**
+     * A replacement may be a closure so a URL or a count is resolved at render
+     * time rather than when the component is built.
+     *
+     * @return array<string, mixed>
+     */
+    private function replacementsFor(object $component): array
+    {
+        $replace = $this->bindings->replace($component);
+
+        return array_map(
+            fn (mixed $value): mixed => $value instanceof Closure ? $value() : $value,
+            $replace,
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>  $replace
+     */
+    public function setMessageReplace(object $component, array $replace): void
+    {
+        $this->bindings->setReplace($component, $replace);
     }
 
     private function boundPresentText(object $component, MessageSlot $slot): ?string
@@ -180,7 +241,7 @@ class MessageBinder
             return null;
         }
 
-        return $resolution->text;
+        return $this->withReplacements($component, $resolution);
     }
 
     public function setMessageName(object $component, string $name): void

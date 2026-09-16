@@ -1,3 +1,6 @@
+identity/user-chrome.form.components.account.schema.actions.register.label
+identity/user-chrome.form.components.account.schema.terms.body
+identity/user-chrome.form.components.nickname.label
 identity/user-edit.form.components.country_id.label
 identity/user-edit.form.components.email.label
 identity/user-edit.form.components.name.label
@@ -5,7 +8,9 @@ identity/user-nested.form.components.tabs-user.label
 identity/user-nested.form.components.tabs-user.schema.tab-address.label
 identity/user-nested.form.components.tabs-user.schema.tab-address.schema.country_id.label
 identity/user-nested.form.components.tabs-user.schema.tab-address.schema.notes.label
+identity/user-nested.form.components.tabs-user.schema.tab-address.schema.notes.schema.x.body
 identity/user-nested.form.components.tabs-user.schema.tab-personal.label
+identity/user-nested.form.components.tabs-user.schema.tab-personal.schema.personal-info.schema.actions.save.label
 identity/user-nested.form.components.tabs-user.schema.tab-personal.schema.personal-info.schema.email.label
 identity/user-nested.form.components.tabs-user.schema.tab-personal.schema.personal-info.schema.first_name.label
 identity/user-nested.form.components.tabs-user.schema.tab-personal.schema.personal-info.schema.last_name.label

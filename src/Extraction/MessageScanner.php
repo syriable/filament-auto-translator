@@ -13,6 +13,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource as FilamentResource;
 use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\Component as SchemaComponent;
+use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\EmptyState;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
@@ -194,6 +195,78 @@ class MessageScanner
         foreach ($schema->getComponents() as $component) {
             $this->auditComponent($component, $catalogId);
         }
+
+        $this->auditDomainContent($catalog, $catalogId, $owner);
+    }
+
+    /**
+     * Walks the chrome a catalog builds around its schema.
+     *
+     * The components live in the same form scope as the schema's own, because
+     * they are the same form; the embedded schema node is skipped so the
+     * fields are not walked a second time under the wrapper's path, which
+     * would move every key a consumer already has.
+     *
+     * A builder that throws — one reading the signed-in user, say — leaves the
+     * scope unpruned rather than letting its keys look orphaned, since
+     * deleting live copy is the one failure that cannot be undone by a rerun.
+     */
+    private function auditDomainContent(DiscoveredDomain $catalog, string $catalogId, ExtractionHost $owner): void
+    {
+        if ($catalog->contentMethod === null) {
+            return;
+        }
+
+        try {
+            $content = $catalog->buildContent();
+
+            if (! $content instanceof SchemaComponent) {
+                return;
+            }
+
+            // the builder hands back a loose component; the walk reads parents
+            // and owners through the container, and getComponents() is what
+            // binds it — without that call every child lookup throws
+            $mounted = Schema::make($owner)->components([$content])->getComponents();
+
+            $children = [];
+
+            foreach ($mounted as $component) {
+                $children = [...$children, ...$this->contentChildren($component)];
+            }
+        } catch (Throwable) {
+            unset($this->walkedScopes[$catalogId]['form']);
+
+            return;
+        }
+
+        foreach ($children as $component) {
+            $this->auditComponent($component, $catalogId);
+        }
+    }
+
+    /**
+     * @return array<int, mixed>
+     */
+    private function contentChildren(mixed $content): array
+    {
+        if (! $content instanceof SchemaComponent) {
+            return [];
+        }
+
+        $children = [];
+
+        foreach ($content->getChildSchemas() as $childSchema) {
+            foreach ($childSchema->getComponents() as $component) {
+                if ($component instanceof EmbeddedSchema) {
+                    continue;
+                }
+
+                $children[] = $component;
+            }
+        }
+
+        return $children;
     }
 
     /**
@@ -343,14 +416,24 @@ class MessageScanner
         }
 
         if ($component instanceof SchemaComponent) {
+            // every child schema, not only the default one: a section's footer
+            // and header are child schemas too, and the copy in them is copy
             try {
-                $childSchema = $component->getChildSchema();
+                $childSchemas = $component->getChildSchemas();
             } catch (Throwable) {
                 return;
             }
 
-            if ($childSchema instanceof Schema) {
+            foreach ($childSchemas as $childSchema) {
+                if (! $childSchema instanceof Schema) {
+                    continue;
+                }
+
                 foreach ($childSchema->getComponents() as $child) {
+                    if ($child instanceof EmbeddedSchema) {
+                        continue;
+                    }
+
                     $this->auditComponent($child, $catalogId);
                 }
             }

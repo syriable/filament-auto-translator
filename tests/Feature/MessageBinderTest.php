@@ -27,6 +27,7 @@ use Syriable\Translation\Enums\ResolutionOutcome;
 use Syriable\Translation\Tests\Fixtures\DomainForm;
 use Syriable\Translation\Tests\Fixtures\DomainTable;
 use Syriable\Translation\Tests\Fixtures\EditUser;
+use Syriable\Translation\Tests\Fixtures\Schemas\User\ChromeForm;
 
 beforeEach(function () {
     config()->set('translations.on_missing', 'debug');
@@ -1302,3 +1303,82 @@ function tableAction(array $actions): Action
 
     return $action;
 }
+
+it('fills a placeholder in a bound label from messageReplace', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.terms.body' => 'Read our :policy before you continue.',
+    ], 'en');
+
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        Text::make('terms')->messageReplace(['policy' => 'privacy policy']),
+    ]);
+
+    $text = $schema->getComponents()[0];
+
+    expect((string) $text->getContent())->toBe('Read our privacy policy before you continue.');
+});
+
+it('resolves a messageReplace closure at render time, not when the component is built', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.counter.body' => 'Seen :count times.',
+    ], 'en');
+
+    // an arrow function captures by value, so the counter has to be shared state
+    $counter = new class
+    {
+        public int $value = 1;
+    };
+
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        Text::make('counter')->messageReplace(['count' => fn (): int => $counter->value]),
+    ]);
+
+    $text = $schema->getComponents()[0];
+
+    expect((string) $text->getContent())->toBe('Seen 1 times.');
+
+    $counter->value = 7;
+
+    expect((string) $text->getContent())->toBe('Seen 7 times.');
+});
+
+it('leaves a bound label alone when no replacement is declared', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.plain.body' => 'No placeholders here.',
+    ], 'en');
+
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        Text::make('plain'),
+    ]);
+
+    expect((string) $schema->getComponents()[0]->getContent())->toBe('No placeholders here.');
+});
+
+it('does not apply replacements to a label the catalog never supplied', function () {
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        TextInput::make('unbound')->messageReplace(['name' => 'Ada']),
+    ]);
+
+    // on_missing is debug in these tests, so the compiled key is the visible text
+    expect($schema->getComponents()[0]->getLabel())
+        ->toBe('filament/domain-form.form.components.unbound.label');
+});
+
+it('fills a section heading built outside the schema builder', function () {
+    Lang::addLines([
+        'identity/user-chrome.form.components.account.heading' => 'Your account',
+    ], 'en');
+
+    $owner = app(DomainForm::class);
+    app(MessageBinder::class)->setCatalogId($owner, 'identity.user-chrome');
+
+    $content = ChromeForm::make();
+    $mounted = Schema::make($owner)->components([$content])->getComponents();
+    $section = $mounted[0]->getChildSchemas()['default']->getComponents()[0];
+
+    expect($section->getHeading())->toBe('Your account');
+});
