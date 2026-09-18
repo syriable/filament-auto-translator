@@ -8,7 +8,7 @@ use Syriable\Translation\Concerns\HasPageTranslations;
 
 /**
  * A custom panel page that owns its catalog (no getResource()).
- * Default domain: pages.standalone-dashboard-page.
+ * Default domain: filament.pages.standalone-dashboard-page.
  */
 class StandaloneDashboardPage extends StandalonePageParent
 {

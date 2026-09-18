@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Syriable\Translation\Concerns;
 
 use Illuminate\Contracts\Support\Htmlable;
+use Syriable\Translation\Discovery\DomainPrefixResolver;
 use Syriable\Translation\Discovery\DomainResolver;
 use Syriable\Translation\Enums\MessageSlot;
 use Syriable\Translation\Enums\MessageSurface;
@@ -17,7 +18,9 @@ trait HasPageTranslations
     /**
      * A page declaring its own #[TranslationDomain] keeps it. Resource pages
      * without one share the resource catalog. Standalone panel pages default to
-     * `pages.{class-kebab}` so copy lives in lang/{locale}/pages/{page}.php.
+     * `{prefix}.pages.{class-kebab}` (e.g. `filament.pages.dashboard`) so copy
+     * lives in lang/{locale}/filament/pages/{page}.php — same prefix as
+     * resources, without repeating the page name inside the file.
      */
     public static function translationDomain(): string
     {
@@ -33,7 +36,12 @@ trait HasPageTranslations
             return $resource::translationDomain();
         }
 
-        return 'pages.'.NameNormalizer::kebabClassBasename(static::class);
+        $prefix = app(DomainPrefixResolver::class)->prefixFor(static::class);
+        $page = NameNormalizer::kebabClassBasename(static::class);
+
+        return str_ends_with($prefix, '::')
+            ? $prefix.'pages.'.$page
+            : $prefix.'.pages.'.$page;
     }
 
     public function getTitle(): string|Htmlable
@@ -71,7 +79,7 @@ trait HasPageTranslations
 
     /**
      * Resource pages nest under `pages.{kebab}` inside the resource catalog.
-     * Standalone pages own `pages/{kebab}.php`, so chrome sits at the catalog root.
+     * Standalone pages own `{prefix}/pages/{kebab}.php`, so chrome sits at the catalog root.
      *
      * @return array<int, string>
      */

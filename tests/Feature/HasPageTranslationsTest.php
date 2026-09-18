@@ -61,13 +61,13 @@ it('fills page chrome from the domain the page declares', function () {
 });
 
 it('owns its catalog when it is not a resource page', function () {
-    expect(StandaloneDashboardPage::translationDomain())->toBe('pages.standalone-dashboard-page');
+    expect(StandaloneDashboardPage::translationDomain())->toBe('filament.pages.standalone-dashboard-page');
 });
 
-it('fills standalone page chrome from pages/{page} root keys', function () {
+it('fills standalone page chrome from filament/pages/{page} root keys', function () {
     Lang::addLines([
-        'pages/standalone-dashboard-page.title' => 'Home board',
-        'pages/standalone-dashboard-page.navigation_label' => 'Home',
+        'filament/pages/standalone-dashboard-page.title' => 'Home board',
+        'filament/pages/standalone-dashboard-page.navigation_label' => 'Home',
     ], 'en');
 
     $page = new StandaloneDashboardPage;

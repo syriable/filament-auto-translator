@@ -8,7 +8,7 @@ use Filament\Pages\Page;
 use Syriable\Translation\Concerns\HasPageTranslations;
 
 /**
- * A real Filament page: catalog pages/{kebab}.php, header actions at root actions.
+ * A real Filament page: catalog filament/pages/{kebab}.php, header actions at root actions.
  */
 class PanelDashboardPage extends Page
 {

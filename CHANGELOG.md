@@ -22,10 +22,11 @@ document and no earlier behaviour to preserve.
 
 ### Added
 
-- **Standalone panel pages own `pages/{page}.php`.** Custom Filament pages
-  outside a resource default to catalog `pages.{class-kebab}`. Chrome
+- **Standalone panel pages own `{prefix}/pages/{page}.php`.** Custom Filament
+  pages outside a resource default to catalog `{prefix}.pages.{class-kebab}`
+  (same domain prefix as resources, usually `filament`). Chrome
   (`title`, `navigation_label`, `subheading`) and header `actions` sit at the
-  catalog root so keys are `pages/{page}.title` — not
+  catalog root so keys are `filament/pages/{page}.title` — not
   `filament/{page}.pages.{page}.title`. Resource pages keep nesting under
   `pages.{kebab}` inside the resource catalog. Extract / debug / inline walk
   panel pages that expose `translationDomain()`.
