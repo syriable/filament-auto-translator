@@ -10,6 +10,16 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 First release. Nothing has been published yet, so there is no upgrade path to
 document and no earlier behaviour to preserve.
 
+### Fixed
+
+- **Keyed Filament layout wrappers no longer invent a label.** The generic
+  “components from other packages” binder treated any keyed schema component
+  with `HasLabel` as needing `form.components.{key}.label`. Filament’s own
+  `Actions` container is often keyed only for Livewire identity — SettingsPage
+  uses `->key('form-actions')` — and has no action of its own, so debug mode
+  showed a spurious key. First-party `Filament\…` classes are skipped; only
+  third-party keyed components still use that path.
+
 ### Added
 
 - **A keyed wrapper reaches the schema it embeds.** A form class describes its

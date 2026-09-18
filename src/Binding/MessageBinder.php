@@ -590,6 +590,12 @@ class MessageBinder
      * worked, since leafName() falls through to the machine key; only the
      * binding was missing.
      *
+     * Filament's own schema components are never handled here. Dedicated
+     * hooks cover the ones that need a catalog slot; layout wrappers such as
+     * `Actions` (a keyed footer container on SettingsPage, for example) use
+     * HasLabel for an optional chrome line and must not invent a required
+     * `form.components.{key}.label`.
+     *
      * The key is required rather than inferred. A component with no key has
      * no identity, and guessing one from the make() argument would be wrong:
      * on Separator that argument is the visible label, not a name.
@@ -600,6 +606,10 @@ class MessageBinder
             if ($component instanceof $dedicated) {
                 return;
             }
+        }
+
+        if (str_starts_with($component::class, 'Filament\\')) {
+            return;
         }
 
         // the key is set after make(), so it cannot be checked here; the closure

@@ -569,10 +569,18 @@ class MessageScanner
      *
      * The binder fills those now, so extraction has to offer the key or the
      * pruner would read it as dead on the next run.
+     *
+     * Filament first-party components are excluded: layout wrappers like
+     * `Actions` are often keyed for Livewire identity only and must not
+     * produce a stubbed `…form-actions.label`.
      */
     private function isKeyedCustomComponent(mixed $component): bool
     {
         if (! $component instanceof SchemaComponent) {
+            return false;
+        }
+
+        if (str_starts_with($component::class, 'Filament\\')) {
             return false;
         }
 
