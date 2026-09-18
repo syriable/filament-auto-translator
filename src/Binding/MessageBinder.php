@@ -12,6 +12,7 @@ use Filament\Actions\Events\ActionCalling;
 use Filament\Forms\Components\Field;
 use Filament\Infolists\Components\Entry;
 use Filament\Notifications\Notification;
+use Filament\Pages\Page;
 use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\Component as SchemaComponent;
 use Filament\Schemas\Components\EmbeddedSchema;
@@ -927,7 +928,7 @@ class MessageBinder
 
             $livewire = $this->livewireOf($component);
 
-            if ($this->isResourcePageLivewire($livewire)) {
+            if ($this->usesPageActionScope($livewire)) {
                 return [MessageSurface::Pages, $this->pageActionPath($livewire)];
             }
 
@@ -1041,10 +1042,24 @@ class MessageBinder
         return [NameNormalizer::kebabClassBasename($livewire::class), 'actions'];
     }
 
-    private function isResourcePageLivewire(mixed $livewire): bool
+    /**
+     * Resource pages and standalone panel pages both nest header actions under
+     * `pages.{class-kebab}.actions`. Other Livewire owners stay at root `actions`.
+     *
+     * Resource pages expose `getResource()` / `getResourcePageName()`. Standalone
+     * panel pages are `Filament\Pages\Page` without those methods.
+     */
+    private function usesPageActionScope(mixed $livewire): bool
     {
-        return is_object($livewire)
-            && (method_exists($livewire, 'getResourcePageName') || method_exists($livewire, 'getResource'));
+        if (! is_object($livewire)) {
+            return false;
+        }
+
+        if ($livewire instanceof Page) {
+            return true;
+        }
+
+        return method_exists($livewire, 'getResourcePageName') || method_exists($livewire, 'getResource');
     }
 
     private function extraModalFooterParent(Action $action): ?Action

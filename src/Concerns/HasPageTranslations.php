@@ -16,8 +16,9 @@ trait HasPageTranslations
     use ResolvesTranslationDomain;
 
     /**
-     * A page declaring its own #[TranslationDomain] keeps it; otherwise it
-     * shares the resource's, and falls back to the prefix map.
+     * A page declaring its own #[TranslationDomain] keeps it. Resource pages
+     * without one share the resource catalog. Standalone panel pages
+     * (Dashboard, settings, …) fall back to the prefix map.
      */
     public static function translationDomain(): string
     {
@@ -27,10 +28,12 @@ trait HasPageTranslations
             return $declared;
         }
 
-        $resource = call_user_func([static::class, 'getResource']);
+        if (method_exists(static::class, 'getResource')) {
+            $resource = call_user_func([static::class, 'getResource']);
 
-        if (method_exists($resource, 'translationDomain')) {
-            return $resource::translationDomain();
+            if (is_string($resource) && method_exists($resource, 'translationDomain')) {
+                return $resource::translationDomain();
+            }
         }
 
         return app(DomainPrefixResolver::class)->idFor(static::class);

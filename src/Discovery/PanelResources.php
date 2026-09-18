@@ -6,7 +6,9 @@ namespace Syriable\Translation\Discovery;
 
 use Filament\Clusters\Cluster;
 use Filament\Facades\Filament;
+use Filament\Pages\Page as FilamentPage;
 use Filament\Panel;
+use Filament\Resources\Pages\Page as ResourcePage;
 use Filament\Resources\Resource as FilamentResource;
 use Throwable;
 
@@ -114,6 +116,48 @@ class PanelResources
         return array_values($clusters);
     }
 
+    /**
+     * Custom panel pages that own a catalog (Dashboard, settings, …).
+     *
+     * Resource pages are skipped: they share the resource catalog and are
+     * already walked through {@see catalogs()}.
+     *
+     * @return array<int, class-string<FilamentPage>>
+     */
+    public function pages(): array
+    {
+        $this->boot();
+
+        $pages = [];
+        $original = $this->currentPanel();
+
+        try {
+            foreach ($this->panels() as $panel) {
+                $this->usePanel($panel);
+
+                foreach ($this->pagesOf($panel) as $page) {
+                    if (! is_subclass_of($page, FilamentPage::class)) {
+                        continue;
+                    }
+
+                    if (is_subclass_of($page, ResourcePage::class)) {
+                        continue;
+                    }
+
+                    if (! method_exists($page, 'translationDomain')) {
+                        continue;
+                    }
+
+                    $pages[$page] = $page;
+                }
+            }
+        } finally {
+            $this->usePanel($original);
+        }
+
+        return array_values($pages);
+    }
+
     public function flush(): void
     {
         $this->booted = false;
@@ -154,6 +198,18 @@ class PanelResources
     {
         try {
             return $panel->getClusters();
+        } catch (Throwable) {
+            return [];
+        }
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function pagesOf(Panel $panel): array
+    {
+        try {
+            return $panel->getPages();
         } catch (Throwable) {
             return [];
         }

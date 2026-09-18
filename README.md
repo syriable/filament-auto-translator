@@ -150,6 +150,39 @@ class EditUser extends EditRecord
 
 `HasPageTranslations` reads `getResource()` and reuses the resource translation domain, unless the page declares its own `#[TranslationDomain]`.
 
+### 2b. Opt in on standalone panel pages
+
+Custom panel pages (Dashboard, settings, profile, …) are not resource pages. Give them their own catalog with `#[TranslationDomain]` (or the prefix map) and the same trait:
+
+```php
+use Filament\Pages\Dashboard as BaseDashboard;
+use Syriable\Translation\Attributes\TranslationDomain;
+use Syriable\Translation\Concerns\HasPageTranslations;
+
+#[TranslationDomain('dashboard')]
+class Dashboard extends BaseDashboard
+{
+    use HasPageTranslations;
+}
+```
+
+Copy lives in `lang/{locale}/dashboard.php` under the same `pages.{class-kebab}` keys as resource pages (`Dashboard` → `dashboard`):
+
+```php
+return [
+    'pages' => [
+        'dashboard' => [
+            'title' => 'Dashboard',
+            'navigation_label' => 'Home',
+        ],
+    ],
+];
+```
+
+Page header actions nest under `pages.dashboard.actions.{name}` the same way. Form fields on the page still use the page catalog’s `form.components.*` scope.
+
+`translations:debug`, `translations:extract`, and `translations:inline` walk registered panel pages that expose `translationDomain()`, alongside resources and clusters.
+
 ### 3. Keep identifiers in PHP
 
 ```php
@@ -957,13 +990,15 @@ line. An explicit `->label()` after `make()` wins, as everywhere else.
 | `getNavigationLabel()` | `navigation_label` |
 | `getNavigationGroup()` | `navigation_group` |
 
-`HasPageTranslations` is for **resource pages**. It shares the resource catalog unless the page declares its own `#[TranslationDomain]`. Page keys use the class kebab (`EditUser` → `edit-user`), not the registered route name (`edit`):
+`HasPageTranslations` is for **Filament pages** — resource create/edit/list/view **and** standalone panel pages (Dashboard, settings, …). Page keys use the class kebab (`EditUser` → `edit-user`, `Dashboard` → `dashboard`), not the registered route name (`edit`):
 
 | Method | Identity |
 | --- | --- |
 | `getTitle()` | `pages.{page}.title` |
 | `getSubheading()` | `pages.{page}.subheading` |
 | `getNavigationLabel()` | `pages.{page}.navigation_label` |
+
+Resource pages share the resource catalog unless they declare their own `#[TranslationDomain]`. Standalone pages own their catalog (attribute or prefix map). Header actions on either kind of page nest under `pages.{page}.actions.{name}`.
 
 If the message is missing, the traits fall back to the parent Filament implementation.
 
@@ -1131,7 +1166,7 @@ php artisan translations:debug --locale=ar
 php artisan translations:debug --locale=ar --fail-on-missing --fail-on-fallback
 ```
 
-Walks opted-in Filament resources: form fields, table columns/filters/actions, action notification titles from `Notification::make()->success()` (and danger/info/warning) inside action closures, model and navigation labels, and page titles. It boots the registered panels itself, so no request or panel setup is needed.
+Walks opted-in Filament resources, clusters, and standalone panel pages: form fields, table columns/filters/actions, action notification titles from `Notification::make()->success()` (and danger/info/warning) inside action closures, model and navigation labels, and page titles. It boots the registered panels itself, so no request or panel setup is needed.
 
 | Option | Effect |
 | --- | --- |
@@ -1278,7 +1313,7 @@ Inside this monorepo the stub is already listed in the application `phpstan.neon
 
 The package binds the slots listed above. Widgets, relation-manager chrome, and import/export are not hooked yet; use `->label()` / `Translations::slot()` there.
 
-`translations:debug` and `translations:extract` walk registered resource forms, tables, action notification titles from action closures, model/navigation chrome, and page titles, plus discovered schema domains. They do not yet walk widgets or relation-manager chrome.
+`translations:debug` and `translations:extract` walk registered resource forms, tables, action notification titles from action closures, model/navigation chrome, resource and standalone page titles, plus discovered schema domains. They do not yet walk widgets or relation-manager chrome.
 
 Heading-only sections never become catalog path segments.
 

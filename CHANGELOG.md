@@ -22,6 +22,13 @@ document and no earlier behaviour to preserve.
 
 ### Added
 
+- **Standalone panel pages own a catalog.** Custom Filament pages outside a
+  resource (Dashboard, settings, profile, …) use the same
+  `pages.{class-kebab}.*` keys as resource pages. `HasPageTranslations` no
+  longer assumes `getResource()`; header actions bind under
+  `pages.{page}.actions` for every `Filament\Pages\Page`; extract / debug /
+  inline walk panel pages that expose `translationDomain()`.
+
 - **Cluster chrome from the catalog.** `HasClusterTranslations` binds
   `getClusterBreadcrumb()` to root `cluster_breadcrumb` and reuses root
   `navigation_label` for `getNavigationLabel()`, matching resource chrome.

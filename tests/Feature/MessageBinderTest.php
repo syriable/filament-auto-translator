@@ -32,6 +32,7 @@ use Syriable\Translation\Tests\Fixtures\DomainForm;
 use Syriable\Translation\Tests\Fixtures\DomainTable;
 use Syriable\Translation\Tests\Fixtures\EditUser;
 use Syriable\Translation\Tests\Fixtures\EmbeddedSchemaHost;
+use Syriable\Translation\Tests\Fixtures\PanelDashboardPage;
 use Syriable\Translation\Tests\Fixtures\Schemas\User\ChromeForm;
 
 beforeEach(function () {
@@ -1165,6 +1166,18 @@ it('fills a page header action label from the message catalog', function () {
     $action->livewire($livewire);
 
     expect($action->getLabel())->toBe('First action');
+});
+
+it('fills a standalone panel page header action under pages.{class-kebab}.actions', function () {
+    Lang::addLines([
+        'dashboard.pages.panel-dashboard-page.actions.refresh.label' => 'Refresh',
+    ], 'en');
+
+    $livewire = app(PanelDashboardPage::class);
+    $action = Action::make('refresh');
+    $action->livewire($livewire);
+
+    expect($action->getLabel())->toBe('Refresh');
 });
 
 it('fills extra modal footer actions under the owning page action', function () {

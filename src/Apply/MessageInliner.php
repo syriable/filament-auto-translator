@@ -10,6 +10,7 @@ use Filament\Clusters\Cluster;
 use Filament\Forms\Components\Field;
 use Filament\Infolists\Components\Entry;
 use Filament\Notifications\Notification;
+use Filament\Pages\Page as FilamentPage;
 use Filament\Resources\Resource as FilamentResource;
 use Filament\Schemas\Components\Component as SchemaComponent;
 use Filament\Schemas\Schema;
@@ -95,6 +96,23 @@ class MessageInliner
             $writes = [
                 ...$writes,
                 ...$this->applyClusterChrome($cluster, $catalogId, $locale, $dryRun),
+            ];
+        }
+
+        foreach ($this->panels->pages() as $page) {
+            if (! method_exists($page, 'translationDomain')) {
+                continue;
+            }
+
+            $catalogId = $page::translationDomain();
+
+            if (! $this->writer->isSafeCatalogId($catalogId)) {
+                continue;
+            }
+
+            $writes = [
+                ...$writes,
+                ...$this->applyStandalonePageChrome($page, $catalogId, $locale, $dryRun),
             ];
         }
 
@@ -214,7 +232,6 @@ class MessageInliner
      */
     private function applyPageChrome(string $resource, string $catalogId, string $locale, bool $dryRun): array
     {
-        $tree = $this->writer->load($this->writer->pathFor($catalogId, $locale));
         $writes = [];
 
         try {
@@ -230,51 +247,70 @@ class MessageInliner
                 continue;
             }
 
-            $pageKey = NameNormalizer::kebabClassBasename($page);
-            $prefix = str_replace('.', '/', $catalogId).'.pages.'.$pageKey.'.';
-            $methods = [];
-
-            foreach ([
-                'title' => ['getTitle', 'string', false],
-                'subheading' => ['getSubheading', '?string', false],
-                'navigation_label' => ['getNavigationLabel', 'string', true],
-            ] as $key => [$method, $return, $static]) {
-                $value = Arr::get($tree, 'pages.'.$pageKey.'.'.$key);
-
-                if (! is_string($value) || $value === '') {
-                    continue;
-                }
-
-                $methods[] = [
-                    'method' => $method,
-                    'key' => $prefix.$key,
-                    'static' => $static,
-                    'return' => $return,
-                ];
-            }
-
-            if ($methods === []) {
-                continue;
-            }
-
-            $file = (new ReflectionClass($page))->getFileName();
-
-            if (! is_string($file)) {
-                continue;
-            }
-
             $writes = [
                 ...$writes,
-                ...$this->writeChromeMethods(
-                    $file,
-                    (new ReflectionClass($page))->getShortName(),
-                    $methods,
-                    $dryRun,
-                ),
+                ...$this->applyPageClassChrome($page, $catalogId, $locale, $dryRun),
             ];
         }
 
         return $writes;
+    }
+
+    /**
+     * @param  class-string<FilamentPage>  $page
+     * @return array<int, InlineWrite>
+     */
+    private function applyStandalonePageChrome(string $page, string $catalogId, string $locale, bool $dryRun): array
+    {
+        return $this->applyPageClassChrome($page, $catalogId, $locale, $dryRun);
+    }
+
+    /**
+     * @param  class-string  $page
+     * @return array<int, InlineWrite>
+     */
+    private function applyPageClassChrome(string $page, string $catalogId, string $locale, bool $dryRun): array
+    {
+        $tree = $this->writer->load($this->writer->pathFor($catalogId, $locale));
+        $pageKey = NameNormalizer::kebabClassBasename($page);
+        $prefix = str_replace('.', '/', $catalogId).'.pages.'.$pageKey.'.';
+        $methods = [];
+
+        foreach ([
+            'title' => ['getTitle', 'string', false],
+            'subheading' => ['getSubheading', '?string', false],
+            'navigation_label' => ['getNavigationLabel', 'string', true],
+        ] as $key => [$method, $return, $static]) {
+            $value = Arr::get($tree, 'pages.'.$pageKey.'.'.$key);
+
+            if (! is_string($value) || $value === '') {
+                continue;
+            }
+
+            $methods[] = [
+                'method' => $method,
+                'key' => $prefix.$key,
+                'static' => $static,
+                'return' => $return,
+            ];
+        }
+
+        if ($methods === []) {
+            return [];
+        }
+
+        $file = (new ReflectionClass($page))->getFileName();
+
+        if (! is_string($file)) {
+            return [];
+        }
+
+        return $this->writeChromeMethods(
+            $file,
+            (new ReflectionClass($page))->getShortName(),
+            $methods,
+            $dryRun,
+        );
     }
 
     /**

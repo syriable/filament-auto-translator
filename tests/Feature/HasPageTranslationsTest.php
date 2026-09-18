@@ -8,6 +8,7 @@ use Syriable\Translation\Enums\MissingMessagePolicy;
 use Syriable\Translation\Tests\Fixtures\CatalogBoundPage;
 use Syriable\Translation\Tests\Fixtures\CatalogOwner;
 use Syriable\Translation\Tests\Fixtures\DeclaredDomainPage;
+use Syriable\Translation\Tests\Fixtures\StandaloneDashboardPage;
 
 beforeEach(function () {
     config()->set('translations.on_missing', 'debug');
@@ -57,4 +58,20 @@ it('fills page chrome from the domain the page declares', function () {
     Lang::addLines(['people-edit.pages.declared-domain-page.title' => 'Edit person'], 'en', 'identity');
 
     expect((new DeclaredDomainPage)->getTitle())->toBe('Edit person');
+});
+
+it('owns its catalog when it is not a resource page', function () {
+    expect(StandaloneDashboardPage::translationDomain())->toBe('dashboard');
+});
+
+it('fills standalone page chrome from pages.{class-kebab} keys', function () {
+    Lang::addLines([
+        'dashboard.pages.standalone-dashboard-page.title' => 'Home board',
+        'dashboard.pages.standalone-dashboard-page.navigation_label' => 'Home',
+    ], 'en');
+
+    $page = new StandaloneDashboardPage;
+
+    expect($page->getTitle())->toBe('Home board')
+        ->and(StandaloneDashboardPage::getNavigationLabel())->toBe('Home');
 });
