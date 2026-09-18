@@ -61,13 +61,13 @@ it('fills page chrome from the domain the page declares', function () {
 });
 
 it('owns its catalog when it is not a resource page', function () {
-    expect(StandaloneDashboardPage::translationDomain())->toBe('dashboard');
+    expect(StandaloneDashboardPage::translationDomain())->toBe('pages.standalone-dashboard-page');
 });
 
-it('fills standalone page chrome from pages.{class-kebab} keys', function () {
+it('fills standalone page chrome from pages/{page} root keys', function () {
     Lang::addLines([
-        'dashboard.pages.standalone-dashboard-page.title' => 'Home board',
-        'dashboard.pages.standalone-dashboard-page.navigation_label' => 'Home',
+        'pages/standalone-dashboard-page.title' => 'Home board',
+        'pages/standalone-dashboard-page.navigation_label' => 'Home',
     ], 'en');
 
     $page = new StandaloneDashboardPage;

@@ -206,6 +206,9 @@ class MessageScanner
     /**
      * Custom panel pages that own their catalog (not resource create/edit/list).
      *
+     * Chrome sits at the catalog root (`title`, `navigation_label`) because the
+     * domain is already `pages.{kebab}` → lang/{locale}/pages/{kebab}.php.
+     *
      * @param  class-string<FilamentPage>  $page
      */
     private function auditStandalonePage(string $page): void
@@ -214,7 +217,23 @@ class MessageScanner
             return;
         }
 
-        $this->auditPageChrome($page::translationDomain(), NameNormalizer::kebabClassBasename($page));
+        $catalogId = $page::translationDomain();
+
+        $this->record($this->resolver->resolve(new MessageIdentity(
+            catalogId: $catalogId,
+            scope: MessageSurface::Pages,
+            path: [],
+            name: '',
+            slot: MessageSlot::Title,
+        )), $catalogId);
+
+        $this->record($this->resolver->resolve(new MessageIdentity(
+            catalogId: $catalogId,
+            scope: MessageSurface::Pages,
+            path: [],
+            name: '',
+            slot: MessageSlot::Label,
+        )), $catalogId);
     }
 
     /**

@@ -22,12 +22,13 @@ document and no earlier behaviour to preserve.
 
 ### Added
 
-- **Standalone panel pages own a catalog.** Custom Filament pages outside a
-  resource (Dashboard, settings, profile, …) use the same
-  `pages.{class-kebab}.*` keys as resource pages. `HasPageTranslations` no
-  longer assumes `getResource()`; header actions bind under
-  `pages.{page}.actions` for every `Filament\Pages\Page`; extract / debug /
-  inline walk panel pages that expose `translationDomain()`.
+- **Standalone panel pages own `pages/{page}.php`.** Custom Filament pages
+  outside a resource default to catalog `pages.{class-kebab}`. Chrome
+  (`title`, `navigation_label`, `subheading`) and header `actions` sit at the
+  catalog root so keys are `pages/{page}.title` — not
+  `filament/{page}.pages.{page}.title`. Resource pages keep nesting under
+  `pages.{kebab}` inside the resource catalog. Extract / debug / inline walk
+  panel pages that expose `translationDomain()`.
 
 - **Cluster chrome from the catalog.** `HasClusterTranslations` binds
   `getClusterBreadcrumb()` to root `cluster_breadcrumb` and reuses root
