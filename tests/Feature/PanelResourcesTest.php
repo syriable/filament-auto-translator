@@ -17,6 +17,7 @@ use Livewire\LivewireServiceProvider;
 use Syriable\Translation\Binding\MessageOverrides;
 use Syriable\Translation\Discovery\PanelResources;
 use Syriable\Translation\Tests\Fixtures\Clusters\PanelSettingsCluster;
+use Syriable\Translation\Tests\Fixtures\PanelDashboardPage;
 use Syriable\Translation\Tests\Fixtures\PanelUserResource;
 use Syriable\Translation\TranslationPlugin;
 
@@ -83,6 +84,17 @@ it('collects the clusters that carry a translation domain', function () {
     );
 
     expect(app(PanelResources::class)->clusters())->toBe([PanelSettingsCluster::class]);
+});
+
+it('collects standalone panel pages that carry a translation domain', function () {
+    app(PanelRegistry::class)->register(
+        Panel::make()
+            ->id('dashboard')
+            ->path('dashboard')
+            ->pages([PanelDashboardPage::class]),
+    );
+
+    expect(app(PanelResources::class)->pages())->toBe([PanelDashboardPage::class]);
 });
 
 it('leaves the current panel as it found it', function () {

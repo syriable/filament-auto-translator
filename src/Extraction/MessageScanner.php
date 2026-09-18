@@ -11,6 +11,7 @@ use Filament\Facades\Filament;
 use Filament\Forms\Components\Field;
 use Filament\Infolists\Components\Entry;
 use Filament\Notifications\Notification;
+use Filament\Pages\Page as FilamentPage;
 use Filament\Resources\Resource as FilamentResource;
 use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\Component as SchemaComponent;
@@ -140,6 +141,10 @@ class MessageScanner
                 $this->auditCluster($cluster);
             }
 
+            foreach ($this->panels->pages() as $page) {
+                $this->auditStandalonePage($page);
+            }
+
             foreach ($this->schemaCatalogs->catalogs() as $catalog) {
                 $this->auditDiscoveredDomain($catalog);
             }
@@ -196,6 +201,20 @@ class MessageScanner
         }
 
         $this->auditClusterChrome($cluster, $cluster::translationDomain());
+    }
+
+    /**
+     * Custom panel pages that own their catalog (not resource create/edit/list).
+     *
+     * @param  class-string<FilamentPage>  $page
+     */
+    private function auditStandalonePage(string $page): void
+    {
+        if (! method_exists($page, 'translationDomain')) {
+            return;
+        }
+
+        $this->auditPageChrome($page::translationDomain(), NameNormalizer::kebabClassBasename($page));
     }
 
     /**
@@ -376,24 +395,27 @@ class MessageScanner
                 continue;
             }
 
-            $pageName = NameNormalizer::kebabClassBasename($page);
-
-            $this->record($this->resolver->resolve(new MessageIdentity(
-                catalogId: $catalogId,
-                scope: MessageSurface::Pages,
-                path: [$pageName],
-                name: '',
-                slot: MessageSlot::Title,
-            )), $catalogId);
-
-            $this->record($this->resolver->resolve(new MessageIdentity(
-                catalogId: $catalogId,
-                scope: MessageSurface::Pages,
-                path: [$pageName],
-                name: '',
-                slot: MessageSlot::Label,
-            )), $catalogId);
+            $this->auditPageChrome($catalogId, NameNormalizer::kebabClassBasename($page));
         }
+    }
+
+    private function auditPageChrome(string $catalogId, string $pageName): void
+    {
+        $this->record($this->resolver->resolve(new MessageIdentity(
+            catalogId: $catalogId,
+            scope: MessageSurface::Pages,
+            path: [$pageName],
+            name: '',
+            slot: MessageSlot::Title,
+        )), $catalogId);
+
+        $this->record($this->resolver->resolve(new MessageIdentity(
+            catalogId: $catalogId,
+            scope: MessageSurface::Pages,
+            path: [$pageName],
+            name: '',
+            slot: MessageSlot::Label,
+        )), $catalogId);
     }
 
     /**
