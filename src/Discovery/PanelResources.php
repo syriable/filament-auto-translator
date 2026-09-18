@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Syriable\Translation\Discovery;
 
+use Filament\Clusters\Cluster;
 use Filament\Facades\Filament;
 use Filament\Panel;
 use Filament\Resources\Resource as FilamentResource;
@@ -80,6 +81,39 @@ class PanelResources
         return array_values($catalogs);
     }
 
+    /**
+     * @return array<int, class-string<Cluster>>
+     */
+    public function clusters(): array
+    {
+        $this->boot();
+
+        $clusters = [];
+        $original = $this->currentPanel();
+
+        try {
+            foreach ($this->panels() as $panel) {
+                $this->usePanel($panel);
+
+                foreach ($this->clustersOf($panel) as $cluster) {
+                    if (! is_subclass_of($cluster, Cluster::class)) {
+                        continue;
+                    }
+
+                    if (! method_exists($cluster, 'translationDomain')) {
+                        continue;
+                    }
+
+                    $clusters[$cluster] = $cluster;
+                }
+            }
+        } finally {
+            $this->usePanel($original);
+        }
+
+        return array_values($clusters);
+    }
+
     public function flush(): void
     {
         $this->booted = false;
@@ -108,6 +142,18 @@ class PanelResources
     {
         try {
             return $panel->getResources();
+        } catch (Throwable) {
+            return [];
+        }
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function clustersOf(Panel $panel): array
+    {
+        try {
+            return $panel->getClusters();
         } catch (Throwable) {
             return [];
         }

@@ -7,6 +7,7 @@ namespace Syriable\Translation\Enums;
 enum MessageSlot: string
 {
     case Label = 'label';
+    case Breadcrumb = 'breadcrumb';
     case Heading = 'heading';
     case HelperText = 'helper_text';
     case Hint = 'hint';
@@ -41,7 +42,7 @@ enum MessageSlot: string
         }
 
         return match ($this) {
-            self::Label, self::Title, self::Body => true,
+            self::Label, self::Breadcrumb, self::Title, self::Body => true,
             default => false,
         };
     }

@@ -6,6 +6,7 @@ namespace Syriable\Translation\Extraction;
 
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Clusters\Cluster;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Field;
 use Filament\Infolists\Components\Entry;
@@ -135,6 +136,10 @@ class MessageScanner
                 $this->auditResource($resource);
             }
 
+            foreach ($this->panels->clusters() as $cluster) {
+                $this->auditCluster($cluster);
+            }
+
             foreach ($this->schemaCatalogs->catalogs() as $catalog) {
                 $this->auditDiscoveredDomain($catalog);
             }
@@ -179,6 +184,18 @@ class MessageScanner
 
         $this->auditForm($resource, $catalogId, $owner);
         $this->auditTable($resource, $catalogId, $owner);
+    }
+
+    /**
+     * @param  class-string<Cluster>  $cluster
+     */
+    private function auditCluster(string $cluster): void
+    {
+        if (! method_exists($cluster, 'translationDomain')) {
+            return;
+        }
+
+        $this->auditClusterChrome($cluster, $cluster::translationDomain());
     }
 
     /**
@@ -377,6 +394,28 @@ class MessageScanner
                 slot: MessageSlot::Label,
             )), $catalogId);
         }
+    }
+
+    /**
+     * @param  class-string<Cluster>  $cluster
+     */
+    private function auditClusterChrome(string $cluster, string $catalogId): void
+    {
+        $this->record($this->resolver->resolve(new MessageIdentity(
+            catalogId: $catalogId,
+            scope: MessageSurface::Cluster,
+            path: [],
+            name: '',
+            slot: MessageSlot::Breadcrumb,
+        )), $catalogId);
+
+        $this->record($this->resolver->resolve(new MessageIdentity(
+            catalogId: $catalogId,
+            scope: MessageSurface::Navigation,
+            path: [],
+            name: '',
+            slot: MessageSlot::Label,
+        )), $catalogId);
     }
 
     /**
@@ -660,7 +699,7 @@ class MessageScanner
             return;
         }
 
-        if (in_array($scope, [MessageSurface::Model, MessageSurface::Navigation], true)) {
+        if (in_array($scope, [MessageSurface::Model, MessageSurface::Navigation, MessageSurface::Cluster], true)) {
             return;
         }
 

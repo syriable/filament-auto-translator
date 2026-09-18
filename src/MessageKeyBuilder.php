@@ -60,6 +60,10 @@ class MessageKeyBuilder
                 MessageSlot::Group => 'navigation_group',
                 default => null,
             },
+            MessageSurface::Cluster => match ($identity->slot) {
+                MessageSlot::Breadcrumb => 'cluster_breadcrumb',
+                default => null,
+            },
             default => null,
         };
     }

@@ -13,4 +13,5 @@ enum MessageSurface: string
     case Pages = 'pages';
     case Navigation = 'navigation';
     case Model = 'model';
+    case Cluster = 'cluster';
 }

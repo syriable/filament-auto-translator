@@ -6,6 +6,7 @@ namespace Syriable\Translation\Apply;
 
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Clusters\Cluster;
 use Filament\Forms\Components\Field;
 use Filament\Infolists\Components\Entry;
 use Filament\Notifications\Notification;
@@ -77,6 +78,23 @@ class MessageInliner
                 ...$this->applyPageChrome($resource, $catalogId, $locale, $dryRun),
                 ...$this->applyResourceForm($resource, $owner, $catalogId, $locale, $dryRun),
                 ...$this->applyResourceTable($resource, $owner, $catalogId, $locale, $dryRun),
+            ];
+        }
+
+        foreach ($this->panels->clusters() as $cluster) {
+            if (! method_exists($cluster, 'translationDomain')) {
+                continue;
+            }
+
+            $catalogId = $cluster::translationDomain();
+
+            if (! $this->writer->isSafeCatalogId($catalogId)) {
+                continue;
+            }
+
+            $writes = [
+                ...$writes,
+                ...$this->applyClusterChrome($cluster, $catalogId, $locale, $dryRun),
             ];
         }
 
@@ -171,6 +189,26 @@ class MessageInliner
     }
 
     /**
+     * @param  class-string<Cluster>  $cluster
+     * @return array<int, InlineWrite>
+     */
+    private function applyClusterChrome(string $cluster, string $catalogId, string $locale, bool $dryRun): array
+    {
+        $file = (new ReflectionClass($cluster))->getFileName();
+
+        if (! is_string($file)) {
+            return [];
+        }
+
+        return $this->writeChromeMethods(
+            $file,
+            (new ReflectionClass($cluster))->getShortName(),
+            $this->clusterChromeMethods($catalogId, $this->writer->load($this->writer->pathFor($catalogId, $locale))),
+            $dryRun,
+        );
+    }
+
+    /**
      * @param  class-string<FilamentResource>  $resource
      * @return array<int, InlineWrite>
      */
@@ -254,6 +292,36 @@ class MessageInliner
             'plural_label' => ['getPluralLabel', '?string'],
             'navigation_label' => ['getNavigationLabel', 'string'],
             'navigation_group' => ['getNavigationGroup', '?string'],
+        ] as $key => [$method, $return]) {
+            $value = Arr::get($tree, $key);
+
+            if (! is_string($value) || $value === '') {
+                continue;
+            }
+
+            $methods[] = [
+                'method' => $method,
+                'key' => $prefix.$key,
+                'static' => true,
+                'return' => $return,
+            ];
+        }
+
+        return $methods;
+    }
+
+    /**
+     * @param  array<string, mixed>  $tree
+     * @return array<int, array{method: string, key: string, static: bool, return: string}>
+     */
+    private function clusterChromeMethods(string $catalogId, array $tree): array
+    {
+        $prefix = str_replace('.', '/', $catalogId).'.';
+        $methods = [];
+
+        foreach ([
+            'cluster_breadcrumb' => ['getClusterBreadcrumb', '?string'],
+            'navigation_label' => ['getNavigationLabel', 'string'],
         ] as $key => [$method, $return]) {
             $value = Arr::get($tree, $key);
 
