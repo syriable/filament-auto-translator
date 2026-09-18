@@ -207,7 +207,8 @@ class MessageScanner
      * Custom panel pages that own their catalog (not resource create/edit/list).
      *
      * Chrome sits at the catalog root (`title`, `navigation_label`) because the
-     * domain is already `pages.{kebab}` → lang/{locale}/pages/{kebab}.php.
+     * domain is already `{prefix}.pages.{kebab}` →
+     * lang/{locale}/filament/pages/{kebab}.php.
      *
      * @param  class-string<FilamentPage>  $page
      */

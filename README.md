@@ -152,7 +152,7 @@ class EditUser extends EditRecord
 
 ### 2b. Opt in on standalone panel pages
 
-Custom panel pages (Dashboard, settings, profile, …) are not resource pages. Use the same trait; the default catalog is `pages.{class-kebab}`:
+Custom panel pages (Dashboard, settings, profile, …) are not resource pages. Use the same trait; the default catalog is `{prefix}.pages.{class-kebab}` (same `filament` prefix as resources):
 
 ```php
 use Filament\Pages\Dashboard as BaseDashboard;
@@ -164,7 +164,7 @@ class Dashboard extends BaseDashboard
 }
 ```
 
-Copy lives in `lang/{locale}/pages/dashboard.php` — the page name is the file, not nested again:
+Copy lives in `lang/{locale}/filament/pages/dashboard.php` — the page name is the file, not nested again:
 
 ```php
 return [
@@ -181,12 +181,12 @@ return [
 Laravel keys match the page map without doubling the name:
 
 ```text
-pages/dashboard.title
-pages/dashboard.navigation_label
-pages/dashboard.actions.refresh.label
+filament/pages/dashboard.title
+filament/pages/dashboard.navigation_label
+filament/pages/dashboard.actions.refresh.label
 ```
 
-Override with `#[TranslationDomain('pages.dashboard')]` only when you need a stable id after a class rename. Form fields on the page still use that catalog’s `form.components.*` scope.
+That parallels resource page keys (`filament/user-resource.pages.edit-user.title`) while keeping a standalone catalog under `filament/pages/`. Override with `#[TranslationDomain('filament.pages.dashboard')]` only when you need a stable id after a class rename. Form fields on the page still use that catalog’s `form.components.*` scope.
 
 `translations:debug`, `translations:extract`, and `translations:inline` walk registered panel pages that expose `translationDomain()`, alongside resources and clusters.
 
@@ -1009,15 +1009,15 @@ line. An explicit `->label()` after `make()` wins, as everywhere else.
 
 Header actions: `pages.{page}.actions.{name}`.
 
-**Standalone panel pages** default to catalog `pages.{class-kebab}` → file `lang/{locale}/pages/{page}.php`. Chrome and header actions sit at the catalog root so the page name is not repeated:
+**Standalone panel pages** default to catalog `{prefix}.pages.{class-kebab}` (e.g. `filament.pages.dashboard`) → file `lang/{locale}/filament/pages/{page}.php`. Chrome and header actions sit at the catalog root so the page name is not repeated:
 
 | Method | Identity |
 | --- | --- |
-| `getTitle()` | `title` → `pages/{page}.title` |
-| `getSubheading()` | `subheading` → `pages/{page}.subheading` |
-| `getNavigationLabel()` | `navigation_label` → `pages/{page}.navigation_label` |
+| `getTitle()` | `title` → `filament/pages/{page}.title` |
+| `getSubheading()` | `subheading` → `filament/pages/{page}.subheading` |
+| `getNavigationLabel()` | `navigation_label` → `filament/pages/{page}.navigation_label` |
 
-Header actions: `actions.{name}` → `pages/{page}.actions.{name}`.
+Header actions: `actions.{name}` → `filament/pages/{page}.actions.{name}`.
 
 If the message is missing, the traits fall back to the parent Filament implementation.
 

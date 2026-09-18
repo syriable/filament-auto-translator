@@ -1168,9 +1168,9 @@ it('fills a page header action label from the message catalog', function () {
     expect($action->getLabel())->toBe('First action');
 });
 
-it('fills a standalone panel page header action under pages/{page}.actions', function () {
+it('fills a standalone panel page header action under filament/pages/{page}.actions', function () {
     Lang::addLines([
-        'pages/panel-dashboard-page.actions.refresh.label' => 'Refresh',
+        'filament/pages/panel-dashboard-page.actions.refresh.label' => 'Refresh',
     ], 'en');
 
     $livewire = app(PanelDashboardPage::class);
