@@ -21,6 +21,7 @@ TextInput::make('email')  →    'form' => ['components' => ['email' => ['label'
 - [Schema domains outside resources](#schema-domains-outside-resources)
 - [What is bound automatically](#what-is-bound-automatically)
 - [Resource chrome](#resource-chrome)
+- [Cluster chrome](#cluster-chrome)
 - [Missing-message policy](#missing-message-policy)
 - [Overrides](#overrides)
 - [Manual lookup](#manual-lookup)
@@ -220,10 +221,10 @@ The compiler turns that into a Laravel translation key. Schema, table, and page 
 {catalog-id-with-dots-as-slashes}.{scope}.{path…}.{name}.{slot}
 ```
 
-Resource chrome (`model` / `navigation` with an empty path) compiles to a single Filament method name:
+Resource and cluster chrome (`model` / `navigation` / `cluster` with an empty path) compiles to a single Filament method name:
 
 ```text
-{catalog-id-with-dots-as-slashes}.{model_label|plural_model_label|plural_label|navigation_label|navigation_group}
+{catalog-id-with-dots-as-slashes}.{model_label|plural_model_label|plural_label|navigation_label|navigation_group|cluster_breadcrumb}
 ```
 
 | Identity part | Example | Laravel key segment |
@@ -257,15 +258,16 @@ Renaming the PHP class does **not** change keys unless you change `translationDo
 
 ## Language file layout
 
-One file per catalog. Resource chrome is a Filament method name at the root. Nested top-level keys are **scopes**:
+One file per catalog. Resource and cluster chrome are Filament method names at the root. Nested top-level keys are **scopes**:
 
 | Key | Used for |
 | --- | --- |
 | `model_label` | `getModelLabel()` |
 | `plural_model_label` | `getPluralModelLabel()` |
 | `plural_label` | `getPluralLabel()` (deprecated Filament alias) |
-| `navigation_label` | `getNavigationLabel()` |
+| `navigation_label` | `getNavigationLabel()` (resources and clusters) |
 | `navigation_group` | `getNavigationGroup()` |
+| `cluster_breadcrumb` | `getClusterBreadcrumb()` |
 | `pages` | Page class kebab (`edit-user`) with Filament chrome (`title`, `subheading`, `navigation_label`) and `{page}.actions` |
 | `form` | Form components under `form.components`. Keyed layout children nest under `{layout}.schema` |
 | `infolist` | Infolist entries under `infolist.components`, same nesting as `form` |
@@ -283,6 +285,10 @@ plural_model_label
 plural_label
 navigation_label
 navigation_group
+
+# Cluster chrome (catalog root)
+cluster_breadcrumb
+navigation_label
 
 # Pages — class kebab (EditUser → edit-user), not the route name (edit)
 pages.{page}.title
@@ -744,7 +750,7 @@ public static function translationDomain(): string
 }
 ```
 
-`HasModelTranslations` and `HasPageTranslations` stay on Filament resources and pages. A site Livewire component does not need them — the binder reads the catalog from the schema's owner.
+`HasModelTranslations`, `HasPageTranslations`, and `HasClusterTranslations` stay on Filament resources, pages, and clusters. A site Livewire component does not need them — the binder reads the catalog from the schema's owner.
 
 ### Register a directory, not a class list
 
@@ -960,6 +966,29 @@ line. An explicit `->label()` after `make()` wins, as everywhere else.
 | `getNavigationLabel()` | `pages.{page}.navigation_label` |
 
 If the message is missing, the traits fall back to the parent Filament implementation.
+
+## Cluster chrome
+
+`HasClusterTranslations` is for **Filament clusters** (static chrome):
+
+| Method | Identity |
+| --- | --- |
+| `getClusterBreadcrumb()` | `cluster_breadcrumb` |
+| `getNavigationLabel()` | `navigation_label` |
+
+```php
+use Filament\Clusters\Cluster;
+use Syriable\Translation\Attributes\TranslationDomain;
+use Syriable\Translation\Concerns\HasClusterTranslations;
+
+#[TranslationDomain('site::settings-cluster')]
+class SettingsCluster extends Cluster
+{
+    use HasClusterTranslations;
+}
+```
+
+Missing messages fall back to the parent Filament cluster implementation, the same way resource chrome does.
 
 ## Missing-message policy
 

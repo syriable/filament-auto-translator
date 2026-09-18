@@ -16,6 +16,7 @@ use Filament\Widgets\WidgetsServiceProvider;
 use Livewire\LivewireServiceProvider;
 use Syriable\Translation\Binding\MessageOverrides;
 use Syriable\Translation\Discovery\PanelResources;
+use Syriable\Translation\Tests\Fixtures\Clusters\PanelSettingsCluster;
 use Syriable\Translation\Tests\Fixtures\PanelUserResource;
 use Syriable\Translation\TranslationPlugin;
 
@@ -68,6 +69,20 @@ it('collects the resources that carry a translation domain', function () {
     );
 
     expect(app(PanelResources::class)->catalogs())->toBe([PanelUserResource::class]);
+});
+
+it('collects the clusters that carry a translation domain', function () {
+    app(PanelRegistry::class)->register(
+        Panel::make()
+            ->id('dashboard')
+            ->path('dashboard')
+            ->discoverClusters(
+                in: __DIR__.'/../Fixtures/Clusters',
+                for: 'Syriable\\Translation\\Tests\\Fixtures\\Clusters',
+            ),
+    );
+
+    expect(app(PanelResources::class)->clusters())->toBe([PanelSettingsCluster::class]);
 });
 
 it('leaves the current panel as it found it', function () {

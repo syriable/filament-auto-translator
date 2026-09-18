@@ -22,6 +22,12 @@ document and no earlier behaviour to preserve.
 
 ### Added
 
+- **Cluster chrome from the catalog.** `HasClusterTranslations` binds
+  `getClusterBreadcrumb()` to root `cluster_breadcrumb` and reuses root
+  `navigation_label` for `getNavigationLabel()`, matching resource chrome.
+  Extract, debug, and inline walk panel clusters that expose
+  `translationDomain()`.
+
 - **A keyed wrapper reaches the schema it embeds.** A form class describes its
   chrome in `make()` and its fields in `configure()`, and the chrome reaches
   the fields through `EmbeddedSchema` — which Filament renders by name rather

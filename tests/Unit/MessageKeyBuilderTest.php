@@ -68,6 +68,7 @@ it('compiles resource chrome as Filament method names', function (MessageSurface
     [MessageSurface::Model, MessageSlot::PluralLabel, 'filament/user-resource.plural_label'],
     [MessageSurface::Navigation, MessageSlot::Label, 'filament/user-resource.navigation_label'],
     [MessageSurface::Navigation, MessageSlot::Group, 'filament/user-resource.navigation_group'],
+    [MessageSurface::Cluster, MessageSlot::Breadcrumb, 'filament/user-resource.cluster_breadcrumb'],
 ]);
 
 it('compiles page chrome as Filament method names under the class kebab', function (MessageSlot $slot, string $expected) {
