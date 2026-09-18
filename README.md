@@ -921,7 +921,10 @@ Vendor actions such as `DeleteAction` keep their Filament language file until **
 Filament is extensible, and a component another package ships — a separator, a
 divider, anything extending `Filament\Schemas\Components\Component` with a
 label — is bound too, on one condition: **it has to name itself with
-`->key()`.**
+`->key()`.** Filament’s own classes are never taken by this path: layout
+wrappers such as `Actions` may be keyed for Livewire identity only
+(`->key('form-actions')` on a settings form footer) and must not invent a
+required label.
 
 ```php
 Separator::make()->key('separator');

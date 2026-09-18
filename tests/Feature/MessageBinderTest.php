@@ -6,6 +6,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\EmptyState;
 use Filament\Schemas\Components\Fieldset;
@@ -1440,6 +1441,17 @@ it('fills the label of a keyed component from outside Filament', function () {
     ]);
 
     expect($schema->getComponents()[0]->getLabel())->toBe('or');
+});
+
+it('does not invent a label for a keyed Filament Actions container', function () {
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        Actions::make([
+            Action::make('save'),
+        ])->key('form-actions'),
+    ]);
+
+    expect($schema->getComponents()[0]->getLabel())->toBeNull();
 });
 
 it('leaves an unkeyed custom component alone', function () {
