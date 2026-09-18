@@ -89,6 +89,24 @@ it('compiles page chrome as Filament method names under the class kebab', functi
     [MessageSlot::Label, 'filament/user-resource.pages.edit-user.navigation_label'],
 ]);
 
+it('compiles standalone page chrome at the pages/{page} catalog root', function (MessageSlot $slot, string $expected) {
+    $compiler = new MessageKeyBuilder;
+
+    $key = $compiler->compile(new MessageIdentity(
+        catalogId: 'pages.dashboard',
+        scope: MessageSurface::Pages,
+        path: [],
+        name: '',
+        slot: $slot,
+    ));
+
+    expect($key)->toBe($expected);
+})->with([
+    [MessageSlot::Title, 'pages/dashboard.title'],
+    [MessageSlot::Subheading, 'pages/dashboard.subheading'],
+    [MessageSlot::Label, 'pages/dashboard.navigation_label'],
+]);
+
 it('compiles a page action label under the class kebab', function () {
     $compiler = new MessageKeyBuilder;
 

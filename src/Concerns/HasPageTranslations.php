@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Syriable\Translation\Concerns;
 
 use Illuminate\Contracts\Support\Htmlable;
-use Syriable\Translation\Discovery\DomainPrefixResolver;
 use Syriable\Translation\Discovery\DomainResolver;
 use Syriable\Translation\Enums\MessageSlot;
 use Syriable\Translation\Enums\MessageSurface;
@@ -17,8 +16,8 @@ trait HasPageTranslations
 
     /**
      * A page declaring its own #[TranslationDomain] keeps it. Resource pages
-     * without one share the resource catalog. Standalone panel pages
-     * (Dashboard, settings, …) fall back to the prefix map.
+     * without one share the resource catalog. Standalone panel pages default to
+     * `pages.{class-kebab}` so copy lives in lang/{locale}/pages/{page}.php.
      */
     public static function translationDomain(): string
     {
@@ -28,15 +27,13 @@ trait HasPageTranslations
             return $declared;
         }
 
-        if (method_exists(static::class, 'getResource')) {
+        if (static::sharesResourceCatalog()) {
             $resource = call_user_func([static::class, 'getResource']);
 
-            if (is_string($resource) && method_exists($resource, 'translationDomain')) {
-                return $resource::translationDomain();
-            }
+            return $resource::translationDomain();
         }
 
-        return app(DomainPrefixResolver::class)->idFor(static::class);
+        return 'pages.'.NameNormalizer::kebabClassBasename(static::class);
     }
 
     public function getTitle(): string|Htmlable
@@ -73,10 +70,31 @@ trait HasPageTranslations
     }
 
     /**
+     * Resource pages nest under `pages.{kebab}` inside the resource catalog.
+     * Standalone pages own `pages/{kebab}.php`, so chrome sits at the catalog root.
+     *
      * @return array<int, string>
      */
     protected static function messagePagePath(): array
     {
-        return [NameNormalizer::kebabClassBasename(static::class)];
+        if (static::sharesResourceCatalog()) {
+            return [NameNormalizer::kebabClassBasename(static::class)];
+        }
+
+        return [];
+    }
+
+    /**
+     * Whether this page shares a Filament resource's translation domain.
+     */
+    protected static function sharesResourceCatalog(): bool
+    {
+        if (! method_exists(static::class, 'getResource')) {
+            return false;
+        }
+
+        $resource = call_user_func([static::class, 'getResource']);
+
+        return is_string($resource) && method_exists($resource, 'translationDomain');
     }
 }

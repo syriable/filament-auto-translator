@@ -64,6 +64,12 @@ class MessageKeyBuilder
                 MessageSlot::Breadcrumb => 'cluster_breadcrumb',
                 default => null,
             },
+            MessageSurface::Pages => match ($identity->slot) {
+                MessageSlot::Title => 'title',
+                MessageSlot::Subheading => 'subheading',
+                MessageSlot::Label => 'navigation_label',
+                default => null,
+            },
             default => null,
         };
     }

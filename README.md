@@ -152,34 +152,41 @@ class EditUser extends EditRecord
 
 ### 2b. Opt in on standalone panel pages
 
-Custom panel pages (Dashboard, settings, profile, …) are not resource pages. Give them their own catalog with `#[TranslationDomain]` (or the prefix map) and the same trait:
+Custom panel pages (Dashboard, settings, profile, …) are not resource pages. Use the same trait; the default catalog is `pages.{class-kebab}`:
 
 ```php
 use Filament\Pages\Dashboard as BaseDashboard;
-use Syriable\Translation\Attributes\TranslationDomain;
 use Syriable\Translation\Concerns\HasPageTranslations;
 
-#[TranslationDomain('dashboard')]
 class Dashboard extends BaseDashboard
 {
     use HasPageTranslations;
 }
 ```
 
-Copy lives in `lang/{locale}/dashboard.php` under the same `pages.{class-kebab}` keys as resource pages (`Dashboard` → `dashboard`):
+Copy lives in `lang/{locale}/pages/dashboard.php` — the page name is the file, not nested again:
 
 ```php
 return [
-    'pages' => [
-        'dashboard' => [
-            'title' => 'Dashboard',
-            'navigation_label' => 'Home',
+    'title' => 'Dashboard',
+    'navigation_label' => 'Home',
+    'actions' => [
+        'refresh' => [
+            'label' => 'Refresh',
         ],
     ],
 ];
 ```
 
-Page header actions nest under `pages.dashboard.actions.{name}` the same way. Form fields on the page still use the page catalog’s `form.components.*` scope.
+Laravel keys match the page map without doubling the name:
+
+```text
+pages/dashboard.title
+pages/dashboard.navigation_label
+pages/dashboard.actions.refresh.label
+```
+
+Override with `#[TranslationDomain('pages.dashboard')]` only when you need a stable id after a class rename. Form fields on the page still use that catalog’s `form.components.*` scope.
 
 `translations:debug`, `translations:extract`, and `translations:inline` walk registered panel pages that expose `translationDomain()`, alongside resources and clusters.
 
@@ -990,7 +997,9 @@ line. An explicit `->label()` after `make()` wins, as everywhere else.
 | `getNavigationLabel()` | `navigation_label` |
 | `getNavigationGroup()` | `navigation_group` |
 
-`HasPageTranslations` is for **Filament pages** — resource create/edit/list/view **and** standalone panel pages (Dashboard, settings, …). Page keys use the class kebab (`EditUser` → `edit-user`, `Dashboard` → `dashboard`), not the registered route name (`edit`):
+`HasPageTranslations` is for **Filament pages** — resource create/edit/list/view **and** standalone panel pages (Dashboard, settings, …).
+
+**Resource pages** share the resource catalog (unless they declare their own `#[TranslationDomain]`). Keys use the class kebab under `pages`:
 
 | Method | Identity |
 | --- | --- |
@@ -998,7 +1007,17 @@ line. An explicit `->label()` after `make()` wins, as everywhere else.
 | `getSubheading()` | `pages.{page}.subheading` |
 | `getNavigationLabel()` | `pages.{page}.navigation_label` |
 
-Resource pages share the resource catalog unless they declare their own `#[TranslationDomain]`. Standalone pages own their catalog (attribute or prefix map). Header actions on either kind of page nest under `pages.{page}.actions.{name}`.
+Header actions: `pages.{page}.actions.{name}`.
+
+**Standalone panel pages** default to catalog `pages.{class-kebab}` → file `lang/{locale}/pages/{page}.php`. Chrome and header actions sit at the catalog root so the page name is not repeated:
+
+| Method | Identity |
+| --- | --- |
+| `getTitle()` | `title` → `pages/{page}.title` |
+| `getSubheading()` | `subheading` → `pages/{page}.subheading` |
+| `getNavigationLabel()` | `navigation_label` → `pages/{page}.navigation_label` |
+
+Header actions: `actions.{name}` → `pages/{page}.actions.{name}`.
 
 If the message is missing, the traits fall back to the parent Filament implementation.
 

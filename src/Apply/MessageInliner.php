@@ -262,7 +262,45 @@ class MessageInliner
      */
     private function applyStandalonePageChrome(string $page, string $catalogId, string $locale, bool $dryRun): array
     {
-        return $this->applyPageClassChrome($page, $catalogId, $locale, $dryRun);
+        $tree = $this->writer->load($this->writer->pathFor($catalogId, $locale));
+        $prefix = str_replace('.', '/', $catalogId).'.';
+        $methods = [];
+
+        foreach ([
+            'title' => ['getTitle', 'string', false],
+            'subheading' => ['getSubheading', '?string', false],
+            'navigation_label' => ['getNavigationLabel', 'string', true],
+        ] as $key => [$method, $return, $static]) {
+            $value = Arr::get($tree, $key);
+
+            if (! is_string($value) || $value === '') {
+                continue;
+            }
+
+            $methods[] = [
+                'method' => $method,
+                'key' => $prefix.$key,
+                'static' => $static,
+                'return' => $return,
+            ];
+        }
+
+        if ($methods === []) {
+            return [];
+        }
+
+        $file = (new ReflectionClass($page))->getFileName();
+
+        if (! is_string($file)) {
+            return [];
+        }
+
+        return $this->writeChromeMethods(
+            $file,
+            (new ReflectionClass($page))->getShortName(),
+            $methods,
+            $dryRun,
+        );
     }
 
     /**

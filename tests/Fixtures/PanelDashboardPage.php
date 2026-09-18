@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace Syriable\Translation\Tests\Fixtures;
 
 use Filament\Pages\Page;
-use Syriable\Translation\Attributes\TranslationDomain;
 use Syriable\Translation\Concerns\HasPageTranslations;
 
 /**
- * A real Filament page, so a panel can register it and header actions use
- * the pages.{kebab}.actions path without getResource().
+ * A real Filament page: catalog pages/{kebab}.php, header actions at root actions.
  */
-#[TranslationDomain('dashboard')]
 class PanelDashboardPage extends Page
 {
     use HasPageTranslations;
