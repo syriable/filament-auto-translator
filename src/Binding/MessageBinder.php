@@ -89,8 +89,8 @@ class MessageBinder
             return $this;
         });
 
-        /** @param array<string, mixed> $replace */
-        $messageReplace = function (array $replace) use ($binder): static {
+        /** @param array<string, mixed>|Closure $replace */
+        $messageReplace = function (array|Closure $replace) use ($binder): static {
             $binder->setMessageReplace($this, $replace);
 
             return $this;
@@ -230,7 +230,9 @@ class MessageBinder
 
     /**
      * A replacement may be a closure so a URL or a count is resolved at render
-     * time rather than when the component is built.
+     * time rather than when the component is built. The whole map may also be a
+     * closure, evaluated with Filament's utilities so the component itself can
+     * be injected — `fn (Textarea $component) => ['max' => $component->getMaxLength()]`.
      *
      * @return array<string, mixed>
      */
@@ -239,10 +241,18 @@ class MessageBinder
         $replace = $this->bindings->replace($component);
         $isHtml = $this->bindings->isHtml($component);
 
+        if ($replace instanceof Closure) {
+            $replace = $this->evaluateReplacement($component, $replace);
+
+            if (! is_array($replace)) {
+                return [];
+            }
+        }
+
         return array_map(
-            function (mixed $value) use ($isHtml): mixed {
+            function (mixed $value) use ($isHtml, $component): mixed {
                 if ($value instanceof Closure) {
-                    $value = $value();
+                    $value = $this->evaluateReplacement($component, $value);
                 }
 
                 if (! $isHtml) {
@@ -257,10 +267,19 @@ class MessageBinder
         );
     }
 
+    private function evaluateReplacement(object $component, Closure $value): mixed
+    {
+        if (method_exists($component, 'evaluate')) {
+            return $component->evaluate($value);
+        }
+
+        return $value();
+    }
+
     /**
-     * @param  array<string, mixed>  $replace
+     * @param  array<string, mixed>|Closure  $replace
      */
-    public function setMessageReplace(object $component, array $replace): void
+    public function setMessageReplace(object $component, array|Closure $replace): void
     {
         $this->bindings->setReplace($component, $replace);
     }

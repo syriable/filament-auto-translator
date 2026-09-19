@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Filament\Actions\Action;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
@@ -1430,6 +1431,44 @@ it('resolves a messageReplace closure at render time, not when the component is 
     $counter->value = 7;
 
     expect((string) $text->getContent())->toBe('Seen 7 times.');
+});
+
+it('injects the component into a messageReplace value closure', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.bio.helper_text' => 'Keep it under :max characters.',
+    ], 'en');
+
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        Textarea::make('bio')
+            ->maxLength(120)
+            ->messageReplace(['max' => fn (Textarea $component): ?int => $component->getMaxLength()]),
+    ]);
+
+    $field = $schema->getComponents()[0];
+
+    expect(app(MessageBinder::class)->boundText($field, MessageSlot::HelperText))
+        ->toBe('Keep it under 120 characters.');
+});
+
+it('accepts a messageReplace closure that returns the replacement map', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.summary.helper_text' => 'Keep it under :max characters.',
+    ], 'en');
+
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        Textarea::make('summary')
+            ->maxLength(80)
+            ->messageReplace(fn (Textarea $component): array => [
+                'max' => $component->getMaxLength(),
+            ]),
+    ]);
+
+    $field = $schema->getComponents()[0];
+
+    expect(app(MessageBinder::class)->boundText($field, MessageSlot::HelperText))
+        ->toBe('Keep it under 80 characters.');
 });
 
 it('leaves a bound label alone when no replacement is declared', function () {

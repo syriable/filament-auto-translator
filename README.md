@@ -1128,9 +1128,25 @@ Text::make('terms')->messageReplace([
 ```
 
 A closure is called when the slot renders, not when the component is built, so
-a URL, a count or a signed-in user's name is current. A plain value is used as
-given. Replacements apply per component and never enter the resolution cache,
-which is keyed by identity and locale.
+a URL, a count or a signed-in user's name is current. Filament evaluates the
+closure, so type-hinting the component injects it:
+
+```php
+Textarea::make('description')
+    ->maxLength(500)
+    ->messageReplace(['max' => fn (Textarea $component): ?int => $component->getMaxLength()]);
+```
+
+The whole map may be a closure too:
+
+```php
+->messageReplace(fn (Textarea $component): array => [
+    'max' => $component->getMaxLength(),
+]);
+```
+
+A plain value is used as given. Replacements apply per component and never enter
+the resolution cache, which is keyed by identity and locale.
 
 Without a declared replacement nothing changes, and a slot the catalog did not
 supply is left alone — `messageReplace()` never turns a missing message into a

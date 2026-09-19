@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Syriable\Translation\Binding;
 
+use Closure;
 use WeakMap;
 
 class ComponentBindings
 {
     /**
-     * @var WeakMap<object, array{messageName:?string, domain:?string, owner:?object, replace:array<string, mixed>, html:bool}>
+     * @var WeakMap<object, array{messageName:?string, domain:?string, owner:?object, replace:array<string, mixed>|Closure, html:bool}>
      */
     private WeakMap $bindings;
 
@@ -33,12 +34,21 @@ class ComponentBindings
     }
 
     /**
-     * @param  array<string, mixed>  $replace
+     * @param  array<string, mixed>|Closure  $replace
      */
-    public function setReplace(object $component, array $replace): void
+    public function setReplace(object $component, array|Closure $replace): void
     {
         $current = $this->binding($component);
-        $current['replace'] = [...$current['replace'], ...$replace];
+
+        if ($replace instanceof Closure) {
+            $current['replace'] = $replace;
+        } else {
+            $existing = $current['replace'];
+            $current['replace'] = $existing instanceof Closure
+                ? $replace
+                : [...$existing, ...$replace];
+        }
+
         $this->bindings[$component] = $current;
     }
 
@@ -77,15 +87,15 @@ class ComponentBindings
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, mixed>|Closure
      */
-    public function replace(object $component): array
+    public function replace(object $component): array|Closure
     {
         return $this->binding($component)['replace'];
     }
 
     /**
-     * @return array{messageName:?string, domain:?string, owner:?object, replace:array<string, mixed>, html:bool}
+     * @return array{messageName:?string, domain:?string, owner:?object, replace:array<string, mixed>|Closure, html:bool}
      */
     private function binding(object $component): array
     {
