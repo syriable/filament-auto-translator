@@ -529,10 +529,6 @@ class MessageBinder
      */
     private function bindFieldHintIconTooltip(Field|Entry $component): void
     {
-        if (! method_exists($component, 'hintIconTooltip')) {
-            return;
-        }
-
         $component->hintIconTooltip(
             fn (): ?string => $this->boundText($component, MessageSlot::HintIconTooltip),
         );
