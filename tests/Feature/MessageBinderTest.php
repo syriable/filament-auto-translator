@@ -109,6 +109,76 @@ it('does not invent a field placeholder when the catalog omits it', function () 
     expect(textInput($schema)->getPlaceholder())->toBeNull();
 });
 
+it('fills a field hint icon tooltip from the message catalog', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.email.hint_icon_tooltip' => 'Use your work email.',
+    ], 'en');
+
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        TextInput::make('email')
+            ->hintIcon('heroicon-o-question-mark-circle'),
+    ]);
+
+    expect(textInput($schema)->getHintIconTooltip())->toBe('Use your work email.');
+});
+
+it('keeps an explicit hint icon tooltip set with hintIcon', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.email.hint_icon_tooltip' => 'Use your work email.',
+    ], 'en');
+
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        TextInput::make('email')
+            ->hintIcon('heroicon-o-question-mark-circle', 'Shown in English'),
+    ]);
+
+    expect(textInput($schema)->getHintIconTooltip())->toBe('Shown in English');
+});
+
+it('keeps an explicit hintIconTooltip after make', function () {
+    Lang::addLines([
+        'filament/domain-form.form.components.email.hint_icon_tooltip' => 'Use your work email.',
+    ], 'en');
+
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        TextInput::make('email')
+            ->hintIcon('heroicon-o-question-mark-circle')
+            ->hintIconTooltip('Shown in English'),
+    ]);
+
+    expect(textInput($schema)->getHintIconTooltip())->toBe('Shown in English');
+});
+
+it('does not invent a field hint icon tooltip when the catalog omits it', function () {
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        TextInput::make('email')
+            ->hintIcon('heroicon-o-question-mark-circle'),
+    ]);
+
+    expect(textInput($schema)->getHintIconTooltip())->toBeNull();
+});
+
+it('fills an infolist entry hint icon tooltip from the message catalog', function () {
+    Lang::addLines([
+        'filament/domain-form.infolist.components.info.hint_icon_tooltip' => 'Shown on hover.',
+    ], 'en');
+
+    $livewire = app(DomainForm::class);
+    $schema = Schema::make($livewire)->components([
+        TextEntry::make('info')
+            ->hintIcon('heroicon-o-question-mark-circle'),
+    ]);
+
+    $entry = $schema->getComponents()[0];
+
+    expect($entry)->toBeInstanceOf(TextEntry::class)
+        ->and($entry->getHintIconTooltip())->toBe('Shown on hover.');
+});
+
 it('fills field before and after content from the message catalog', function () {
     Lang::addLines([
         'filament/domain-form.form.components.user.schema.email.before_content' => 'Before the email',

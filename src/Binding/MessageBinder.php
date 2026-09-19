@@ -513,9 +513,29 @@ class MessageBinder
             $component->hint(fn (): ?string => $this->boundText($component, MessageSlot::Hint));
         }
 
+        $this->bindFieldHintIconTooltip($component);
         $this->bindFieldPlaceholder($component);
         $this->bindFieldChromeContent($component);
         $this->bindFieldValidationAttribute($component);
+    }
+
+    /**
+     * Tooltip on the field/entry hint icon.
+     *
+     * Optional, like helper text. Wire the icon with a single-argument
+     * `->hintIcon($icon)` so Filament does not clear this slot; a second
+     * argument — `->hintIcon($icon, $tooltip)` — or an explicit
+     * `->hintIconTooltip()` after `make()` overrides the catalog.
+     */
+    private function bindFieldHintIconTooltip(Field|Entry $component): void
+    {
+        if (! method_exists($component, 'hintIconTooltip')) {
+            return;
+        }
+
+        $component->hintIconTooltip(
+            fn (): ?string => $this->boundText($component, MessageSlot::HintIconTooltip),
+        );
     }
 
     /**

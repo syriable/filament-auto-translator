@@ -11,6 +11,7 @@ enum MessageSlot: string
     case Heading = 'heading';
     case HelperText = 'helper_text';
     case Hint = 'hint';
+    case HintIconTooltip = 'hint_icon_tooltip';
     case Placeholder = 'placeholder';
     case Tooltip = 'tooltip';
     case Description = 'description';

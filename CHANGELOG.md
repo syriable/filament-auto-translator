@@ -22,6 +22,11 @@ document and no earlier behaviour to preserve.
 
 ### Added
 
+- **Hint-icon tooltips from the catalog.** Bind Filament's `hintIconTooltip` from
+  the optional `hint_icon_tooltip` slot on fields and infolist entries. Use
+  single-argument `->hintIcon($icon)`; a second argument or an explicit
+  `->hintIconTooltip()` after `make()` overrides the catalog.
+
 - **Standalone panel pages own `{prefix}/pages/{page}.php`.** Custom Filament
   pages outside a resource default to catalog `{prefix}.pages.{class-kebab}`
   (same domain prefix as resources, usually `filament`). Chrome

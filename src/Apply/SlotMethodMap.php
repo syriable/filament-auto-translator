@@ -15,6 +15,7 @@ class SlotMethodMap
             MessageSlot::Placeholder => 'placeholder',
             MessageSlot::HelperText => 'helperText',
             MessageSlot::Hint => 'hint',
+            MessageSlot::HintIconTooltip => 'hintIconTooltip',
             MessageSlot::Heading => 'heading',
             MessageSlot::Title => 'title',
             MessageSlot::Description => 'description',
