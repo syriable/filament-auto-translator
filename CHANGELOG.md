@@ -22,6 +22,12 @@ document and no earlier behaviour to preserve.
 
 ### Added
 
+- **`messageReplace()` accepts a closure map or component-aware values.** Pass
+  `fn (Textarea $component) => ['max' => $component->getMaxLength()]`, or keep
+  an array whose values are closures evaluated through Filament so the
+  component is injected. Plain arrays and zero-argument value closures still
+  work.
+
 - **Hint-icon tooltips from the catalog.** Bind Filament's `hintIconTooltip` from
   the optional `hint_icon_tooltip` slot on fields and infolist entries. Use
   single-argument `->hintIcon($icon)`; a second argument or an explicit
