@@ -1278,6 +1278,8 @@ If `form()` or `table()` throws, that scope is not pruned. `syncIdentities()` ne
 
 It walks registered Filament resources **and** discovered [schema domains](#schema-domains-outside-resources) in one pass — there is no separate command for them.
 
+A page that builds a table in its own `table()` method is walked too, into the catalog the page binds from: a resource page's table shares the resource catalog (`table.columns.{name}.label`), a standalone page's table sits in its own. That covers a resource index that lists something other than the resource's records, and a custom panel page implementing `HasTable`.
+
 The commands boot every registered panel before they walk it. A panel plugin is configured in `Panel::boot()`, which a console command never triggers on its own, so without this the CLI would read no domain prefixes, no plugin discovery paths and no missing-message policy — and write copy to a different file than the browser reads from.
 
 Keep `translations:debug` for CI. Use `translations:extract` while scaffolding a resource, then replace stubs with real copy.

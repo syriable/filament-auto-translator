@@ -12,6 +12,17 @@ document and no earlier behaviour to preserve.
 
 ### Fixed
 
+- **A table a page builds itself is walked by `translations:extract`.** A
+  resource page other than the list (an index of something that is not the
+  resource's records, say) or a custom panel page implementing `HasTable` can
+  define its own `table()` method. At runtime its columns, filters and actions
+  bind through the page's catalog, but extraction only walked the resource's
+  static `table()`, so those keys were never written. Worse, prune deleted
+  any written by hand, because the catalog's `table` scope was walked and they
+  were not in it. Extraction now walks each page's own `table()` into the same
+  catalog the page binds from. A `table()` that Filament itself declares is
+  skipped: on a list page that is the resource's table, already walked.
+
 - **Keyed Filament layout wrappers no longer invent a label.** The generic
   “components from other packages” binder treated any keyed schema component
   with `HasLabel` as needing `form.components.{key}.label`. Filament’s own

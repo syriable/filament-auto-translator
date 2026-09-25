@@ -25,11 +25,14 @@ use Filament\Schemas\Components\Text as SchemaText;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
+use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use ReflectionMethod;
 use Syriable\Translation\Binding\MessageBinder;
 use Syriable\Translation\Catalog\MessageResolver;
 use Syriable\Translation\Discovery\DiscoveredDomain;
 use Syriable\Translation\Discovery\DomainRegistry;
+use Syriable\Translation\Discovery\DomainResolver;
 use Syriable\Translation\Discovery\PanelResources;
 use Syriable\Translation\Enums\MessageSlot;
 use Syriable\Translation\Enums\MessageSurface;
@@ -78,6 +81,7 @@ class MessageScanner
         private NotificationScanner $notificationScanner,
         private DomainRegistry $schemaCatalogs,
         private PanelResources $panels,
+        private DomainResolver $domains,
     ) {}
 
     /**
@@ -143,6 +147,7 @@ class MessageScanner
 
             foreach ($this->panels->pages() as $page) {
                 $this->auditStandalonePage($page);
+                $this->auditPageTable($page);
             }
 
             foreach ($this->schemaCatalogs->catalogs() as $catalog) {
@@ -189,6 +194,14 @@ class MessageScanner
 
         $this->auditForm($resource, $catalogId, $owner);
         $this->auditTable($resource, $catalogId, $owner);
+
+        foreach ($resource::getPages() as $registration) {
+            $page = $this->pageClass($registration);
+
+            if ($page !== null) {
+                $this->auditPageTable($page);
+            }
+        }
     }
 
     /**
@@ -490,6 +503,71 @@ class MessageScanner
             return;
         }
 
+        $this->walkTable($table, $catalogId);
+    }
+
+    /**
+     * A table a page builds in its own table() method, such as a resource
+     * index that lists something other than the resource's records, or a
+     * custom panel page with a table.
+     *
+     * At runtime that table binds through the page, so its copy lives in the
+     * page's catalog: the resource's for a resource page, the page's own for
+     * a standalone one. Walking it here is what lets extract write those keys,
+     * and keeps prune from deleting them.
+     *
+     * A table() Filament itself declares is skipped: on a list page that is
+     * the resource's own table, already walked, and elsewhere it is empty.
+     *
+     * @param  class-string  $page
+     */
+    private function auditPageTable(string $page): void
+    {
+        if (! is_subclass_of($page, HasTable::class) || ! $this->buildsOwnTable($page)) {
+            return;
+        }
+
+        $catalogId = $this->domains->for($page);
+
+        if ($catalogId === null) {
+            return;
+        }
+
+        try {
+            $livewire = app($page);
+
+            if (! $livewire instanceof HasTable || ! method_exists($livewire, 'table')) {
+                return;
+            }
+
+            $table = $livewire->table(Table::make($livewire));
+        } catch (Throwable) {
+            return;
+        }
+
+        if (! $table instanceof Table) {
+            return;
+        }
+
+        $this->walkTable($table, $catalogId);
+    }
+
+    /**
+     * @param  class-string  $page
+     */
+    private function buildsOwnTable(string $page): bool
+    {
+        if (! method_exists($page, 'table')) {
+            return false;
+        }
+
+        $declaringClass = (new ReflectionMethod($page, 'table'))->getDeclaringClass()->getName();
+
+        return ! str_starts_with($declaringClass, 'Filament\\');
+    }
+
+    private function walkTable(Table $table, string $catalogId): void
+    {
         $this->walkedScopes[$catalogId]['table'] = true;
 
         foreach ($table->getColumns() as $column) {
