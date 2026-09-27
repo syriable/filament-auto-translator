@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Translation\Tests\Fixtures\Clusters;
+namespace Syriable\FilamentAutoTranslator\Tests\Fixtures\Clusters;
 
 use Filament\Clusters\Cluster;
-use Syriable\Translation\Attributes\TranslationDomain;
-use Syriable\Translation\Concerns\HasClusterTranslations;
+use Syriable\FilamentAutoTranslator\Attributes\TranslationDomain;
+use Syriable\FilamentAutoTranslator\Concerns\HasClusterTranslations;
 
 /**
  * A real Filament cluster, so a panel can discover it the way an app does.

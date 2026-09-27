@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Translation\Exceptions;
+namespace Syriable\FilamentAutoTranslator\Exceptions;
 
 use InvalidArgumentException;
 
-class InvalidMessageNameException extends InvalidArgumentException
+final class InvalidMessageNameException extends InvalidArgumentException
 {
     public static function forName(string $name): self
     {
-        return new self("Message machine names may only contain letters, numbers, hyphens, underscores, and normalized double underscores. [{$name}] is invalid.");
+        return new self("A message key segment may only contain lowercase letters, numbers, hyphens and underscores; [{$name}] is invalid.");
     }
 }

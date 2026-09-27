@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Translation\Tests\Fixtures\Schemas\User;
+namespace Syriable\FilamentAutoTranslator\Tests\Fixtures\Schemas\User;
 
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
@@ -11,10 +11,10 @@ use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
-use Syriable\Translation\Attributes\TranslationDomain;
+use Syriable\FilamentAutoTranslator\Attributes\TranslationDomain;
 
 /**
- * A catalog that describes its chrome in a second, Schema-less builder.
+ * A schema domain that describes its chrome in a second, Schema-less builder.
  */
 #[TranslationDomain('identity.user-chrome')]
 class ChromeForm

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Translation\Tests\Fixtures;
+namespace Syriable\FilamentAutoTranslator\Tests\Fixtures;
 
 use Filament\Actions\Action;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
@@ -17,12 +17,12 @@ class EditUser extends Component implements HasSchemas
 
     public static function translationDomain(): string
     {
-        return CatalogOwner::translationDomain();
+        return TranslatedResource::translationDomain();
     }
 
     public static function getResource(): string
     {
-        return CatalogOwner::class;
+        return TranslatedResource::class;
     }
 
     public function withMountedAction(Action $action): static

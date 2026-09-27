@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Translation\Tests\Fixtures\Schemas\Plain;
+namespace Syriable\FilamentAutoTranslator\Tests\Fixtures\Schemas\Plain;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;

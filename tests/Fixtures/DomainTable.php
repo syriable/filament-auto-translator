@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Translation\Tests\Fixtures;
+namespace Syriable\FilamentAutoTranslator\Tests\Fixtures;
 
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Livewire\Component;
-use Syriable\Translation\Discovery\DomainPrefixResolver;
+use Syriable\FilamentAutoTranslator\Domains\DomainResolver;
 
 class DomainTable extends Component implements HasSchemas, HasTable
 {
@@ -18,6 +18,6 @@ class DomainTable extends Component implements HasSchemas, HasTable
 
     public static function translationDomain(): string
     {
-        return app(DomainPrefixResolver::class)->idFor(static::class);
+        return app(DomainResolver::class)->derive(static::class);
     }
 }

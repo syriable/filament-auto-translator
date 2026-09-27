@@ -2,61 +2,33 @@
 
 declare(strict_types=1);
 
-use Filament\Actions\ActionsServiceProvider;
-use Filament\FilamentServiceProvider;
-use Filament\Forms\FormsServiceProvider;
-use Filament\Infolists\InfolistsServiceProvider;
-use Filament\Notifications\NotificationsServiceProvider;
 use Filament\Panel;
-use Filament\PanelRegistry;
-use Filament\Schemas\SchemasServiceProvider;
-use Filament\Support\SupportServiceProvider;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Tables\TablesServiceProvider;
-use Filament\Widgets\WidgetsServiceProvider;
 use Illuminate\Support\Facades\File;
-use Livewire\LivewireServiceProvider;
-use Syriable\Translation\Binding\MessageBinder;
-use Syriable\Translation\Binding\MessageOverrides;
-use Syriable\Translation\Catalog\CatalogWriter;
-use Syriable\Translation\Enums\MessageSlot;
-use Syriable\Translation\Extraction\MessageExtractor;
-use Syriable\Translation\Extraction\MessageScanner;
-use Syriable\Translation\Tests\Fixtures\PageTables\PageTableDashboard;
-use Syriable\Translation\Tests\Fixtures\PageTables\PageTableIndex;
-use Syriable\Translation\Tests\Fixtures\PageTables\PageTableResource;
+use Syriable\FilamentAutoTranslator\AutoTranslator;
+use Syriable\FilamentAutoTranslator\Enums\MessageSlot;
+use Syriable\FilamentAutoTranslator\Extraction\LanguageFiles;
+use Syriable\FilamentAutoTranslator\Extraction\MessageExtractor;
+use Syriable\FilamentAutoTranslator\Scanning\MessageScanner;
+use Syriable\FilamentAutoTranslator\Tests\Fixtures\PageTables\PageTableDashboard;
+use Syriable\FilamentAutoTranslator\Tests\Fixtures\PageTables\PageTableIndex;
+use Syriable\FilamentAutoTranslator\Tests\Fixtures\PageTables\PageTableResource;
 
 /**
  * A page that builds a table in its own table() method binds that table's
- * copy at runtime through the page's catalog. Extraction has to walk the same
+ * copy at runtime through the page's domain. Extraction has to walk the same
  * table, or it never writes those keys and prunes any written by hand.
  */
 beforeEach(function () {
-    foreach ([
-        LivewireServiceProvider::class,
-        SupportServiceProvider::class,
-        ActionsServiceProvider::class,
-        FormsServiceProvider::class,
-        InfolistsServiceProvider::class,
-        NotificationsServiceProvider::class,
-        SchemasServiceProvider::class,
-        TablesServiceProvider::class,
-        WidgetsServiceProvider::class,
-        FilamentServiceProvider::class,
-    ] as $provider) {
-        $this->app->register($provider);
-    }
-
-    config()->set('translations.default_domain_prefix', 'filament');
-    config()->set('translations.domain_prefixes', []);
-    app(MessageOverrides::class)->mode = null;
+    config()->set('filament-auto-translator.default_domain_prefix', 'filament');
+    config()->set('filament-auto-translator.domain_prefixes', []);
 
     $this->langPath = sys_get_temp_dir().'/translations-page-tables-'.uniqid('', true);
     File::ensureDirectoryExists($this->langPath);
     app()->useLangPath($this->langPath);
 
-    app(PanelRegistry::class)->register(
+    $this->registerPanel(
         Panel::make()
             ->id('dashboard')
             ->path('dashboard')
@@ -74,10 +46,10 @@ afterEach(function () {
  */
 function pageTableKeys(): array
 {
-    return array_column(app(MessageScanner::class)->audit('en'), 'key');
+    return array_column(app(MessageScanner::class)->scan('en')->findings, 'key');
 }
 
-it('walks the table a resource page builds itself into the resource catalog', function () {
+it('walks the table a resource page builds itself into the resource domain', function () {
     expect(pageTableKeys())
         ->toContain('filament/page-table-resource.table.columns.slides_count.label')
         ->toContain('filament/page-table-resource.table.record_actions.open.label')
@@ -89,18 +61,18 @@ it('writes the key the binder reads at runtime', function () {
     $column = TextColumn::make('slides_count');
     Table::make($page)->columns([$column]);
 
-    $runtimeKey = app(MessageBinder::class)->explain($column, MessageSlot::Label)->key;
+    $runtimeKey = AutoTranslator::explain($column, MessageSlot::Label)->key;
 
     expect(pageTableKeys())->toContain($runtimeKey);
 });
 
-it('walks the table a standalone panel page builds itself into its own catalog', function () {
+it('walks the table a standalone panel page builds itself into its own domain', function () {
     expect(pageTableKeys())->toContain('filament/pages/page-table-dashboard.table.columns.visits.label');
 });
 
 it('does not prune the copy of a page table', function () {
     $path = lang_path('en/filament/page-table-resource.php');
-    app(CatalogWriter::class)->persist($path, [
+    app(LanguageFiles::class)->write($path, [
         'table' => [
             'columns' => [
                 'title' => ['label' => 'Title'],
@@ -110,8 +82,7 @@ it('does not prune the copy of a page table', function () {
         ],
     ]);
 
-    app(MessageScanner::class)->audit('en');
-    $writes = app(MessageExtractor::class)->pruneOrphans('en');
+    $writes = app(MessageExtractor::class)->prune(app(MessageScanner::class)->scan('en'), 'en');
     $loaded = include $path;
 
     expect(array_column($writes, 'key'))

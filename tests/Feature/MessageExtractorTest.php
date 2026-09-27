@@ -6,16 +6,17 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\File;
-use Syriable\Translation\Binding\MessageBinder;
-use Syriable\Translation\Binding\ResolutionExplainer;
-use Syriable\Translation\Catalog\CatalogWriter;
-use Syriable\Translation\Enums\MessageSlot;
-use Syriable\Translation\Enums\MessageSurface;
-use Syriable\Translation\Enums\ResolutionOutcome;
-use Syriable\Translation\Extraction\ExtractionHost;
-use Syriable\Translation\Extraction\MessageExtractor;
-use Syriable\Translation\Extraction\MessageScanner;
-use Syriable\Translation\MessageIdentity;
+use Syriable\FilamentAutoTranslator\AutoTranslator;
+use Syriable\FilamentAutoTranslator\Binding\MessageOptions;
+use Syriable\FilamentAutoTranslator\Enums\ChangeType;
+use Syriable\FilamentAutoTranslator\Enums\Chrome;
+use Syriable\FilamentAutoTranslator\Enums\MessageScope;
+use Syriable\FilamentAutoTranslator\Enums\MessageSlot;
+use Syriable\FilamentAutoTranslator\Extraction\LanguageFiles;
+use Syriable\FilamentAutoTranslator\Extraction\MessageExtractor;
+use Syriable\FilamentAutoTranslator\Messages\MessageIdentity;
+use Syriable\FilamentAutoTranslator\Scanning\MessageScanner;
+use Syriable\FilamentAutoTranslator\Scanning\ScanHost;
 
 beforeEach(function () {
     $this->langPath = sys_get_temp_dir().'/translations-messages-'.uniqid('', true);
@@ -28,10 +29,10 @@ afterEach(function () {
 });
 
 it('creates the language file and nested key when both are missing', function () {
-    $writes = app(MessageExtractor::class)->syncIdentities([
+    $writes = app(MessageExtractor::class)->extractIdentities([
         new MessageIdentity(
-            catalogId: 'filament.user-resource',
-            scope: MessageSurface::Form,
+            domain: 'filament.user-resource',
+            scope: MessageScope::Form,
             path: [],
             name: 'email',
             slot: MessageSlot::Label,
@@ -41,7 +42,7 @@ it('creates the language file and nested key when both are missing', function ()
     $path = lang_path('en/filament/user-resource.php');
 
     expect($writes)->toHaveCount(1)
-        ->and($writes[0]->action)->toBe('created')
+        ->and($writes[0]->type)->toBe(ChangeType::Created)
         ->and($writes[0]->value)->toBe('Email')
         ->and(is_file($path))->toBeTrue()
         ->and(include $path)->toMatchArray([
@@ -57,7 +58,7 @@ it('creates the language file and nested key when both are missing', function ()
 
 it('adds a missing nested key to an existing language file', function () {
     $path = lang_path('en/filament/user-resource.php');
-    app(CatalogWriter::class)->persist($path, [
+    app(LanguageFiles::class)->write($path, [
         'form' => [
             'components' => [
                 'email' => [
@@ -67,10 +68,10 @@ it('adds a missing nested key to an existing language file', function () {
         ],
     ]);
 
-    $writes = app(MessageExtractor::class)->syncIdentities([
+    $writes = app(MessageExtractor::class)->extractIdentities([
         new MessageIdentity(
-            catalogId: 'filament.user-resource',
-            scope: MessageSurface::Form,
+            domain: 'filament.user-resource',
+            scope: MessageScope::Form,
             path: [],
             name: 'name',
             slot: MessageSlot::Label,
@@ -87,7 +88,7 @@ it('adds a missing nested key to an existing language file', function () {
 
 it('does not overwrite an existing message value', function () {
     $path = lang_path('en/filament/user-resource.php');
-    app(CatalogWriter::class)->persist($path, [
+    app(LanguageFiles::class)->write($path, [
         'form' => [
             'components' => [
                 'email' => [
@@ -97,14 +98,8 @@ it('does not overwrite an existing message value', function () {
         ],
     ]);
 
-    $writes = app(MessageExtractor::class)->writeFindings([
-        [
-            'key' => 'filament/user-resource.form.components.email.label',
-            'catalog' => 'filament.user-resource',
-            'decision' => ResolutionOutcome::Missing->value,
-            'locale' => 'en',
-            'text' => null,
-        ],
+    $writes = app(MessageExtractor::class)->extractIdentities([
+        new MessageIdentity('filament.user-resource', MessageScope::Form, [], 'email', MessageSlot::Label),
     ], 'en');
 
     expect($writes)->toBeEmpty()
@@ -124,7 +119,7 @@ it('copies fallback locale copy into the current locale file', function () {
     app()->setLocale('ar');
 
     $englishPath = lang_path('en/filament/user-resource.php');
-    app(CatalogWriter::class)->persist($englishPath, [
+    app(LanguageFiles::class)->write($englishPath, [
         'form' => [
             'components' => [
                 'email' => [
@@ -134,10 +129,10 @@ it('copies fallback locale copy into the current locale file', function () {
         ],
     ]);
 
-    $writes = app(MessageExtractor::class)->syncIdentities([
+    $writes = app(MessageExtractor::class)->extractIdentities([
         new MessageIdentity(
-            catalogId: 'filament.user-resource',
-            scope: MessageSurface::Form,
+            domain: 'filament.user-resource',
+            scope: MessageScope::Form,
             path: [],
             name: 'email',
             slot: MessageSlot::Label,
@@ -158,10 +153,10 @@ it('copies fallback locale copy into the current locale file', function () {
 });
 
 it('does not write files during a dry run', function () {
-    $writes = app(MessageExtractor::class)->syncIdentities([
+    $writes = app(MessageExtractor::class)->extractIdentities([
         new MessageIdentity(
-            catalogId: 'filament.user-resource',
-            scope: MessageSurface::Table,
+            domain: 'filament.user-resource',
+            scope: MessageScope::Table,
             path: ['filters'],
             name: 'is_featured',
             slot: MessageSlot::Label,
@@ -169,32 +164,22 @@ it('does not write files during a dry run', function () {
     ], 'en', dryRun: true);
 
     expect($writes)->toHaveCount(1)
-        ->and($writes[0]->action)->toBe('would_create')
+        ->and($writes[0]->type)->toBe(ChangeType::Created)
+        ->and($writes[0]->dryRun)->toBeTrue()
         ->and($writes[0]->value)->toBe('Is featured')
         ->and(is_file(lang_path('en/filament/user-resource.php')))->toBeFalse();
 });
 
-it('humanizes a nested table filter key as the stub value', function () {
-    $value = app(CatalogWriter::class)->stubValue(
-        'filament/user-resource.table.filters.is_featured.label',
-        'filament.user-resource',
-    );
+it('humanizes a chrome key as the stub value', function () {
+    $writes = app(MessageExtractor::class)->extractIdentities([Chrome::ModelLabel->identity('filament.user-resource')], 'en', dryRun: true);
 
-    expect($value)->toBe('Is featured');
+    expect($writes[0]->key)->toBe('filament/user-resource.model_label')
+        ->and($writes[0]->value)->toBe('Model label');
 });
 
-it('humanizes a resource chrome key as the stub value', function () {
-    $value = app(CatalogWriter::class)->stubValue(
-        'filament/user-resource.model_label',
-        'filament.user-resource',
-    );
-
-    expect($value)->toBe('Model label');
-});
-
-it('keeps nested layout keys when the catalog is bound on the walk owner', function () {
-    $owner = new ExtractionHost;
-    app(MessageBinder::class)->setCatalogId($owner, 'filament.user-resource');
+it('keeps nested layout keys when the domain is set on the scan host', function () {
+    $owner = new ScanHost;
+    app(MessageOptions::class)->setDomain($owner, 'filament.user-resource');
 
     $schema = Schema::make($owner)->components([
         Fieldset::make()
@@ -209,19 +194,19 @@ it('keeps nested layout keys when the catalog is bound on the walk owner', funct
     $field = $childSchema?->getComponents()[0] ?? null;
 
     expect($field)->toBeInstanceOf(TextInput::class)
-        ->and(ResolutionExplainer::explain($field, MessageSlot::Label)->key)
+        ->and(AutoTranslator::explain($field, MessageSlot::Label)->key)
         ->toBe('filament/user-resource.form.components.user.schema.name.label');
 });
 
-it('reports that there is nothing to write when no catalogs are missing keys', function () {
-    $this->artisan('translations:extract', ['--locale' => 'en', '--dry-run' => true])
-        ->expectsOutput('No message catalog changes.')
+it('reports that there is nothing to write when no domain is missing keys', function () {
+    $this->artisan('auto-translator:extract', ['--locale' => 'en', '--dry-run' => true])
+        ->expectsOutputToContain('Nothing to change.')
         ->assertSuccessful();
 });
 
 it('removes language keys for components that were removed from the schema', function () {
     $path = lang_path('en/filament/user-resource.php');
-    app(CatalogWriter::class)->persist($path, [
+    app(LanguageFiles::class)->write($path, [
         'form' => [
             'components' => [
                 'authorization' => [
@@ -240,8 +225,8 @@ it('removes language keys for components that were removed from the schema', fun
         ],
     ]);
 
-    $owner = new ExtractionHost;
-    app(MessageBinder::class)->setCatalogId($owner, 'filament.user-resource');
+    $owner = new ScanHost;
+    app(MessageOptions::class)->setDomain($owner, 'filament.user-resource');
 
     $schema = Schema::make($owner)->components([
         Fieldset::make()
@@ -251,17 +236,14 @@ it('removes language keys for components that were removed from the schema', fun
             ]),
     ]);
 
-    app(MessageScanner::class)->auditComponents(
-        $schema->getComponents(),
-        'filament.user-resource',
-    );
+    $scan = app(MessageScanner::class)->scanComponents($schema->getComponents(), 'filament.user-resource', ['form']);
 
-    $writes = app(MessageExtractor::class)->pruneOrphans('en');
+    $writes = app(MessageExtractor::class)->prune($scan, 'en');
     $loaded = include $path;
 
     expect(array_column($writes, 'key'))
         ->toContain('filament/user-resource.form.components.authorization.schema.or.body')
-        ->and($writes[0]->action)->toBe('deleted')
+        ->and($writes[0]->type)->toBe(ChangeType::Deleted)
         ->and($loaded['form']['components']['authorization']['schema']['name']['label'])->toBe('Name')
         ->and($loaded['form']['components']['authorization']['schema']['name']['placeholder'])->toBe('Full name')
         ->and($loaded['form']['components']['authorization']['label'])->toBe('Authorization')
@@ -270,7 +252,7 @@ it('removes language keys for components that were removed from the schema', fun
 
 it('does not delete language keys during a prune dry run', function () {
     $path = lang_path('en/filament/user-resource.php');
-    app(CatalogWriter::class)->persist($path, [
+    app(LanguageFiles::class)->write($path, [
         'form' => [
             'components' => [
                 'or' => [
@@ -283,22 +265,20 @@ it('does not delete language keys during a prune dry run', function () {
         ],
     ]);
 
-    $owner = new ExtractionHost;
-    app(MessageBinder::class)->setCatalogId($owner, 'filament.user-resource');
+    $owner = new ScanHost;
+    app(MessageOptions::class)->setDomain($owner, 'filament.user-resource');
 
     $schema = Schema::make($owner)->components([
         TextInput::make('name'),
     ]);
 
-    app(MessageScanner::class)->auditComponents(
-        $schema->getComponents(),
-        'filament.user-resource',
-    );
+    $scan = app(MessageScanner::class)->scanComponents($schema->getComponents(), 'filament.user-resource', ['form']);
 
-    $writes = app(MessageExtractor::class)->pruneOrphans('en', dryRun: true);
+    $writes = app(MessageExtractor::class)->prune($scan, 'en', dryRun: true);
 
     expect($writes)->toHaveCount(1)
-        ->and($writes[0]->action)->toBe('would_delete')
+        ->and($writes[0]->type)->toBe(ChangeType::Deleted)
+        ->and($writes[0]->dryRun)->toBeTrue()
         ->and($writes[0]->key)->toBe('filament/user-resource.form.components.or.body')
         ->and(include $path)->toMatchArray([
             'form' => [
@@ -316,7 +296,7 @@ it('does not delete language keys during a prune dry run', function () {
 
 it('does not remove existing keys when syncing specific identities', function () {
     $path = lang_path('en/filament/user-resource.php');
-    app(CatalogWriter::class)->persist($path, [
+    app(LanguageFiles::class)->write($path, [
         'form' => [
             'components' => [
                 'or' => [
@@ -326,10 +306,10 @@ it('does not remove existing keys when syncing specific identities', function ()
         ],
     ]);
 
-    $writes = app(MessageExtractor::class)->syncIdentities([
+    $writes = app(MessageExtractor::class)->extractIdentities([
         new MessageIdentity(
-            catalogId: 'filament.user-resource',
-            scope: MessageSurface::Form,
+            domain: 'filament.user-resource',
+            scope: MessageScope::Form,
             path: [],
             name: 'email',
             slot: MessageSlot::Label,
@@ -339,13 +319,13 @@ it('does not remove existing keys when syncing specific identities', function ()
     $loaded = include $path;
 
     expect($writes)->toHaveCount(1)
-        ->and($writes[0]->action)->toBe('created')
+        ->and($writes[0]->type)->toBe(ChangeType::Created)
         ->and($loaded['form']['components']['or']['body'])->toBe('Or')
         ->and($loaded['form']['components']['email']['label'])->toBe('Email');
 });
 
 it('removes empty parent arrays after forgetting a nested key', function () {
-    $tree = app(CatalogWriter::class)->forget([
+    $tree = app(LanguageFiles::class)->forget([
         'form' => [
             'components' => [
                 'or' => [

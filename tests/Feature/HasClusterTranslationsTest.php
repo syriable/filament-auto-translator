@@ -3,34 +3,33 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Lang;
-use Syriable\Translation\Binding\MessageOverrides;
-use Syriable\Translation\Enums\MissingMessagePolicy;
-use Syriable\Translation\Tests\Fixtures\CatalogCluster;
+use Syriable\FilamentAutoTranslator\Enums\MissingMessagePolicy;
+use Syriable\FilamentAutoTranslator\Settings;
+use Syriable\FilamentAutoTranslator\Tests\Fixtures\TranslatedCluster;
 
 beforeEach(function () {
-    config()->set('translations.on_missing', 'debug');
-    config()->set('translations.default_domain_prefix', 'filament');
-    config()->set('translations.domain_prefixes', []);
-    app(MessageOverrides::class)->mode = null;
+    config()->set('filament-auto-translator.on_missing', 'debug');
+    config()->set('filament-auto-translator.default_domain_prefix', 'filament');
+    config()->set('filament-auto-translator.domain_prefixes', []);
 });
 
-it('fills cluster chrome from the message catalog', function () {
+it('fills cluster chrome from the language file', function () {
     Lang::addLines([
-        'filament/catalog-cluster.cluster_breadcrumb' => 'Settings',
-        'filament/catalog-cluster.navigation_label' => 'Site settings',
+        'filament/translated-cluster.cluster_breadcrumb' => 'Settings',
+        'filament/translated-cluster.navigation_label' => 'Site settings',
     ], 'en');
 
-    expect(CatalogCluster::getClusterBreadcrumb())->toBe('Settings')
-        ->and(CatalogCluster::getNavigationLabel())->toBe('Site settings');
+    expect(TranslatedCluster::getClusterBreadcrumb())->toBe('Settings')
+        ->and(TranslatedCluster::getNavigationLabel())->toBe('Site settings');
 });
 
 it('surfaces compiled cluster breadcrumb keys when required messages are missing in debug mode', function () {
-    expect(CatalogCluster::getClusterBreadcrumb())->toBe('filament/catalog-cluster.cluster_breadcrumb');
+    expect(TranslatedCluster::getClusterBreadcrumb())->toBe('filament/translated-cluster.cluster_breadcrumb');
 });
 
 it('keeps the vendor cluster labels when required messages are missing under that policy', function () {
-    app(MessageOverrides::class)->mode = MissingMessagePolicy::KeepVendorLabel;
+    app(Settings::class)->usePolicy(MissingMessagePolicy::KeepVendorLabel);
 
-    expect(CatalogCluster::getClusterBreadcrumb())->toBe('parent breadcrumb')
-        ->and(CatalogCluster::getNavigationLabel())->toBe('parent cluster nav');
+    expect(TranslatedCluster::getClusterBreadcrumb())->toBe('parent breadcrumb')
+        ->and(TranslatedCluster::getNavigationLabel())->toBe('parent cluster nav');
 });
