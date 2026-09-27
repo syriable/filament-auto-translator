@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Inlining;
+namespace Syriable\Filament\Plugins\AutoTranslator\Inlining;
 
 /**
  * Adds setter calls to `::make('name')` chains in PHP source.

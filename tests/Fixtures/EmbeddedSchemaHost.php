@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Tests\Fixtures;
+namespace Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures;
 
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
@@ -12,7 +12,7 @@ use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
 use Livewire\Component;
-use Syriable\FilamentAutoTranslator\Domains\DomainResolver;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\DomainResolver;
 
 /**
  * A page that wraps its form in chrome, the way a Livewire page does: the

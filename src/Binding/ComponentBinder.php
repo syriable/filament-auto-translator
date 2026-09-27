@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Binding;
+namespace Syriable\Filament\Plugins\AutoTranslator\Binding;
 
 use Closure;
 use Filament\Actions\Action;
@@ -28,9 +28,9 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\HtmlString;
 use Illuminate\Translation\Translator;
-use Syriable\FilamentAutoTranslator\Enums\MessageSlot;
-use Syriable\FilamentAutoTranslator\Messages\MachineName;
-use Syriable\FilamentAutoTranslator\Messages\Resolution;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageSlot;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MachineName;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\Resolution;
 use Throwable;
 
 /**

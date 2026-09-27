@@ -6,14 +6,14 @@ use Filament\Panel;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\File;
-use Syriable\FilamentAutoTranslator\AutoTranslator;
-use Syriable\FilamentAutoTranslator\Enums\MessageSlot;
-use Syriable\FilamentAutoTranslator\Extraction\LanguageFiles;
-use Syriable\FilamentAutoTranslator\Extraction\MessageExtractor;
-use Syriable\FilamentAutoTranslator\Scanning\MessageScanner;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\PageTables\PageTableDashboard;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\PageTables\PageTableIndex;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\PageTables\PageTableResource;
+use Syriable\Filament\Plugins\AutoTranslator\AutoTranslator;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageSlot;
+use Syriable\Filament\Plugins\AutoTranslator\Extraction\LanguageFiles;
+use Syriable\Filament\Plugins\AutoTranslator\Extraction\MessageExtractor;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\MessageScanner;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\PageTables\PageTableDashboard;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\PageTables\PageTableIndex;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\PageTables\PageTableResource;
 
 /**
  * A page that builds a table in its own table() method binds that table's

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Tests\Fixtures\Schemas\Plain;
+namespace Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\Schemas\Plain;
 
-use Syriable\FilamentAutoTranslator\Attributes\TranslationDomain;
+use Syriable\Filament\Plugins\AutoTranslator\Attributes\TranslationDomain;
 
 #[TranslationDomain('identity.schemaless')]
 class DomainWithoutSchema {}

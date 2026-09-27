@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Enums;
+namespace Syriable\Filament\Plugins\AutoTranslator\Enums;
 
 /**
  * The top-level section of a language file a message lives in.

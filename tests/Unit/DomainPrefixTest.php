@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Syriable\FilamentAutoTranslator\Domains\DomainResolver;
-use Syriable\FilamentAutoTranslator\Settings;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\DomainResolver;
+use Syriable\Filament\Plugins\AutoTranslator\Settings;
 
 it('builds a domain from the longest matching namespace prefix', function () {
     config()->set('filament-auto-translator.domain_prefixes', [

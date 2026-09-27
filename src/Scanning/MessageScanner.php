@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Scanning;
+namespace Syriable\Filament\Plugins\AutoTranslator\Scanning;
 
 use Filament\Actions\Action;
 use Filament\Forms\Components\Field;
@@ -19,15 +19,15 @@ use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Filters\BaseFilter;
-use Syriable\FilamentAutoTranslator\Binding\ComponentBinder;
-use Syriable\FilamentAutoTranslator\Binding\ComponentIdentifier;
-use Syriable\FilamentAutoTranslator\Domains\DomainName;
-use Syriable\FilamentAutoTranslator\Enums\MessageScope;
-use Syriable\FilamentAutoTranslator\Enums\MessageSlot;
-use Syriable\FilamentAutoTranslator\Enums\ResolutionOutcome;
-use Syriable\FilamentAutoTranslator\Messages\MessageIdentity;
-use Syriable\FilamentAutoTranslator\Messages\MessageResolver;
-use Syriable\FilamentAutoTranslator\Messages\Resolution;
+use Syriable\Filament\Plugins\AutoTranslator\Binding\ComponentBinder;
+use Syriable\Filament\Plugins\AutoTranslator\Binding\ComponentIdentifier;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\DomainName;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageScope;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageSlot;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\ResolutionOutcome;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MessageIdentity;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MessageResolver;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\Resolution;
 use Throwable;
 
 /**

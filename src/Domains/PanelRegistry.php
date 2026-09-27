@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Domains;
+namespace Syriable\Filament\Plugins\AutoTranslator\Domains;
 
 use Filament\Clusters\Cluster;
 use Filament\Facades\Filament;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Enums;
+namespace Syriable\Filament\Plugins\AutoTranslator\Enums;
 
 /**
  * One piece of copy on a component: its label, its hint, its modal heading…

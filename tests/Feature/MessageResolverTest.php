@@ -3,14 +3,14 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Lang;
-use Syriable\FilamentAutoTranslator\Enums\MessageScope;
-use Syriable\FilamentAutoTranslator\Enums\MessageSlot;
-use Syriable\FilamentAutoTranslator\Enums\MissingMessagePolicy;
-use Syriable\FilamentAutoTranslator\Enums\ResolutionOutcome;
-use Syriable\FilamentAutoTranslator\Exceptions\MissingMessageException;
-use Syriable\FilamentAutoTranslator\Messages\MessageIdentity;
-use Syriable\FilamentAutoTranslator\Messages\MessageResolver;
-use Syriable\FilamentAutoTranslator\Settings;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageScope;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageSlot;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MissingMessagePolicy;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\ResolutionOutcome;
+use Syriable\Filament\Plugins\AutoTranslator\Exceptions\MissingMessageException;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MessageIdentity;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MessageResolver;
+use Syriable\Filament\Plugins\AutoTranslator\Settings;
 
 beforeEach(function () {
     config()->set('filament-auto-translator.on_missing', 'debug');

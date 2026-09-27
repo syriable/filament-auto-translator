@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Concerns;
+namespace Syriable\Filament\Plugins\AutoTranslator\Concerns;
 
 use Illuminate\Contracts\Support\Htmlable;
-use Syriable\FilamentAutoTranslator\Domains\DomainResolver;
-use Syriable\FilamentAutoTranslator\Enums\Chrome;
-use Syriable\FilamentAutoTranslator\Messages\MachineName;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\DomainResolver;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\Chrome;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MachineName;
 
 /**
  * For a Filament page: its title, subheading and navigation label come from

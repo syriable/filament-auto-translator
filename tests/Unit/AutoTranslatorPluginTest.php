@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 use Filament\Panel;
 use Filament\Schemas\Components\Section;
-use Syriable\FilamentAutoTranslator\AutoTranslatorPlugin;
-use Syriable\FilamentAutoTranslator\Domains\DomainResolver;
-use Syriable\FilamentAutoTranslator\Domains\SchemaDomainRegistry;
-use Syriable\FilamentAutoTranslator\Enums\MissingMessagePolicy;
-use Syriable\FilamentAutoTranslator\Settings;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\Schemas\User\EditForm;
+use Syriable\Filament\Plugins\AutoTranslator\AutoTranslatorPlugin;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\DomainResolver;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\SchemaDomainRegistry;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MissingMessagePolicy;
+use Syriable\Filament\Plugins\AutoTranslator\Settings;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\Schemas\User\EditForm;
 
 it('has a stable plugin id', function () {
     expect(AutoTranslatorPlugin::make()->getId())->toBe('filament-auto-translator');
@@ -19,7 +19,7 @@ it('hands registered discovery paths to the schema domain registry on boot', fun
     AutoTranslatorPlugin::make()
         ->discoverIn(
             in: dirname(__DIR__).'/Fixtures/Schemas',
-            for: 'Syriable\\FilamentAutoTranslator\\Tests\\Fixtures\\Schemas',
+            for: 'Syriable\\Filament\\Plugins\\AutoTranslator\\Tests\\Fixtures\\Schemas',
         )
         ->boot(Panel::make());
 

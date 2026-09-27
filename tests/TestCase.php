@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Tests;
+namespace Syriable\Filament\Plugins\AutoTranslator\Tests;
 
 use Filament\Actions\ActionsServiceProvider;
 use Filament\FilamentServiceProvider;
@@ -18,7 +18,7 @@ use Filament\Widgets\WidgetsServiceProvider;
 use Illuminate\Foundation\Application;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Syriable\FilamentAutoTranslator\AutoTranslatorServiceProvider;
+use Syriable\Filament\Plugins\AutoTranslator\AutoTranslatorServiceProvider;
 
 class TestCase extends Orchestra
 {

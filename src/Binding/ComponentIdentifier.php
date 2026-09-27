@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Binding;
+namespace Syriable\Filament\Plugins\AutoTranslator\Binding;
 
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -17,16 +17,16 @@ use Filament\Tables\Columns\Column;
 use Filament\Tables\Filters\BaseFilter;
 use Filament\Tables\Table;
 use Livewire\Livewire;
-use Syriable\FilamentAutoTranslator\Domains\DomainResolver;
-use Syriable\FilamentAutoTranslator\Enums\MessageScope;
-use Syriable\FilamentAutoTranslator\Enums\MessageSlot;
-use Syriable\FilamentAutoTranslator\Enums\ResolutionOutcome;
-use Syriable\FilamentAutoTranslator\Exceptions\ParentDepthExceededException;
-use Syriable\FilamentAutoTranslator\Messages\MachineName;
-use Syriable\FilamentAutoTranslator\Messages\MessageIdentity;
-use Syriable\FilamentAutoTranslator\Messages\MessageResolver;
-use Syriable\FilamentAutoTranslator\Messages\Resolution;
-use Syriable\FilamentAutoTranslator\Settings;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\DomainResolver;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageScope;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageSlot;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\ResolutionOutcome;
+use Syriable\Filament\Plugins\AutoTranslator\Exceptions\ParentDepthExceededException;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MachineName;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MessageIdentity;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MessageResolver;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\Resolution;
+use Syriable\Filament\Plugins\AutoTranslator\Settings;
 use Throwable;
 
 /**

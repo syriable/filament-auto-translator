@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Extraction;
+namespace Syriable\Filament\Plugins\AutoTranslator\Extraction;
 
-use Syriable\FilamentAutoTranslator\Enums\ChangeType;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\ChangeType;
 
 /**
  * A key `auto-translator:extract` created or deleted in a language file.

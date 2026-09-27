@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Tests\Fixtures;
+namespace Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures;
 
-use Syriable\FilamentAutoTranslator\Concerns\HasResourceTranslations;
+use Syriable\Filament\Plugins\AutoTranslator\Concerns\HasResourceTranslations;
 
 class TranslatedResource extends ResourceChromeParent
 {

@@ -7,16 +7,16 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\File;
-use Syriable\FilamentAutoTranslator\Binding\MessageOptions;
-use Syriable\FilamentAutoTranslator\Enums\ChangeType;
-use Syriable\FilamentAutoTranslator\Enums\Chrome;
-use Syriable\FilamentAutoTranslator\Extraction\LanguageFiles;
-use Syriable\FilamentAutoTranslator\Inlining\MessageInliner;
-use Syriable\FilamentAutoTranslator\Inlining\SourceChange;
-use Syriable\FilamentAutoTranslator\Scanning\ChromeMessage;
-use Syriable\FilamentAutoTranslator\Scanning\ScanHost;
-use Syriable\FilamentAutoTranslator\Scanning\Surface;
-use Syriable\FilamentAutoTranslator\Scanning\SurfaceCollector;
+use Syriable\Filament\Plugins\AutoTranslator\Binding\MessageOptions;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\ChangeType;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\Chrome;
+use Syriable\Filament\Plugins\AutoTranslator\Extraction\LanguageFiles;
+use Syriable\Filament\Plugins\AutoTranslator\Inlining\MessageInliner;
+use Syriable\Filament\Plugins\AutoTranslator\Inlining\SourceChange;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\ChromeMessage;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\ScanHost;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\Surface;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\SurfaceCollector;
 
 beforeEach(function () {
     $this->langPath = sys_get_temp_dir().'/messages-apply-lang-'.uniqid('', true);

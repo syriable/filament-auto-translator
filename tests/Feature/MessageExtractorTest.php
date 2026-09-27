@@ -6,17 +6,17 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\File;
-use Syriable\FilamentAutoTranslator\AutoTranslator;
-use Syriable\FilamentAutoTranslator\Binding\MessageOptions;
-use Syriable\FilamentAutoTranslator\Enums\ChangeType;
-use Syriable\FilamentAutoTranslator\Enums\Chrome;
-use Syriable\FilamentAutoTranslator\Enums\MessageScope;
-use Syriable\FilamentAutoTranslator\Enums\MessageSlot;
-use Syriable\FilamentAutoTranslator\Extraction\LanguageFiles;
-use Syriable\FilamentAutoTranslator\Extraction\MessageExtractor;
-use Syriable\FilamentAutoTranslator\Messages\MessageIdentity;
-use Syriable\FilamentAutoTranslator\Scanning\MessageScanner;
-use Syriable\FilamentAutoTranslator\Scanning\ScanHost;
+use Syriable\Filament\Plugins\AutoTranslator\AutoTranslator;
+use Syriable\Filament\Plugins\AutoTranslator\Binding\MessageOptions;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\ChangeType;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\Chrome;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageScope;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageSlot;
+use Syriable\Filament\Plugins\AutoTranslator\Extraction\LanguageFiles;
+use Syriable\Filament\Plugins\AutoTranslator\Extraction\MessageExtractor;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MessageIdentity;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\MessageScanner;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\ScanHost;
 
 beforeEach(function () {
     $this->langPath = sys_get_temp_dir().'/translations-messages-'.uniqid('', true);

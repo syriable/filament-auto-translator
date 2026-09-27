@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Inlining;
+namespace Syriable\Filament\Plugins\AutoTranslator\Inlining;
 
 use Filament\Actions\Action;
 use Filament\Forms\Components\Field;
@@ -12,18 +12,18 @@ use Filament\Tables\Filters\BaseFilter;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use ReflectionClass;
-use Syriable\FilamentAutoTranslator\Binding\ComponentBinder;
-use Syriable\FilamentAutoTranslator\Binding\ComponentIdentifier;
-use Syriable\FilamentAutoTranslator\Domains\DomainName;
-use Syriable\FilamentAutoTranslator\Enums\ChangeType;
-use Syriable\FilamentAutoTranslator\Enums\MessageSlot;
-use Syriable\FilamentAutoTranslator\Exceptions\UnknownTranslationNamespaceException;
-use Syriable\FilamentAutoTranslator\Extraction\LanguageFiles;
-use Syriable\FilamentAutoTranslator\Messages\Resolution;
-use Syriable\FilamentAutoTranslator\Scanning\ActionNotifications;
-use Syriable\FilamentAutoTranslator\Scanning\ChromeMessage;
-use Syriable\FilamentAutoTranslator\Scanning\Surface;
-use Syriable\FilamentAutoTranslator\Scanning\SurfaceCollector;
+use Syriable\Filament\Plugins\AutoTranslator\Binding\ComponentBinder;
+use Syriable\Filament\Plugins\AutoTranslator\Binding\ComponentIdentifier;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\DomainName;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\ChangeType;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageSlot;
+use Syriable\Filament\Plugins\AutoTranslator\Exceptions\UnknownTranslationNamespaceException;
+use Syriable\Filament\Plugins\AutoTranslator\Extraction\LanguageFiles;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\Resolution;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\ActionNotifications;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\ChromeMessage;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\Surface;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\SurfaceCollector;
 
 /**
  * The reverse of extraction: for keys that already have copy, writes the

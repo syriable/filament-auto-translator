@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Tests\Fixtures;
+namespace Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures;
 
-use Syriable\FilamentAutoTranslator\Concerns\HasPageTranslations;
+use Syriable\Filament\Plugins\AutoTranslator\Concerns\HasPageTranslations;
 
 class TranslatedResourcePage extends ResourcePageParent
 {

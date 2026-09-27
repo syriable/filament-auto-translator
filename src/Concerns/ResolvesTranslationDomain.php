@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Concerns;
+namespace Syriable\Filament\Plugins\AutoTranslator\Concerns;
 
-use Syriable\FilamentAutoTranslator\Domains\DomainResolver;
-use Syriable\FilamentAutoTranslator\Enums\Chrome;
-use Syriable\FilamentAutoTranslator\Messages\MessageResolver;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\DomainResolver;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\Chrome;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MessageResolver;
 
 /**
  * Shared by the resource, page and cluster traits.

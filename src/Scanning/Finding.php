@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Scanning;
+namespace Syriable\Filament\Plugins\AutoTranslator\Scanning;
 
-use Syriable\FilamentAutoTranslator\Enums\ResolutionOutcome;
-use Syriable\FilamentAutoTranslator\Messages\Resolution;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\ResolutionOutcome;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\Resolution;
 
 /**
  * A message the current locale does not have its own copy for.

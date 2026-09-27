@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Messages;
+namespace Syriable\Filament\Plugins\AutoTranslator\Messages;
 
 /**
  * The rules a machine name follows to become one segment of a message key.

@@ -3,14 +3,14 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\File;
-use Syriable\FilamentAutoTranslator\Domains\SchemaDomainRegistry;
-use Syriable\FilamentAutoTranslator\Enums\ChangeType;
-use Syriable\FilamentAutoTranslator\Enums\MessageScope;
-use Syriable\FilamentAutoTranslator\Enums\MessageSlot;
-use Syriable\FilamentAutoTranslator\Extraction\LanguageFiles;
-use Syriable\FilamentAutoTranslator\Extraction\MessageExtractor;
-use Syriable\FilamentAutoTranslator\Messages\MessageIdentity;
-use Syriable\FilamentAutoTranslator\Scanning\MessageScanner;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\SchemaDomainRegistry;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\ChangeType;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageScope;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageSlot;
+use Syriable\Filament\Plugins\AutoTranslator\Extraction\LanguageFiles;
+use Syriable\Filament\Plugins\AutoTranslator\Extraction\MessageExtractor;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MessageIdentity;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\MessageScanner;
 
 beforeEach(function () {
     $this->langPath = sys_get_temp_dir().'/messages-schemas-'.uniqid('', true);
@@ -24,7 +24,7 @@ afterEach(function () {
 
 function discoverSchemaFixtures(): void
 {
-    app(SchemaDomainRegistry::class)->register(dirname(__DIR__).'/Fixtures/Schemas', 'Syriable\\FilamentAutoTranslator\\Tests\\Fixtures\\Schemas');
+    app(SchemaDomainRegistry::class)->register(dirname(__DIR__).'/Fixtures/Schemas', 'Syriable\\Filament\\Plugins\\AutoTranslator\\Tests\\Fixtures\\Schemas');
 }
 
 it('audits a discovered schema domain', function () {

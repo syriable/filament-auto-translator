@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Enums;
+namespace Syriable\Filament\Plugins\AutoTranslator\Enums;
 
-use Syriable\FilamentAutoTranslator\Messages\MessageIdentity;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MessageIdentity;
 
 /**
  * Copy Filament reads from a static-ish method on a resource, page or cluster

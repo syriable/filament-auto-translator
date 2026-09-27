@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Console;
+namespace Syriable\Filament\Plugins\AutoTranslator\Console;
 
 use Illuminate\Console\Command;
-use Syriable\FilamentAutoTranslator\Inlining\MessageInliner;
-use Syriable\FilamentAutoTranslator\Inlining\SourceChange;
+use Syriable\Filament\Plugins\AutoTranslator\Inlining\MessageInliner;
+use Syriable\Filament\Plugins\AutoTranslator\Inlining\SourceChange;
 
 final class InlineCommand extends Command
 {

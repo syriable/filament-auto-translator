@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Scanning;
+namespace Syriable\Filament\Plugins\AutoTranslator\Scanning;
 
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use ReflectionFunction;
-use Syriable\FilamentAutoTranslator\Binding\MessageOptions;
+use Syriable\Filament\Plugins\AutoTranslator\Binding\MessageOptions;
 use Throwable;
 
 /**

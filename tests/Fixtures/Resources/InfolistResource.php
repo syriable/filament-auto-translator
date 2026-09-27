@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Tests\Fixtures\Resources;
+namespace Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\Resources;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Syriable\FilamentAutoTranslator\Concerns\HasResourceTranslations;
+use Syriable\Filament\Plugins\AutoTranslator\Concerns\HasResourceTranslations;
 
 /**
  * A resource whose infolist lives in its own infolist() builder.

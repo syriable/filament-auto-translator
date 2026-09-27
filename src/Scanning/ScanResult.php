@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Scanning;
+namespace Syriable\Filament\Plugins\AutoTranslator\Scanning;
 
 final readonly class ScanResult
 {

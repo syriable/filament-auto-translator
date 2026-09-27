@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Tests\Fixtures;
+namespace Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures;
 
-use Syriable\FilamentAutoTranslator\Concerns\HasClusterTranslations;
+use Syriable\Filament\Plugins\AutoTranslator\Concerns\HasClusterTranslations;
 
 class TranslatedCluster extends ClusterChromeParent
 {

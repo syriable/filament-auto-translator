@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Enums;
+namespace Syriable\Filament\Plugins\AutoTranslator\Enums;
 
 enum ResolutionOutcome: string
 {

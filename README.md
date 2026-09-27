@@ -73,7 +73,7 @@ php artisan vendor:publish --tag=filament-auto-translator-config
 Register the plugin on each panel:
 
 ```php
-use Syriable\FilamentAutoTranslator\AutoTranslatorPlugin;
+use Syriable\Filament\Plugins\AutoTranslator\AutoTranslatorPlugin;
 
 public function panel(Panel $panel): Panel
 {
@@ -86,7 +86,7 @@ public function panel(Panel $panel): Panel
 Then opt in the classes that should be translated. Nothing is bound for a class that declares no translation domain.
 
 ```php
-use Syriable\FilamentAutoTranslator\Concerns\HasResourceTranslations;
+use Syriable\Filament\Plugins\AutoTranslator\Concerns\HasResourceTranslations;
 
 class UserResource extends Resource
 {
@@ -95,7 +95,7 @@ class UserResource extends Resource
 ```
 
 ```php
-use Syriable\FilamentAutoTranslator\Concerns\HasPageTranslations;
+use Syriable\Filament\Plugins\AutoTranslator\Concerns\HasPageTranslations;
 
 class EditUser extends EditRecord
 {
@@ -178,7 +178,7 @@ A **translation domain** is the language file a class's copy lives in.
 - `#[TranslationDomain]` names a domain outright and wins over derivation. Use it to keep keys stable across a class rename:
 
   ```php
-  use Syriable\FilamentAutoTranslator\Attributes\TranslationDomain;
+  use Syriable\Filament\Plugins\AutoTranslator\Attributes\TranslationDomain;
 
   #[TranslationDomain('filament.user-resource')]
   class MemberResource extends Resource
@@ -325,7 +325,7 @@ What a missing **required** message does:
 Set it with `AUTO_TRANSLATOR_ON_MISSING`, or per panel:
 
 ```php
-use Syriable\FilamentAutoTranslator\Enums\MissingMessagePolicy;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MissingMessagePolicy;
 
 AutoTranslatorPlugin::make()->onMissing(MissingMessagePolicy::Debug);
 ```
@@ -346,7 +346,7 @@ A second argument to `hintIcon()`, or `->hintIconTooltip()`, sets the tooltip ex
 For select options and similar, look a message up by hand at a component's identity:
 
 ```php
-use Syriable\FilamentAutoTranslator\AutoTranslator;
+use Syriable\Filament\Plugins\AutoTranslator\AutoTranslator;
 
 Select::make('role')->options(fn (Select $component): array => [
     'admin' => AutoTranslator::message($component, relative: 'options.admin'),
@@ -373,7 +373,7 @@ $resolution->reason;
 A Livewire form on a public page never boots a panel. Give its schema class a domain, and register the directory it lives in:
 
 ```php
-use Syriable\FilamentAutoTranslator\Attributes\TranslationDomain;
+use Syriable\Filament\Plugins\AutoTranslator\Attributes\TranslationDomain;
 
 #[TranslationDomain('site.sign-up')]
 final class SignUpForm
@@ -387,7 +387,7 @@ final class SignUpForm
 
 ```php
 // a service provider's boot()
-use Syriable\FilamentAutoTranslator\AutoTranslator;
+use Syriable\Filament\Plugins\AutoTranslator\AutoTranslator;
 
 AutoTranslator::discoverIn(app_path('Livewire/Schemas'), 'App\\Livewire\\Schemas');
 ```
@@ -485,7 +485,7 @@ AutoTranslatorPlugin::make()
 - **Tests of your own schemas** can assert that every message resolves:
 
   ```php
-  use Syriable\FilamentAutoTranslator\Scanning\MessageScanner;
+  use Syriable\Filament\Plugins\AutoTranslator\Scanning\MessageScanner;
 
   $findings = app(MessageScanner::class)->scanComponents($schema->getComponents())->findings;
 
@@ -519,7 +519,7 @@ From the unreleased `syriable/laravel-translation`:
 | Before | Now |
 | --- | --- |
 | `syriable/laravel-translation` | `syriable/filament-auto-translator` |
-| `Syriable\Translation\…` | `Syriable\FilamentAutoTranslator\…` |
+| `Syriable\Translation\…` | `Syriable\Filament\Plugins\AutoTranslator\…` |
 | `TranslationPlugin` | `AutoTranslatorPlugin` |
 | `Translations::slot()` | `AutoTranslator::message()` |
 | `HasModelTranslations` | `HasResourceTranslations` |

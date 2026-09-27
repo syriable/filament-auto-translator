@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Syriable\FilamentAutoTranslator\Messages\MachineName;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MachineName;
 
 it('replaces dots with a double underscore so laravel does not nest the key', function () {
     expect(MachineName::normalize('author.name'))->toBe('author__name')

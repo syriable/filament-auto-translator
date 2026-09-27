@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Syriable\FilamentAutoTranslator\Enums\MissingMessagePolicy;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MissingMessagePolicy;
 
 it('falls back rather than exposing keys when nothing is configured', function () {
     expect(MissingMessagePolicy::fromConfig(''))->toBe(MissingMessagePolicy::KeepVendorLabel)

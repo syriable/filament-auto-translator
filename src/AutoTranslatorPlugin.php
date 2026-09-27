@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator;
+namespace Syriable\Filament\Plugins\AutoTranslator;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
-use Syriable\FilamentAutoTranslator\Binding\ComponentBinder;
-use Syriable\FilamentAutoTranslator\Domains\SchemaDomainRegistry;
-use Syriable\FilamentAutoTranslator\Enums\MissingMessagePolicy;
+use Syriable\Filament\Plugins\AutoTranslator\Binding\ComponentBinder;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\SchemaDomainRegistry;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MissingMessagePolicy;
 
 final class AutoTranslatorPlugin implements Plugin
 {
