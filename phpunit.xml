@@ -5,7 +5,7 @@
          colors="true"
 >
     <testsuites>
-        <testsuite name="AutoTranslator">
+        <testsuite name="Filament Auto Translator">
             <directory>tests</directory>
         </testsuite>
     </testsuites>

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Syriable\Translation\Attributes\TranslationDomain;
-use Syriable\Translation\Discovery\DomainResolver;
+use Syriable\FilamentAutoTranslator\Attributes\TranslationDomain;
+use Syriable\FilamentAutoTranslator\Domains\DomainResolver;
 
 it('reads the domain from the attribute', function () {
     $class = new #[TranslationDomain('identity::user-edit')] class {};

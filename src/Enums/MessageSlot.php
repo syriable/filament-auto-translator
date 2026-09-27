@@ -2,8 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Translation\Enums;
+namespace Syriable\FilamentAutoTranslator\Enums;
 
+/**
+ * One piece of copy on a component: its label, its hint, its modal heading…
+ *
+ * The value is the last segment of the message key.
+ */
 enum MessageSlot: string
 {
     case Label = 'label';
@@ -34,11 +39,15 @@ enum MessageSlot: string
     case ValidationAttribute = 'validation_attribute';
 
     /**
-     * @param  array<int, string>  $path
+     * Whether a missing message is subject to the missing-message policy.
+     * An optional slot that is missing simply stays empty.
+     *
+     * @param  list<string>  $path
      */
     public function isRequired(array $path = []): bool
     {
-        if ($this === self::Body && ($path[array_key_last($path)] ?? null) === 'notifications') {
+        // a notification body is optional copy under a required title
+        if ($this === self::Body && ($path[array_key_last($path) ?? 0] ?? null) === 'notifications') {
             return false;
         }
 
@@ -46,5 +55,44 @@ enum MessageSlot: string
             self::Label, self::Breadcrumb, self::Title, self::Body => true,
             default => false,
         };
+    }
+
+    /**
+     * The Filament setter that writes this slot, for `auto-translator:inline`.
+     */
+    public function setter(): ?string
+    {
+        return match ($this) {
+            self::Label => 'label',
+            self::Placeholder => 'placeholder',
+            self::HelperText => 'helperText',
+            self::Hint => 'hint',
+            self::HintIconTooltip => 'hintIconTooltip',
+            self::Heading => 'heading',
+            self::Title => 'title',
+            self::Description => 'description',
+            self::Tooltip => 'tooltip',
+            self::BeforeContent => 'beforeContent',
+            self::AfterContent => 'afterContent',
+            self::ModalHeading => 'modalHeading',
+            self::ModalDescription => 'modalDescription',
+            self::ModalCancelActionLabel => 'modalCancelActionLabel',
+            self::ModalSubmitActionLabel => 'modalSubmitActionLabel',
+            self::Indicator => 'indicator',
+            self::Prefix => 'prefix',
+            self::Subheading => 'subheading',
+            self::Body => 'body',
+            default => null,
+        };
+    }
+
+    /**
+     * Slots a field renders from a child schema of the same name.
+     *
+     * @return list<self>
+     */
+    public static function fieldContent(): array
+    {
+        return [self::BeforeContent, self::AfterContent, self::BelowLabel];
     }
 }

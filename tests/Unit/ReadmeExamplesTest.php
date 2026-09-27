@@ -4,53 +4,56 @@ declare(strict_types=1);
 
 use Filament\Forms\Components\TextInput;
 use Illuminate\Contracts\Console\Kernel;
-use Syriable\Translation\Binding\MessageBinder;
-use Syriable\Translation\Enums\MissingMessagePolicy;
-use Syriable\Translation\TranslationPlugin;
-use Syriable\Translation\Translations;
+use Syriable\FilamentAutoTranslator\AutoTranslator;
+use Syriable\FilamentAutoTranslator\AutoTranslatorPlugin;
+use Syriable\FilamentAutoTranslator\Binding\ComponentBinder;
+use Syriable\FilamentAutoTranslator\Enums\MissingMessagePolicy;
 
 /**
- * The README makes concrete promises about the public surface. These check the
- * promises still hold, so the documentation cannot drift from the code silently.
+ * The README makes concrete promises about the public surface. These check
+ * the promises still hold, so the documentation cannot drift silently.
  */
+function readme(): string
+{
+    return (string) file_get_contents(dirname(__DIR__, 2).'/README.md');
+}
+
 it('exposes the entry points the README documents', function (string $class, string $method) {
     expect(method_exists($class, $method))->toBeTrue("{$class}::{$method}() is documented but missing");
 })->with([
-    [Translations::class, 'discoverIn'],
-    [Translations::class, 'domainFor'],
-    [Translations::class, 'explain'],
-    [Translations::class, 'slot'],
-    [TranslationPlugin::class, 'domainPrefixes'],
-    [TranslationPlugin::class, 'discoverIn'],
-    [TranslationPlugin::class, 'onMissing'],
+    [AutoTranslator::class, 'discoverIn'],
+    [AutoTranslator::class, 'domainFor'],
+    [AutoTranslator::class, 'explain'],
+    [AutoTranslator::class, 'message'],
+    [AutoTranslatorPlugin::class, 'domainPrefixes'],
+    [AutoTranslatorPlugin::class, 'discoverIn'],
+    [AutoTranslatorPlugin::class, 'onMissing'],
 ]);
 
 it('offers the policies the README lists', function () {
-    expect(array_map(fn (MissingMessagePolicy $p) => $p->value, MissingMessagePolicy::cases()))
+    expect(array_map(fn (MissingMessagePolicy $policy): string => $policy->value, MissingMessagePolicy::cases()))
         ->toEqualCanonicalizing(['keep_vendor_label', 'debug', 'strict']);
 });
 
-it('ships the config keys the README documents', function () {
-    $config = require dirname(__DIR__, 2).'/config/translations.php';
+it('ships exactly the config keys the README documents', function () {
+    $config = require dirname(__DIR__, 2).'/config/filament-auto-translator.php';
+
+    foreach (array_keys($config) as $key) {
+        expect(readme())->toContain("`{$key}`");
+    }
 
     expect(array_keys($config))->toEqualCanonicalizing([
-        'on_missing', 'default_domain_prefix', 'domain_prefixes',
-        'discover_paths', 'module_path', 'max_parent_depth',
+        'on_missing', 'default_domain_prefix', 'domain_prefixes', 'discover_paths', 'module_path', 'max_parent_depth',
     ]);
 });
 
-it('registers the commands the README documents', function () {
-    $names = array_keys(app(Kernel::class)->all());
-
-    expect($names)->toContain('translations:extract')
-        ->toContain('translations:debug')
-        ->toContain('translations:inline');
-});
+it('registers the commands the README documents', function (string $command) {
+    expect(array_keys(app(Kernel::class)->all()))->toContain($command)
+        ->and(readme())->toContain($command);
+})->with(['auto-translator:audit', 'auto-translator:extract', 'auto-translator:inline']);
 
 it('imports only classes that exist in every README example', function () {
-    $readme = (string) file_get_contents(dirname(__DIR__, 2).'/README.md');
-
-    preg_match_all('/^use (Syriable\\\\Translation\\\\[A-Za-z0-9_\\\\]+);$/m', $readme, $matches);
+    preg_match_all('/^use (Syriable\\\\[A-Za-z0-9_\\\\]+);$/m', readme(), $matches);
 
     expect($matches[1])->not->toBeEmpty();
 
@@ -60,9 +63,17 @@ it('imports only classes that exist in every README example', function () {
     }
 });
 
-it('registers the override macros the README demonstrates', function () {
-    app(MessageBinder::class)->registerHooks();
+it('registers the macros the README demonstrates', function (string $macro) {
+    app(ComponentBinder::class)->register();
 
-    expect(TextInput::hasMacro('messageName'))->toBeTrue('README documents ->messageName()')
-        ->and(TextInput::hasMacro('domain'))->toBeTrue('README documents ->domain()');
-})->skip(! class_exists(TextInput::class), 'Filament forms not installed');
+    expect(TextInput::hasMacro($macro))->toBeTrue()
+        ->and(readme())->toContain("{$macro}(");
+})->with(['messageName', 'messageDomain', 'messageReplace', 'messageHtml']);
+
+it('names the old package only in the upgrade guide', function () {
+    $outsideUpgrading = preg_replace('/^## Upgrading$.*?(?=^## )/ms', '', readme());
+
+    expect($outsideUpgrading)->not->toContain('laravel-translation')
+        ->not->toContain('Syriable\\Translation\\')
+        ->not->toContain('translations:');
+});

@@ -1,16 +1,15 @@
 {
-    "name": "syriable/laravel-translation",
-    "description": "Translations for Filament and Livewire UI copy: identifiers in PHP, copy in language files.",
+    "name": "syriable/filament-auto-translator",
+    "description": "A Filament plugin that fills labels, headings and other UI copy from your language files, so PHP keeps only machine names.",
     "keywords": [
         "syriable",
-        "laravel",
         "filament",
+        "filament-plugin",
+        "laravel",
         "livewire",
         "translation",
-        "i18n",
-        "l10n",
-        "message-catalog",
-        "filament-translation"
+        "localization",
+        "i18n"
     ],
     "homepage": "https://github.com/syriable/filament-auto-translator",
     "support": {
@@ -40,24 +39,25 @@
     },
     "autoload": {
         "psr-4": {
-            "Syriable\\Translation\\": "src/"
+            "Syriable\\FilamentAutoTranslator\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Syriable\\Translation\\Tests\\": "tests/"
+            "Syriable\\FilamentAutoTranslator\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Syriable\\Translation\\TranslationServiceProvider"
+                "Syriable\\FilamentAutoTranslator\\AutoTranslatorServiceProvider"
             ]
         }
     },
     "scripts": {
         "test": "vendor/bin/pest --compact",
-        "analyse": "vendor/bin/phpstan analyse"
+        "analyse": "vendor/bin/phpstan analyse",
+        "format": "vendor/bin/pint"
     },
     "config": {
         "allow-plugins": {

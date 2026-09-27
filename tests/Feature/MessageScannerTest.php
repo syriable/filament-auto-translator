@@ -9,19 +9,19 @@ use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Lang;
-use Syriable\Translation\Binding\MessageBinder;
-use Syriable\Translation\Enums\MessageSlot;
-use Syriable\Translation\Enums\MessageSurface;
-use Syriable\Translation\Enums\ResolutionOutcome;
-use Syriable\Translation\Extraction\ExtractionHost;
-use Syriable\Translation\Extraction\MessageScanner;
-use Syriable\Translation\MessageIdentity;
+use Syriable\FilamentAutoTranslator\Binding\MessageOptions;
+use Syriable\FilamentAutoTranslator\Enums\MessageScope;
+use Syriable\FilamentAutoTranslator\Enums\MessageSlot;
+use Syriable\FilamentAutoTranslator\Enums\ResolutionOutcome;
+use Syriable\FilamentAutoTranslator\Messages\MessageIdentity;
+use Syriable\FilamentAutoTranslator\Scanning\MessageScanner;
+use Syriable\FilamentAutoTranslator\Scanning\ScanHost;
 
 it('reports a missing required message as a finding', function () {
-    $findings = app(MessageScanner::class)->auditIdentities([
+    $findings = app(MessageScanner::class)->scanIdentities([
         new MessageIdentity(
-            catalogId: 'filament.user-resource',
-            scope: MessageSurface::Form,
+            domain: 'filament.user-resource',
+            scope: MessageScope::Form,
             path: [],
             name: 'email',
             slot: MessageSlot::Label,
@@ -29,8 +29,8 @@ it('reports a missing required message as a finding', function () {
     ]);
 
     expect($findings)->toHaveCount(1)
-        ->and($findings[0]['decision'])->toBe(ResolutionOutcome::Missing->value)
-        ->and($findings[0]['key'])->toBe('filament/user-resource.form.components.email.label');
+        ->and($findings[0]->outcome)->toBe(ResolutionOutcome::Missing)
+        ->and($findings[0]->key)->toBe('filament/user-resource.form.components.email.label');
 });
 
 it('does not report a present message as a finding', function () {
@@ -38,10 +38,10 @@ it('does not report a present message as a finding', function () {
         'filament/user-resource.form.components.email.label' => 'Email address',
     ], 'en');
 
-    $findings = app(MessageScanner::class)->auditIdentities([
+    $findings = app(MessageScanner::class)->scanIdentities([
         new MessageIdentity(
-            catalogId: 'filament.user-resource',
-            scope: MessageSurface::Form,
+            domain: 'filament.user-resource',
+            scope: MessageScope::Form,
             path: [],
             name: 'email',
             slot: MessageSlot::Label,
@@ -52,8 +52,8 @@ it('does not report a present message as a finding', function () {
 });
 
 it('reports a missing action notification title from the action closure', function () {
-    $owner = new ExtractionHost;
-    app(MessageBinder::class)->setCatalogId($owner, 'filament.user-resource');
+    $owner = new ScanHost;
+    app(MessageOptions::class)->setDomain($owner, 'filament.user-resource');
 
     $schema = Schema::make($owner)->components([
         Action::make('edit')
@@ -64,10 +64,7 @@ it('reports a missing action notification title from the action closure', functi
             }),
     ]);
 
-    $findings = app(MessageScanner::class)->auditComponents(
-        $schema->getComponents(),
-        'filament.user-resource',
-    );
+    $findings = app(MessageScanner::class)->scanComponents($schema->getComponents())->findings;
 
     expect(array_column($findings, 'key'))
         ->toContain('filament/user-resource.form.components.actions.edit.label')
@@ -75,8 +72,8 @@ it('reports a missing action notification title from the action closure', functi
 });
 
 it('reports a missing schema text body inside a keyed fieldset', function () {
-    $owner = new ExtractionHost;
-    app(MessageBinder::class)->setCatalogId($owner, 'filament.user-resource');
+    $owner = new ScanHost;
+    app(MessageOptions::class)->setDomain($owner, 'filament.user-resource');
 
     $schema = Schema::make($owner)->components([
         Fieldset::make()
@@ -87,10 +84,7 @@ it('reports a missing schema text body inside a keyed fieldset', function () {
             ]),
     ]);
 
-    $findings = app(MessageScanner::class)->auditComponents(
-        $schema->getComponents(),
-        'filament.user-resource',
-    );
+    $findings = app(MessageScanner::class)->scanComponents($schema->getComponents())->findings;
 
     expect(array_column($findings, 'key'))
         ->toContain('filament/user-resource.form.components.authorization.schema.or.body')
@@ -98,18 +92,15 @@ it('reports a missing schema text body inside a keyed fieldset', function () {
 });
 
 it('does not invent a notification title when the action does not send one', function () {
-    $owner = new ExtractionHost;
-    app(MessageBinder::class)->setCatalogId($owner, 'filament.user-resource');
+    $owner = new ScanHost;
+    app(MessageOptions::class)->setDomain($owner, 'filament.user-resource');
 
     $schema = Schema::make($owner)->components([
         Action::make('edit')
             ->action(function (): void {}),
     ]);
 
-    $findings = app(MessageScanner::class)->auditComponents(
-        $schema->getComponents(),
-        'filament.user-resource',
-    );
+    $findings = app(MessageScanner::class)->scanComponents($schema->getComponents())->findings;
 
     expect(array_column($findings, 'key'))
         ->toContain('filament/user-resource.form.components.actions.edit.label')

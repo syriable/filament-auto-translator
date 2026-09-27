@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Translation\Tests\Fixtures\PageTables;
+namespace Syriable\FilamentAutoTranslator\Tests\Fixtures\PageTables;
 
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Syriable\Translation\Concerns\HasModelTranslations;
+use Syriable\FilamentAutoTranslator\Concerns\HasResourceTranslations;
 
 /**
  * A resource whose index is not a list of its records: the index page builds
@@ -15,7 +15,7 @@ use Syriable\Translation\Concerns\HasModelTranslations;
  */
 class PageTableResource extends Resource
 {
-    use HasModelTranslations;
+    use HasResourceTranslations;
 
     public static function table(Table $table): Table
     {

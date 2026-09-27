@@ -2,107 +2,77 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Translation\Concerns;
+namespace Syriable\FilamentAutoTranslator\Concerns;
 
 use Illuminate\Contracts\Support\Htmlable;
-use Syriable\Translation\Discovery\DomainPrefixResolver;
-use Syriable\Translation\Discovery\DomainResolver;
-use Syriable\Translation\Enums\MessageSlot;
-use Syriable\Translation\Enums\MessageSurface;
-use Syriable\Translation\Support\NameNormalizer;
+use Syriable\FilamentAutoTranslator\Domains\DomainResolver;
+use Syriable\FilamentAutoTranslator\Enums\Chrome;
+use Syriable\FilamentAutoTranslator\Messages\MachineName;
 
+/**
+ * For a Filament page: its title, subheading and navigation label come from
+ * its domain, and so does the copy of every component it renders.
+ *
+ * A resource page shares its resource's domain and nests under
+ * `pages.{page-kebab}`. A standalone panel page owns `{prefix}.pages.{page-kebab}`
+ * and keeps its chrome at the root of that file.
+ *
+ * @see Chrome::forPage()
+ */
 trait HasPageTranslations
 {
     use ResolvesTranslationDomain;
 
-    /**
-     * A page declaring its own #[TranslationDomain] keeps it. Resource pages
-     * without one share the resource catalog. Standalone panel pages default to
-     * `{prefix}.pages.{class-kebab}` (e.g. `filament.pages.dashboard`) so copy
-     * lives in lang/{locale}/filament/pages/{page}.php — same prefix as
-     * resources, without repeating the page name inside the file.
-     */
     public static function translationDomain(): string
     {
-        $declared = app(DomainResolver::class)->declaredOn(static::class);
+        $domains = app(DomainResolver::class);
 
-        if ($declared !== null) {
+        if (($declared = $domains->declaredOn(static::class)) !== null) {
             return $declared;
         }
 
-        if (static::sharesResourceCatalog()) {
-            $resource = call_user_func([static::class, 'getResource']);
+        $resource = static::translatedResource();
 
-            return $resource::translationDomain();
-        }
-
-        $prefix = app(DomainPrefixResolver::class)->prefixFor(static::class);
-        $page = NameNormalizer::kebabClassBasename(static::class);
-
-        return str_ends_with($prefix, '::')
-            ? $prefix.'pages.'.$page
-            : $prefix.'.pages.'.$page;
+        return $resource !== null ? $resource::translationDomain() : $domains->derivePage(static::class);
     }
 
     public function getTitle(): string|Htmlable
     {
-        $message = static::catalogMessage(MessageSurface::Pages, MessageSlot::Title, path: static::messagePagePath());
-
-        if ($message !== null) {
-            return $message;
-        }
-
-        return parent::getTitle();
+        return static::chromeMessage(Chrome::PageTitle, static::chromePath()) ?? parent::getTitle();
     }
 
     public function getSubheading(): string|Htmlable|null
     {
-        $message = static::catalogMessage(MessageSurface::Pages, MessageSlot::Subheading, path: static::messagePagePath());
-
-        if ($message !== null) {
-            return $message;
-        }
-
-        return parent::getSubheading();
+        return static::chromeMessage(Chrome::PageSubheading, static::chromePath()) ?? parent::getSubheading();
     }
 
     public static function getNavigationLabel(): string
     {
-        $label = static::catalogMessage(MessageSurface::Pages, MessageSlot::Label, path: static::messagePagePath());
-
-        if (is_string($label)) {
-            return $label;
-        }
-
-        return parent::getNavigationLabel();
+        return static::chromeMessage(Chrome::PageNavigationLabel, static::chromePath()) ?? parent::getNavigationLabel();
     }
 
     /**
-     * Resource pages nest under `pages.{kebab}` inside the resource catalog.
-     * Standalone pages own `{prefix}/pages/{kebab}.php`, so chrome sits at the catalog root.
-     *
-     * @return array<int, string>
+     * @return list<string>
      */
-    protected static function messagePagePath(): array
+    protected static function chromePath(): array
     {
-        if (static::sharesResourceCatalog()) {
-            return [NameNormalizer::kebabClassBasename(static::class)];
-        }
-
-        return [];
+        return static::translatedResource() !== null ? [MachineName::ofClass(static::class)] : [];
     }
 
     /**
-     * Whether this page shares a Filament resource's translation domain.
+     * The resource whose domain this page shares, if it is a resource page
+     * of a resource that has one.
+     *
+     * @return class-string|null
      */
-    protected static function sharesResourceCatalog(): bool
+    protected static function translatedResource(): ?string
     {
         if (! method_exists(static::class, 'getResource')) {
-            return false;
+            return null;
         }
 
-        $resource = call_user_func([static::class, 'getResource']);
+        $resource = static::getResource();
 
-        return is_string($resource) && method_exists($resource, 'translationDomain');
+        return is_string($resource) && method_exists($resource, 'translationDomain') ? $resource : null;
     }
 }

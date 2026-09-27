@@ -7,10 +7,16 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\File;
-use Syriable\Translation\Apply\MessageInliner;
-use Syriable\Translation\Binding\MessageBinder;
-use Syriable\Translation\Catalog\CatalogWriter;
-use Syriable\Translation\Extraction\ExtractionHost;
+use Syriable\FilamentAutoTranslator\Binding\MessageOptions;
+use Syriable\FilamentAutoTranslator\Enums\ChangeType;
+use Syriable\FilamentAutoTranslator\Enums\Chrome;
+use Syriable\FilamentAutoTranslator\Extraction\LanguageFiles;
+use Syriable\FilamentAutoTranslator\Inlining\MessageInliner;
+use Syriable\FilamentAutoTranslator\Inlining\SourceChange;
+use Syriable\FilamentAutoTranslator\Scanning\ChromeMessage;
+use Syriable\FilamentAutoTranslator\Scanning\ScanHost;
+use Syriable\FilamentAutoTranslator\Scanning\Surface;
+use Syriable\FilamentAutoTranslator\Scanning\SurfaceCollector;
 
 beforeEach(function () {
     $this->langPath = sys_get_temp_dir().'/messages-apply-lang-'.uniqid('', true);
@@ -23,7 +29,7 @@ afterEach(function () {
 });
 
 it('writes label and placeholder methods for keys present in the language file', function () {
-    app(CatalogWriter::class)->persist(lang_path('en/filament/user-resource.php'), [
+    app(LanguageFiles::class)->write(lang_path('en/filament/user-resource.php'), [
         'form' => [
             'components' => [
                 'name' => [
@@ -42,19 +48,14 @@ TextInput::make('name')
     ->required(),
 PHP);
 
-    $owner = new ExtractionHost;
-    app(MessageBinder::class)->setCatalogId($owner, 'filament.user-resource');
+    $owner = new ScanHost;
+    app(MessageOptions::class)->setDomain($owner, 'filament.user-resource');
 
     $schema = Schema::make($owner)->components([
         TextInput::make('name')->required(),
     ]);
 
-    $writes = app(MessageInliner::class)->applyComponents(
-        $schema->getComponents(),
-        [$phpPath],
-        'filament.user-resource',
-        'en',
-    );
+    $writes = inlineInto($schema->getComponents(), $phpPath, 'filament.user-resource');
 
     expect(array_column($writes, 'method'))->toContain('label', 'placeholder')
         ->and(File::get($phpPath))->toContain("->label(__('filament/user-resource.form.components.name.label'))")
@@ -63,8 +64,8 @@ PHP);
     File::delete($phpPath);
 });
 
-it('rewrites a raw catalog key on an existing setter and adds missing methods', function () {
-    app(CatalogWriter::class)->persist(lang_path('en/filament/user-resource.php'), [
+it('rewrites a bare key on an existing setter and adds missing methods', function () {
+    app(LanguageFiles::class)->write(lang_path('en/filament/user-resource.php'), [
         'form' => [
             'components' => [
                 'name' => [
@@ -84,21 +85,16 @@ TextInput::make('name')
     ->required(),
 PHP);
 
-    $owner = new ExtractionHost;
-    app(MessageBinder::class)->setCatalogId($owner, 'filament.user-resource');
+    $owner = new ScanHost;
+    app(MessageOptions::class)->setDomain($owner, 'filament.user-resource');
 
     $schema = Schema::make($owner)->components([
         TextInput::make('name')->required(),
     ]);
 
-    $writes = app(MessageInliner::class)->applyComponents(
-        $schema->getComponents(),
-        [$phpPath],
-        'filament.user-resource',
-        'en',
-    );
+    $writes = inlineInto($schema->getComponents(), $phpPath, 'filament.user-resource');
 
-    expect(array_column($writes, 'action'))->toContain('updated', 'created')
+    expect(array_map(fn (SourceChange $change) => $change->type, $writes))->toContain(ChangeType::Updated, ChangeType::Created)
         ->and(File::get($phpPath))->toContain("->label(__('filament/user-resource.form.components.name.label'))")
         ->and(File::get($phpPath))->toContain("->placeholder(__('filament/user-resource.form.components.name.placeholder'))")
         ->and(File::get($phpPath))->not->toContain("->label('filament/user-resource.form.components.name.label')");
@@ -107,7 +103,7 @@ PHP);
 });
 
 it('does not write methods for keys missing from the language file', function () {
-    app(CatalogWriter::class)->persist(lang_path('en/filament/user-resource.php'), [
+    app(LanguageFiles::class)->write(lang_path('en/filament/user-resource.php'), [
         'form' => [
             'components' => [
                 'name' => [
@@ -125,19 +121,14 @@ TextInput::make('name')
     ->required(),
 PHP);
 
-    $owner = new ExtractionHost;
-    app(MessageBinder::class)->setCatalogId($owner, 'filament.user-resource');
+    $owner = new ScanHost;
+    app(MessageOptions::class)->setDomain($owner, 'filament.user-resource');
 
     $schema = Schema::make($owner)->components([
         TextInput::make('name')->required(),
     ]);
 
-    app(MessageInliner::class)->applyComponents(
-        $schema->getComponents(),
-        [$phpPath],
-        'filament.user-resource',
-        'en',
-    );
+    inlineInto($schema->getComponents(), $phpPath, 'filament.user-resource');
 
     expect(File::get($phpPath))
         ->toContain("->label(__('filament/user-resource.form.components.name.label'))")
@@ -147,7 +138,7 @@ PHP);
 });
 
 it('writes notification title from the language file onto Notification::make', function () {
-    app(CatalogWriter::class)->persist(lang_path('en/filament/user-resource.php'), [
+    app(LanguageFiles::class)->write(lang_path('en/filament/user-resource.php'), [
         'form' => [
             'components' => [
                 'actions' => [
@@ -177,8 +168,8 @@ Action::make('action')
     }),
 PHP);
 
-    $owner = new ExtractionHost;
-    app(MessageBinder::class)->setCatalogId($owner, 'filament.user-resource');
+    $owner = new ScanHost;
+    app(MessageOptions::class)->setDomain($owner, 'filament.user-resource');
 
     $schema = Schema::make($owner)->components([
         Action::make('action')
@@ -187,12 +178,7 @@ PHP);
             }),
     ]);
 
-    $writes = app(MessageInliner::class)->applyComponents(
-        $schema->getComponents(),
-        [$phpPath],
-        'filament.user-resource',
-        'en',
-    );
+    $writes = inlineInto($schema->getComponents(), $phpPath, 'filament.user-resource');
 
     expect(array_column($writes, 'method'))->toContain('title', 'body')
         ->and(File::get($phpPath))->toContain("->title(__('filament/user-resource.form.components.actions.action.notifications.success.title'))")
@@ -203,30 +189,53 @@ PHP);
 });
 
 it('writes getModelLabel when the language file has model_label', function () {
-    $phpPath = sys_get_temp_dir().'/messages-apply-'.uniqid('', true).'.php';
-    File::put($phpPath, <<<'PHP'
+    app(LanguageFiles::class)->write(lang_path('en/filament/user-resource.php'), ['model_label' => 'User']);
+
+    $class = 'InlinedResource'.bin2hex(random_bytes(4));
+    $phpPath = sys_get_temp_dir()."/{$class}.php";
+    File::put($phpPath, <<<PHP
 <?php
 
-class UserResource
+class {$class}
 {
     public static function form(): void
     {
     }
 }
 PHP);
+    require $phpPath;
 
-    $writes = app(MessageInliner::class)->applyClassMethods($phpPath, [
-        [
-            'method' => 'getModelLabel',
-            'key' => 'filament/user-resource.model_label',
-            'static' => true,
-            'return' => 'string',
-        ],
-    ]);
+    $writes = app(MessageInliner::class)->inlineSurface(new Surface(
+        domain: 'filament.user-resource',
+        chrome: [new ChromeMessage(Chrome::ModelLabel, $class, 'filament.user-resource')],
+    ), 'en');
 
-    expect(array_column($writes, 'method'))->toContain('getModelLabel')
+    expect(array_column($writes, 'method'))->toBe(['getModelLabel'])
+        ->and($writes[0]->type)->toBe(ChangeType::Created)
         ->and(File::get($phpPath))->toContain('public static function getModelLabel(): string')
         ->and(File::get($phpPath))->toContain("return __('filament/user-resource.model_label');");
 
     File::delete($phpPath);
 });
+
+it('writes no chrome method the language file has no copy for', function () {
+    app(LanguageFiles::class)->write(lang_path('en/filament/user-resource.php'), ['navigation_label' => 'Users']);
+
+    expect(app(MessageInliner::class)->inlineSurface(new Surface(
+        domain: 'filament.user-resource',
+        chrome: [new ChromeMessage(Chrome::ModelLabel, ScanHost::class, 'filament.user-resource')],
+    ), 'en'))->toBe([]);
+});
+
+/**
+ * @param  array<array-key, mixed>  $components
+ * @return list<SourceChange>
+ */
+function inlineInto(array $components, string $file, string $domain): array
+{
+    return app(MessageInliner::class)->inlineSurface(new Surface(
+        domain: $domain,
+        components: app(SurfaceCollector::class)->flatten($components),
+        files: [$file],
+    ), 'en');
+}

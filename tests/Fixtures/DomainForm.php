@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Translation\Tests\Fixtures;
+namespace Syriable\FilamentAutoTranslator\Tests\Fixtures;
 
 use Filament\Actions\Action;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Livewire\Component;
-use Syriable\Translation\Discovery\DomainPrefixResolver;
+use Syriable\FilamentAutoTranslator\Domains\DomainResolver;
 
 class DomainForm extends Component implements HasSchemas
 {
@@ -18,7 +18,7 @@ class DomainForm extends Component implements HasSchemas
 
     public static function translationDomain(): string
     {
-        return app(DomainPrefixResolver::class)->idFor(static::class);
+        return app(DomainResolver::class)->derive(static::class);
     }
 
     public function withMountedAction(Action $action): static

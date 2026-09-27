@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Translation\Tests\Fixtures\Schemas\User;
+namespace Syriable\FilamentAutoTranslator\Tests\Fixtures\Schemas\User;
 
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
@@ -13,7 +13,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
-use Syriable\Translation\Attributes\TranslationDomain;
+use Syriable\FilamentAutoTranslator\Attributes\TranslationDomain;
 
 /**
  * Deep layout nesting, mirroring how a real application composes a schema.

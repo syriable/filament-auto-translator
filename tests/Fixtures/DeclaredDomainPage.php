@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Translation\Tests\Fixtures;
+namespace Syriable\FilamentAutoTranslator\Tests\Fixtures;
 
-use Syriable\Translation\Attributes\TranslationDomain;
-use Syriable\Translation\Concerns\HasPageTranslations;
+use Syriable\FilamentAutoTranslator\Attributes\TranslationDomain;
+use Syriable\FilamentAutoTranslator\Concerns\HasPageTranslations;
 
 /**
  * A page that keeps its own domain instead of sharing its resource's.
  */
 #[TranslationDomain('identity::people-edit')]
-class DeclaredDomainPage extends CatalogPageParent
+class DeclaredDomainPage extends ResourcePageParent
 {
     use HasPageTranslations;
 }

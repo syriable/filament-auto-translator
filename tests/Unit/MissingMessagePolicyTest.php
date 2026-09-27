@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Syriable\Translation\Enums\MissingMessagePolicy;
+use Syriable\FilamentAutoTranslator\Enums\MissingMessagePolicy;
 
 it('falls back rather than exposing keys when nothing is configured', function () {
     expect(MissingMessagePolicy::fromConfig(''))->toBe(MissingMessagePolicy::KeepVendorLabel)
@@ -10,7 +10,7 @@ it('falls back rather than exposing keys when nothing is configured', function (
 });
 
 it('ships a safe default in the published config', function () {
-    $config = require dirname(__DIR__, 2).'/config/translations.php';
+    $config = require dirname(__DIR__, 2).'/config/filament-auto-translator.php';
 
     expect($config['on_missing'])->toBe('keep_vendor_label');
 });

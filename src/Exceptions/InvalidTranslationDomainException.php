@@ -2,19 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Translation\Exceptions;
+namespace Syriable\FilamentAutoTranslator\Exceptions;
 
 use InvalidArgumentException;
 
-class InvalidTranslationDomainException extends InvalidArgumentException
+final class InvalidTranslationDomainException extends InvalidArgumentException
 {
-    public static function make(string $class, string $catalogId): self
+    public static function forClass(string $class, string $domain): self
     {
         return new self(
-            "[{$class}] declares the translation domain [{$catalogId}]. A domain is either dotted, for example "
-            .'[identity.user-edit], mapping to lang/{locale}/identity/user-edit.php, or namespaced against a '
-            .'registered translation namespace, for example [identity::user-edit], mapping to that namespace\'s '
-            .'own {locale}/user-edit.php.'
+            "[{$class}] declares the translation domain [{$domain}]. A domain is dotted, like [identity.user-edit] "
+            .'for lang/{locale}/identity/user-edit.php, optionally namespaced, like [identity::user-edit] for '
+            .'{locale}/user-edit.php in the lang directory registered for [identity].'
         );
     }
 }

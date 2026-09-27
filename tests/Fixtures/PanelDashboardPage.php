@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Translation\Tests\Fixtures;
+namespace Syriable\FilamentAutoTranslator\Tests\Fixtures;
 
 use Filament\Pages\Page;
-use Syriable\Translation\Concerns\HasPageTranslations;
+use Syriable\FilamentAutoTranslator\Concerns\HasPageTranslations;
 
 /**
- * A real Filament page: catalog filament/pages/{kebab}.php, header actions at root actions.
+ * A real Filament page: domain filament/pages/{kebab}.php, header actions at root actions.
  */
 class PanelDashboardPage extends Page
 {

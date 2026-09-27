@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Translation\Tests\Fixtures\PageTables;
+namespace Syriable\FilamentAutoTranslator\Tests\Fixtures\PageTables;
 
 use Filament\Actions\Action;
 use Filament\Resources\Pages\Page;
@@ -10,7 +10,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Syriable\Translation\Concerns\HasPageTranslations;
+use Syriable\FilamentAutoTranslator\Concerns\HasPageTranslations;
 
 /**
  * A resource page with a table of its own, built in an instance method.

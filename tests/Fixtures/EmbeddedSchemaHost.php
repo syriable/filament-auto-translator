@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Translation\Tests\Fixtures;
+namespace Syriable\FilamentAutoTranslator\Tests\Fixtures;
 
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
@@ -12,7 +12,7 @@ use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
 use Livewire\Component;
-use Syriable\Translation\Discovery\DomainPrefixResolver;
+use Syriable\FilamentAutoTranslator\Domains\DomainResolver;
 
 /**
  * A page that wraps its form in chrome, the way a Livewire page does: the
@@ -26,7 +26,7 @@ class EmbeddedSchemaHost extends Component implements HasSchemas
 
     public static function translationDomain(): string
     {
-        return app(DomainPrefixResolver::class)->idFor(static::class);
+        return app(DomainResolver::class)->derive(static::class);
     }
 
     public function content(Schema $schema): Schema

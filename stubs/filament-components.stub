@@ -1,10 +1,21 @@
 <?php
 
+// PHPStan stub for the macros Filament Auto Translator registers on every
+// Filament component. Add it to your phpstan.neon under parameters.stubFiles.
+
 namespace Filament\Support\Components {
     class Component
     {
-        public function phrase(string $name): static {}
+        /** Names the component's leaf segment instead of its make() name. */
+        public function messageName(string $name): static {}
 
-        public function catalog(string $id): static {}
+        /** Moves the component and its children to another translation domain. */
+        public function messageDomain(string $domain): static {}
+
+        /** @param array<string, mixed>|\Closure $replace */
+        public function messageReplace(array|\Closure $replace): static {}
+
+        /** Renders the component's line as HTML, escaping its replacements. */
+        public function messageHtml(bool $condition = true): static {}
     }
 }

@@ -2,231 +2,211 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Translation\Extraction;
+namespace Syriable\FilamentAutoTranslator\Extraction;
 
 use Illuminate\Support\Arr;
-use Syriable\Translation\Binding\ResolutionCache;
-use Syriable\Translation\Catalog\CatalogWriter;
-use Syriable\Translation\Catalog\ObsoleteMessagePruner;
-use Syriable\Translation\Enums\ResolutionOutcome;
-use Syriable\Translation\Exceptions\UnknownDomainNamespaceException;
-use Syriable\Translation\MessageIdentity;
+use Illuminate\Support\Facades\Lang;
+use Syriable\FilamentAutoTranslator\Domains\DomainName;
+use Syriable\FilamentAutoTranslator\Enums\ChangeType;
+use Syriable\FilamentAutoTranslator\Enums\ResolutionOutcome;
+use Syriable\FilamentAutoTranslator\Exceptions\UnknownTranslationNamespaceException;
+use Syriable\FilamentAutoTranslator\Messages\MessageIdentity;
+use Syriable\FilamentAutoTranslator\Messages\MessageResolver;
+use Syriable\FilamentAutoTranslator\Scanning\Coverage;
+use Syriable\FilamentAutoTranslator\Scanning\Finding;
+use Syriable\FilamentAutoTranslator\Scanning\MessageScanner;
+use Syriable\FilamentAutoTranslator\Scanning\ScanResult;
 
-class MessageExtractor
+/**
+ * Writes the keys the scanned UI needs into its language files, and removes
+ * keys for components that no longer exist.
+ *
+ * Copy already in a file is never overwritten. A missing key gets a
+ * humanized stub (`is_featured` → `Is featured`), or the fallback locale's
+ * copy when that has it, ready to translate.
+ */
+final class MessageExtractor
 {
     public function __construct(
-        private MessageScanner $auditor,
-        private CatalogWriter $writer,
-        private ResolutionCache $memo,
-        private ObsoleteMessagePruner $pruner,
+        private readonly MessageScanner $scanner,
+        private readonly LanguageFiles $files,
     ) {}
 
     /**
-     * @return array<int, ExtractionWrite>
+     * @return list<LanguageFileChange>
      */
-    public function sync(?string $locale = null, bool $dryRun = false, bool $prune = true): array
+    public function extract(?string $locale = null, bool $dryRun = false, bool $prune = true): array
     {
         $locale ??= app()->getLocale();
 
-        $writes = $this->writeFindings($this->auditor->audit($locale), $locale, $dryRun);
-
-        if (! $prune) {
-            return $writes;
-        }
-
-        return [...$writes, ...$this->pruneOrphans($locale, $dryRun)];
-    }
-
-    /**
-     * @return array<int, ExtractionWrite>
-     */
-    public function pruneOrphans(string $locale, bool $dryRun = false): array
-    {
-        if (! $this->writer->isSafeLocale($locale)) {
+        if (! LanguageFiles::isSafeLocale($locale)) {
             return [];
         }
 
-        $writes = [];
+        $result = $this->scanner->scan($locale);
+        $changes = $this->write($result->findings, $locale, $dryRun);
 
-        foreach (array_keys($this->auditor->walkedScopes()) as $catalogId) {
-            $writes = [...$writes, ...$this->pruneCatalog($catalogId, $locale, $dryRun)];
+        if ($prune) {
+            $changes = [...$changes, ...$this->prune($result, $locale, $dryRun)];
         }
 
-        $this->memo->flush();
+        app(MessageResolver::class)->flush();
 
-        return $writes;
+        return $changes;
     }
 
     /**
-     * @param  array<int, MessageIdentity>  $identities
-     * @return array<int, ExtractionWrite>
+     * Removes the keys a scan proved belong to nothing, in every domain it
+     * covered.
+     *
+     * @return list<LanguageFileChange>
      */
-    public function syncIdentities(array $identities, string $locale, bool $dryRun = false): array
+    public function prune(ScanResult $result, string $locale, bool $dryRun = false): array
     {
-        $originalLocale = app()->getLocale();
+        if (! LanguageFiles::isSafeLocale($locale)) {
+            return [];
+        }
+
+        $changes = [];
+
+        foreach ($result->coverage as $domain => $coverage) {
+            $changes = [...$changes, ...$this->pruneDomain($domain, $coverage, $locale, $dryRun)];
+        }
+
+        return $changes;
+    }
+
+    /**
+     * Writes the identities you name; never prunes.
+     *
+     * @param  list<MessageIdentity>  $identities
+     * @return list<LanguageFileChange>
+     */
+    public function extractIdentities(array $identities, string $locale, bool $dryRun = false): array
+    {
+        if (! LanguageFiles::isSafeLocale($locale)) {
+            return [];
+        }
+
+        $original = app()->getLocale();
         app()->setLocale($locale);
 
         try {
-            return $this->writeFindings($this->auditor->auditIdentities($identities), $locale, $dryRun);
+            $changes = $this->write($this->scanner->scanIdentities($identities), $locale, $dryRun);
         } finally {
-            app()->setLocale($originalLocale);
+            app()->setLocale($original);
         }
+
+        app(MessageResolver::class)->flush();
+
+        return $changes;
     }
 
     /**
-     * @param  array<int, array{key: string, catalog: string, decision: string, locale: string, text: ?string}>  $findings
-     * @return array<int, ExtractionWrite>
+     * The namespaces the run had to register because their module had no
+     * language directory yet.
+     *
+     * @return array<string, string>
      */
-    public function writeFindings(array $findings, string $locale, bool $dryRun = false): array
+    public function registeredNamespaces(): array
     {
-        if (! $this->writer->isSafeLocale($locale)) {
-            return [];
-        }
+        return $this->files->registeredNamespaces();
+    }
 
-        $grouped = [];
+    /**
+     * @param  list<Finding>  $findings
+     * @return list<LanguageFileChange>
+     */
+    private function write(array $findings, string $locale, bool $dryRun): array
+    {
+        $byDomain = [];
 
         foreach ($findings as $finding) {
-            if (! in_array($finding['decision'], [ResolutionOutcome::Missing->value, ResolutionOutcome::UsedFallbackLocale->value], true)) {
-                continue;
+            if (in_array($finding->outcome, [ResolutionOutcome::Missing, ResolutionOutcome::UsedFallbackLocale], true) && DomainName::isValid($finding->domain)) {
+                $byDomain[$finding->domain][] = $finding;
             }
-
-            $catalogId = $finding['catalog'];
-
-            if (! $this->writer->isSafeCatalogId($catalogId)) {
-                continue;
-            }
-
-            $grouped[$catalogId][] = $finding;
         }
 
-        $writes = [];
+        $changes = [];
 
-        foreach ($grouped as $catalogId => $catalogFindings) {
-            $writes = [...$writes, ...$this->writeCatalog($catalogId, $locale, $catalogFindings, $dryRun)];
+        foreach ($byDomain as $domain => $domainFindings) {
+            $this->files->ensureNamespace($domain);
+            $path = $this->files->pathFor($domain, $locale);
+            $tree = $this->files->load($path);
+            $written = [];
+
+            foreach ($domainFindings as $finding) {
+                $segments = DomainName::segmentsOf($domain, $finding->key);
+
+                if (! LanguageFiles::canSet($tree, $segments)) {
+                    continue;
+                }
+
+                $value = $this->valueFor($finding, $segments);
+                $changes[] = new LanguageFileChange($path, $finding->key, ChangeType::Created, $value, $dryRun);
+                Arr::set($tree, implode('.', $segments), $value);
+                $written[$finding->key] = $value;
+            }
+
+            if (! $dryRun && $written !== []) {
+                $this->files->write($path, $tree);
+
+                // the rest of the run reads what was just written
+                Lang::addLines($written, $locale);
+            }
         }
 
-        $this->memo->flush();
-
-        return $writes;
+        return $changes;
     }
 
     /**
-     * @param  array<int, array{key: string, catalog: string, decision: string, locale: string, text: ?string}>  $findings
-     * @return array<int, ExtractionWrite>
+     * @return list<LanguageFileChange>
      */
-    private function writeCatalog(string $catalogId, string $locale, array $findings, bool $dryRun): array
+    private function pruneDomain(string $domain, Coverage $coverage, string $locale, bool $dryRun): array
     {
-        $this->writer->ensureNamespace($catalogId);
-
-        $path = $this->writer->pathFor($catalogId, $locale);
-        $tree = $this->writer->load($path);
-        $changed = false;
-        $writes = [];
-
-        foreach ($findings as $finding) {
-            $segments = $this->writer->segments($catalogId, $finding['key']);
-
-            if (! $this->writer->canSet($tree, $segments)) {
-                continue;
-            }
-
-            $value = $this->valueFor($finding);
-
-            $writes[] = new ExtractionWrite(
-                path: $path,
-                key: $finding['key'],
-                action: $dryRun ? 'would_create' : 'created',
-                value: $value,
-            );
-
-            if ($dryRun) {
-                continue;
-            }
-
-            $tree = $this->writer->set($tree, $segments, $value);
-            $this->writer->remember($finding['key'], $value, $locale);
-            $changed = true;
-        }
-
-        if ($changed) {
-            $this->writer->persist($path, $tree);
-        }
-
-        return $writes;
-    }
-
-    /**
-     * @param  array{key: string, catalog: string, decision: string, locale: string, text: ?string}  $finding
-     */
-    private function valueFor(array $finding): string
-    {
-        if (
-            $finding['decision'] === ResolutionOutcome::UsedFallbackLocale->value
-            && is_string($finding['text'])
-            && $finding['text'] !== ''
-            && $finding['text'] !== $finding['key']
-        ) {
-            return $finding['text'];
-        }
-
-        return $this->writer->stubValue($finding['key'], $finding['catalog']);
-    }
-
-    /**
-     * @return array<int, ExtractionWrite>
-     */
-    private function pruneCatalog(string $catalogId, string $locale, bool $dryRun): array
-    {
-        if (! $this->writer->isSafeCatalogId($catalogId)) {
+        if (! DomainName::isValid($domain)) {
             return [];
         }
 
         try {
-            $path = $this->writer->pathFor($catalogId, $locale);
-        } catch (UnknownDomainNamespaceException) {
-            // nothing is registered under the name, so there is no file to
-            // prune; the write pass is where an unknown namespace is reported
+            $path = $this->files->pathFor($domain, $locale);
+        } catch (UnknownTranslationNamespaceException) {
+            // nothing is registered under the name, so there is no file
             return [];
         }
 
-        $tree = $this->writer->load($path);
+        $tree = $this->files->load($path);
+        $changes = [];
 
-        if ($tree === []) {
-            return [];
-        }
-
-        $livePrefixes = $this->auditor->livePrefixes()[$catalogId] ?? [];
-        $livePages = $this->auditor->livePages()[$catalogId] ?? [];
-        $walkedScopes = $this->auditor->walkedScopes()[$catalogId] ?? [];
-        $writes = [];
-        $changed = false;
-
-        foreach ($this->writer->leafSegments($tree) as $segments) {
-            if (! $this->pruner->isOrphan($segments, $livePrefixes, $livePages, $walkedScopes)) {
+        foreach (LanguageFiles::leaves($tree) as $segments) {
+            if (! $coverage->isOrphaned($segments)) {
                 continue;
             }
 
-            $current = Arr::get($tree, implode('.', $segments));
-
-            $writes[] = new ExtractionWrite(
-                path: $path,
-                key: str_replace('.', '/', $catalogId).'.'.implode('.', $segments),
-                action: $dryRun ? 'would_delete' : 'deleted',
-                value: is_string($current) ? $current : '',
-            );
-
-            if ($dryRun) {
-                continue;
-            }
-
-            $tree = $this->writer->forget($tree, $segments);
-            $changed = true;
+            $value = Arr::get($tree, implode('.', $segments));
+            $changes[] = new LanguageFileChange($path, DomainName::group($domain).'.'.implode('.', $segments), ChangeType::Deleted, is_string($value) ? $value : '', $dryRun);
+            $tree = LanguageFiles::forget($tree, $segments);
         }
 
-        if ($changed) {
-            $this->writer->persist($path, $tree);
+        if (! $dryRun && $changes !== []) {
+            $this->files->write($path, $tree);
         }
 
-        return $writes;
+        return $changes;
+    }
+
+    /**
+     * @param  list<string>  $segments
+     */
+    private function valueFor(Finding $finding, array $segments): string
+    {
+        if ($finding->outcome === ResolutionOutcome::UsedFallbackLocale && $finding->text !== null && $finding->text !== '' && $finding->text !== $finding->key) {
+            return $finding->text;
+        }
+
+        // the leaf's own name, not its slot: `is_featured.label` → "Is featured"
+        $name = count($segments) > 1 ? $segments[count($segments) - 2] : ($segments[0] ?? 'copy');
+
+        return str($name)->replace(['__', '_', '-'], ' ')->squish()->ucfirst()->toString();
     }
 }

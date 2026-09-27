@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Syriable\Translation\Tests\Fixtures\Schemas\User;
+namespace Syriable\FilamentAutoTranslator\Tests\Fixtures\Schemas\User;
 
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
-use Syriable\Translation\Attributes\TranslationDomain;
+use Syriable\FilamentAutoTranslator\Attributes\TranslationDomain;
 
 #[TranslationDomain('identity.user-edit')]
 class EditForm

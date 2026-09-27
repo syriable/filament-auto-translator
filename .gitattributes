@@ -4,11 +4,9 @@
 *.md      diff=markdown
 *.php     diff=php
 
-# Keep development material out of the distributed package. Everything below
-# is needed to work ON this package and useless to an application that merely
-# depends on it — docs/ in particular holds the internal design record.
+# Keep development material out of the distributed package: everything below
+# is needed to work on this package and useless to an application using it.
 /.github         export-ignore
-/docs            export-ignore
 /tests           export-ignore
 /.editorconfig   export-ignore
 /.gitattributes  export-ignore
