@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Tests\Fixtures\PageTables;
+namespace Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\PageTables;
 
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Syriable\FilamentAutoTranslator\Concerns\HasResourceTranslations;
+use Syriable\Filament\Plugins\AutoTranslator\Concerns\HasResourceTranslations;
 
 /**
  * A resource whose index is not a list of its records: the index page builds

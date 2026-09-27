@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Lang;
-use Syriable\FilamentAutoTranslator\Enums\MissingMessagePolicy;
-use Syriable\FilamentAutoTranslator\Settings;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\DeclaredDomainResource;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\TranslatedResource;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MissingMessagePolicy;
+use Syriable\Filament\Plugins\AutoTranslator\Settings;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\DeclaredDomainResource;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\TranslatedResource;
 
 beforeEach(function () {
     config()->set('filament-auto-translator.on_missing', 'debug');
@@ -46,7 +46,7 @@ it('keeps the vendor label when required messages are missing under that policy'
 
 it('prefers a declared domain over the prefix map', function () {
     config()->set('filament-auto-translator.domain_prefixes', [
-        'Syriable\\FilamentAutoTranslator\\Tests\\Fixtures' => 'fixtures',
+        'Syriable\\Filament\\Plugins\\AutoTranslator\\Tests\\Fixtures' => 'fixtures',
     ]);
 
     expect(DeclaredDomainResource::translationDomain())->toBe('identity::people')

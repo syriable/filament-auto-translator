@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Syriable\FilamentAutoTranslator\Enums\Chrome;
-use Syriable\FilamentAutoTranslator\Inlining\ClassMethodEditor;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\Chrome;
+use Syriable\Filament\Plugins\AutoTranslator\Inlining\ClassMethodEditor;
 
 it('inserts getModelLabel when the class does not declare it', function () {
     $source = <<<'PHP'

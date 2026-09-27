@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Tests\Fixtures\PageTables;
+namespace Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\PageTables;
 
 use Filament\Resources\Pages\ListRecords;
 use Filament\Tables\Table;
-use Syriable\FilamentAutoTranslator\Concerns\HasPageTranslations;
+use Syriable\Filament\Plugins\AutoTranslator\Concerns\HasPageTranslations;
 
 /**
  * A list page that only narrows the resource's own table, the common case of

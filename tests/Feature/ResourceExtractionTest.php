@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 use Filament\Panel;
 use Illuminate\Support\Facades\File;
-use Syriable\FilamentAutoTranslator\AutoTranslator;
-use Syriable\FilamentAutoTranslator\Extraction\LanguageFiles;
-use Syriable\FilamentAutoTranslator\Extraction\MessageExtractor;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\Resources\InfolistResource;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\Resources\ThrowingFormResource;
+use Syriable\Filament\Plugins\AutoTranslator\AutoTranslator;
+use Syriable\Filament\Plugins\AutoTranslator\Extraction\LanguageFiles;
+use Syriable\Filament\Plugins\AutoTranslator\Extraction\MessageExtractor;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\Resources\InfolistResource;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\Resources\ThrowingFormResource;
 
 /**
  * Extraction may delete copy, so these pin down when it must not.
@@ -80,7 +80,7 @@ it('prunes the pages of a resource that no longer registers them', function () {
 });
 
 it('never prunes the form of a schema domain whose chrome builder throws', function () {
-    AutoTranslator::discoverIn(dirname(__DIR__).'/Fixtures/ThrowingChrome', 'Syriable\\FilamentAutoTranslator\\Tests\\Fixtures\\ThrowingChrome');
+    AutoTranslator::discoverIn(dirname(__DIR__).'/Fixtures/ThrowingChrome', 'Syriable\\Filament\\Plugins\\AutoTranslator\\Tests\\Fixtures\\ThrowingChrome');
 
     $path = lang_path('en/identity/throwing-chrome.php');
     app(LanguageFiles::class)->write($path, [

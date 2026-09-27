@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Scanning;
+namespace Syriable\Filament\Plugins\AutoTranslator\Scanning;
 
-use Syriable\FilamentAutoTranslator\Enums\MessageSlot;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageSlot;
 
 /**
  * What a scan proved is live in one domain — the evidence extraction needs

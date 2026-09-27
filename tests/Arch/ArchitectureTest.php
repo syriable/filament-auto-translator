@@ -3,46 +3,46 @@
 declare(strict_types=1);
 
 arch('source files declare strict types')
-    ->expect('Syriable\FilamentAutoTranslator')
+    ->expect('Syriable\Filament\Plugins\AutoTranslator')
     ->toUseStrictTypes();
 
 arch('message resolution knows nothing about Filament')
-    ->expect('Syriable\FilamentAutoTranslator\Messages')
+    ->expect('Syriable\Filament\Plugins\AutoTranslator\Messages')
     ->not->toUse('Filament');
 
 arch('runtime binding never reaches the console tooling')
-    ->expect('Syriable\FilamentAutoTranslator\Binding')
+    ->expect('Syriable\Filament\Plugins\AutoTranslator\Binding')
     ->not->toUse([
-        'Syriable\FilamentAutoTranslator\Scanning',
-        'Syriable\FilamentAutoTranslator\Extraction',
-        'Syriable\FilamentAutoTranslator\Inlining',
-        'Syriable\FilamentAutoTranslator\Console',
+        'Syriable\Filament\Plugins\AutoTranslator\Scanning',
+        'Syriable\Filament\Plugins\AutoTranslator\Extraction',
+        'Syriable\Filament\Plugins\AutoTranslator\Inlining',
+        'Syriable\Filament\Plugins\AutoTranslator\Console',
     ]);
 
 arch('scanning never writes files')
-    ->expect('Syriable\FilamentAutoTranslator\Scanning')
+    ->expect('Syriable\Filament\Plugins\AutoTranslator\Scanning')
     ->not->toUse([
-        'Syriable\FilamentAutoTranslator\Extraction',
-        'Syriable\FilamentAutoTranslator\Inlining',
+        'Syriable\Filament\Plugins\AutoTranslator\Extraction',
+        'Syriable\Filament\Plugins\AutoTranslator\Inlining',
     ]);
 
 arch('value objects are immutable')
     ->expect([
-        'Syriable\FilamentAutoTranslator\Messages\MessageIdentity',
-        'Syriable\FilamentAutoTranslator\Messages\Resolution',
-        'Syriable\FilamentAutoTranslator\Scanning\Surface',
-        'Syriable\FilamentAutoTranslator\Scanning\ChromeMessage',
-        'Syriable\FilamentAutoTranslator\Scanning\Finding',
-        'Syriable\FilamentAutoTranslator\Scanning\Coverage',
-        'Syriable\FilamentAutoTranslator\Scanning\ScanResult',
-        'Syriable\FilamentAutoTranslator\Extraction\LanguageFileChange',
-        'Syriable\FilamentAutoTranslator\Inlining\SourceChange',
-        'Syriable\FilamentAutoTranslator\Domains\SchemaDomain',
+        'Syriable\Filament\Plugins\AutoTranslator\Messages\MessageIdentity',
+        'Syriable\Filament\Plugins\AutoTranslator\Messages\Resolution',
+        'Syriable\Filament\Plugins\AutoTranslator\Scanning\Surface',
+        'Syriable\Filament\Plugins\AutoTranslator\Scanning\ChromeMessage',
+        'Syriable\Filament\Plugins\AutoTranslator\Scanning\Finding',
+        'Syriable\Filament\Plugins\AutoTranslator\Scanning\Coverage',
+        'Syriable\Filament\Plugins\AutoTranslator\Scanning\ScanResult',
+        'Syriable\Filament\Plugins\AutoTranslator\Extraction\LanguageFileChange',
+        'Syriable\Filament\Plugins\AutoTranslator\Inlining\SourceChange',
+        'Syriable\Filament\Plugins\AutoTranslator\Domains\SchemaDomain',
     ])
     ->toBeReadonly();
 
 arch('no reflection hacks into Filament internals')
-    ->expect('Syriable\FilamentAutoTranslator')
+    ->expect('Syriable\Filament\Plugins\AutoTranslator')
     ->not->toUse(['invade', 'set_time_limit', 'ini_set']);
 
 arch('no debugging leftovers')

@@ -39,18 +39,18 @@
     },
     "autoload": {
         "psr-4": {
-            "Syriable\\FilamentAutoTranslator\\": "src/"
+            "Syriable\\Filament\\Plugins\\AutoTranslator\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Syriable\\FilamentAutoTranslator\\Tests\\": "tests/"
+            "Syriable\\Filament\\Plugins\\AutoTranslator\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Syriable\\FilamentAutoTranslator\\AutoTranslatorServiceProvider"
+                "Syriable\\Filament\\Plugins\\AutoTranslator\\AutoTranslatorServiceProvider"
             ]
         }
     },

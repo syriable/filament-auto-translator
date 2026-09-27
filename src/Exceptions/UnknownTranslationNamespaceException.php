@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Exceptions;
+namespace Syriable\Filament\Plugins\AutoTranslator\Exceptions;
 
 use InvalidArgumentException;
 

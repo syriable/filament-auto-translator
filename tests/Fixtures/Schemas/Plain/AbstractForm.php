@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Tests\Fixtures\Schemas\Plain;
+namespace Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\Schemas\Plain;
 
 use Filament\Schemas\Schema;
-use Syriable\FilamentAutoTranslator\Attributes\TranslationDomain;
+use Syriable\Filament\Plugins\AutoTranslator\Attributes\TranslationDomain;
 
 #[TranslationDomain('identity.abstract')]
 abstract class AbstractForm

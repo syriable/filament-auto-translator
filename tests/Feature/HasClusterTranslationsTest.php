@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Lang;
-use Syriable\FilamentAutoTranslator\Enums\MissingMessagePolicy;
-use Syriable\FilamentAutoTranslator\Settings;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\TranslatedCluster;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MissingMessagePolicy;
+use Syriable\Filament\Plugins\AutoTranslator\Settings;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\TranslatedCluster;
 
 beforeEach(function () {
     config()->set('filament-auto-translator.on_missing', 'debug');

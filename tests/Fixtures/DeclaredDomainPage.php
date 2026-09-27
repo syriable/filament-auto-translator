@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Tests\Fixtures;
+namespace Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures;
 
-use Syriable\FilamentAutoTranslator\Attributes\TranslationDomain;
-use Syriable\FilamentAutoTranslator\Concerns\HasPageTranslations;
+use Syriable\Filament\Plugins\AutoTranslator\Attributes\TranslationDomain;
+use Syriable\Filament\Plugins\AutoTranslator\Concerns\HasPageTranslations;
 
 /**
  * A page that keeps its own domain instead of sharing its resource's.

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Domains;
+namespace Syriable\Filament\Plugins\AutoTranslator\Domains;
 
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Component;
@@ -11,8 +11,8 @@ use Illuminate\Filesystem\Filesystem;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionNamedType;
-use Syriable\FilamentAutoTranslator\Exceptions\InvalidTranslationDomainException;
-use Syriable\FilamentAutoTranslator\Settings;
+use Syriable\Filament\Plugins\AutoTranslator\Exceptions\InvalidTranslationDomainException;
+use Syriable\Filament\Plugins\AutoTranslator\Settings;
 
 /**
  * The schema domains found in registered directories.

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
-use Syriable\FilamentAutoTranslator\Binding\MessageOptions;
-use Syriable\FilamentAutoTranslator\Scanning\ActionNotifications;
+use Syriable\Filament\Plugins\AutoTranslator\Binding\MessageOptions;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\ActionNotifications;
 
 it('finds success and danger statuses in an action closure', function () {
     $action = Action::make('edit')

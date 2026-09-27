@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Messages;
+namespace Syriable\Filament\Plugins\AutoTranslator\Messages;
 
 use Illuminate\Translation\Translator;
-use Syriable\FilamentAutoTranslator\Enums\MissingMessagePolicy;
-use Syriable\FilamentAutoTranslator\Enums\ResolutionOutcome;
-use Syriable\FilamentAutoTranslator\Exceptions\MissingMessageException;
-use Syriable\FilamentAutoTranslator\Settings;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MissingMessagePolicy;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\ResolutionOutcome;
+use Syriable\Filament\Plugins\AutoTranslator\Exceptions\MissingMessageException;
+use Syriable\Filament\Plugins\AutoTranslator\Settings;
 
 /**
  * Looks a message up in the translator and applies the missing-message policy.

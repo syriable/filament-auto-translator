@@ -9,13 +9,13 @@ use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Lang;
-use Syriable\FilamentAutoTranslator\Binding\MessageOptions;
-use Syriable\FilamentAutoTranslator\Enums\MessageScope;
-use Syriable\FilamentAutoTranslator\Enums\MessageSlot;
-use Syriable\FilamentAutoTranslator\Enums\ResolutionOutcome;
-use Syriable\FilamentAutoTranslator\Messages\MessageIdentity;
-use Syriable\FilamentAutoTranslator\Scanning\MessageScanner;
-use Syriable\FilamentAutoTranslator\Scanning\ScanHost;
+use Syriable\Filament\Plugins\AutoTranslator\Binding\MessageOptions;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageScope;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageSlot;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\ResolutionOutcome;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MessageIdentity;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\MessageScanner;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\ScanHost;
 
 it('reports a missing required message as a finding', function () {
     $findings = app(MessageScanner::class)->scanIdentities([

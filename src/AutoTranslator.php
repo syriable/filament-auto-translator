@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator;
+namespace Syriable\Filament\Plugins\AutoTranslator;
 
 use Countable;
 use Illuminate\Translation\Translator;
-use Syriable\FilamentAutoTranslator\Binding\ComponentBinder;
-use Syriable\FilamentAutoTranslator\Binding\ComponentIdentifier;
-use Syriable\FilamentAutoTranslator\Domains\DomainResolver;
-use Syriable\FilamentAutoTranslator\Domains\SchemaDomainRegistry;
-use Syriable\FilamentAutoTranslator\Enums\MessageSlot;
-use Syriable\FilamentAutoTranslator\Messages\MessageResolver;
-use Syriable\FilamentAutoTranslator\Messages\Resolution;
+use Syriable\Filament\Plugins\AutoTranslator\Binding\ComponentBinder;
+use Syriable\Filament\Plugins\AutoTranslator\Binding\ComponentIdentifier;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\DomainResolver;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\SchemaDomainRegistry;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageSlot;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MessageResolver;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\Resolution;
 
 /**
  * The package's entry points outside the panel plugin.

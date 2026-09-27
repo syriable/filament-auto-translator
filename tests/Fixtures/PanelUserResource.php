@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Tests\Fixtures;
+namespace Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures;
 
 use Filament\Resources\Resource;
-use Syriable\FilamentAutoTranslator\Concerns\HasResourceTranslations;
+use Syriable\Filament\Plugins\AutoTranslator\Concerns\HasResourceTranslations;
 
 /**
  * A real Filament resource, so a panel can register it the way an app does.

@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-use Syriable\FilamentAutoTranslator\Domains\SchemaDomainRegistry;
-use Syriable\FilamentAutoTranslator\Exceptions\InvalidTranslationDomainException;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\InvalidIdForm;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\NamespacedIdForm;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\Schemas\Plain\AbstractForm;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\Schemas\Plain\DomainWithoutSchema;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\Schemas\Plain\PlainForm;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\Schemas\User\ChromeForm;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\Schemas\User\EditForm;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\Schemas\User\ProfileForm;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\SchemaDomainRegistry;
+use Syriable\Filament\Plugins\AutoTranslator\Exceptions\InvalidTranslationDomainException;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\InvalidIdForm;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\NamespacedIdForm;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\Schemas\Plain\AbstractForm;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\Schemas\Plain\DomainWithoutSchema;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\Schemas\Plain\PlainForm;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\Schemas\User\ChromeForm;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\Schemas\User\EditForm;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\Schemas\User\ProfileForm;
 
-const SCHEMA_FIXTURE_NAMESPACE = 'Syriable\\FilamentAutoTranslator\\Tests\\Fixtures\\Schemas';
+const SCHEMA_FIXTURE_NAMESPACE = 'Syriable\\Filament\\Plugins\\AutoTranslator\\Tests\\Fixtures\\Schemas';
 
 function schemaFixturePath(): string
 {

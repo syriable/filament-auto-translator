@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use Filament\Forms\Components\TextInput;
 use Illuminate\Contracts\Console\Kernel;
-use Syriable\FilamentAutoTranslator\AutoTranslator;
-use Syriable\FilamentAutoTranslator\AutoTranslatorPlugin;
-use Syriable\FilamentAutoTranslator\Binding\ComponentBinder;
-use Syriable\FilamentAutoTranslator\Enums\MissingMessagePolicy;
+use Syriable\Filament\Plugins\AutoTranslator\AutoTranslator;
+use Syriable\Filament\Plugins\AutoTranslator\AutoTranslatorPlugin;
+use Syriable\Filament\Plugins\AutoTranslator\Binding\ComponentBinder;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MissingMessagePolicy;
 
 /**
  * The README makes concrete promises about the public surface. These check

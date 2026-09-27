@@ -3,12 +3,12 @@
 declare(strict_types=1);
 
 use Filament\Panel;
-use Syriable\FilamentAutoTranslator\AutoTranslatorPlugin;
-use Syriable\FilamentAutoTranslator\Domains\DomainResolver;
-use Syriable\FilamentAutoTranslator\Domains\PanelRegistry as TranslatedPanels;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\Clusters\PanelSettingsCluster;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\PanelDashboardPage;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\PanelUserResource;
+use Syriable\Filament\Plugins\AutoTranslator\AutoTranslatorPlugin;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\DomainResolver;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\PanelRegistry as TranslatedPanels;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\Clusters\PanelSettingsCluster;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\PanelDashboardPage;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\PanelUserResource;
 
 /**
  * A console command has no request, so nothing boots a panel for it. These
@@ -21,7 +21,7 @@ it('boots registered panels so plugin configuration reaches a console walk', fun
             ->id('dashboard')
             ->path('dashboard')
             ->plugin(AutoTranslatorPlugin::make()->domainPrefixes([
-                'Syriable\\FilamentAutoTranslator\\Tests\\Fixtures' => 'fixtures::',
+                'Syriable\\Filament\\Plugins\\AutoTranslator\\Tests\\Fixtures' => 'fixtures::',
             ])),
     );
 
@@ -50,7 +50,7 @@ it('collects the clusters that carry a translation domain', function () {
             ->path('dashboard')
             ->discoverClusters(
                 in: __DIR__.'/../Fixtures/Clusters',
-                for: 'Syriable\\FilamentAutoTranslator\\Tests\\Fixtures\\Clusters',
+                for: 'Syriable\\Filament\\Plugins\\AutoTranslator\\Tests\\Fixtures\\Clusters',
             ),
     );
 

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator;
+namespace Syriable\Filament\Plugins\AutoTranslator;
 
-use Syriable\FilamentAutoTranslator\Enums\MissingMessagePolicy;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MissingMessagePolicy;
 
 /**
  * The one place configuration is read: the published config file, with

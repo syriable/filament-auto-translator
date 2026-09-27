@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Binding;
+namespace Syriable\Filament\Plugins\AutoTranslator\Binding;
 
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\EmbeddedSchema;

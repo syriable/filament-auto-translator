@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Tests\Fixtures;
+namespace Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures;
 
 use Filament\Pages\Page;
-use Syriable\FilamentAutoTranslator\Concerns\HasPageTranslations;
+use Syriable\Filament\Plugins\AutoTranslator\Concerns\HasPageTranslations;
 
 /**
  * A real Filament page: domain filament/pages/{kebab}.php, header actions at root actions.

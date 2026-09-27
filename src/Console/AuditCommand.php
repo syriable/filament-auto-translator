@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Console;
+namespace Syriable\Filament\Plugins\AutoTranslator\Console;
 
 use Illuminate\Console\Command;
-use Syriable\FilamentAutoTranslator\Enums\ResolutionOutcome;
-use Syriable\FilamentAutoTranslator\Scanning\Finding;
-use Syriable\FilamentAutoTranslator\Scanning\MessageScanner;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\ResolutionOutcome;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\Finding;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\MessageScanner;
 
 final class AuditCommand extends Command
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Inlining;
+namespace Syriable\Filament\Plugins\AutoTranslator\Inlining;
 
 /**
  * A tokenized PHP source with the byte offset of every token, for editing

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Attributes;
+namespace Syriable\Filament\Plugins\AutoTranslator\Attributes;
 
 use Attribute;
 

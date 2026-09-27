@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Tests\Fixtures\ThrowingChrome;
+namespace Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\ThrowingChrome;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use RuntimeException;
-use Syriable\FilamentAutoTranslator\Attributes\TranslationDomain;
+use Syriable\Filament\Plugins\AutoTranslator\Attributes\TranslationDomain;
 
 /**
  * A schema domain whose chrome builder throws while its schema builds fine.

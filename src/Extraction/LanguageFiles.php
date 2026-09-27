@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Extraction;
+namespace Syriable\Filament\Plugins\AutoTranslator\Extraction;
 
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Lang;
-use Syriable\FilamentAutoTranslator\Domains\DomainName;
-use Syriable\FilamentAutoTranslator\Exceptions\UnknownTranslationNamespaceException;
-use Syriable\FilamentAutoTranslator\Settings;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\DomainName;
+use Syriable\Filament\Plugins\AutoTranslator\Exceptions\UnknownTranslationNamespaceException;
+use Syriable\Filament\Plugins\AutoTranslator\Settings;
 
 /**
  * Reads and writes the PHP language files a domain maps to.

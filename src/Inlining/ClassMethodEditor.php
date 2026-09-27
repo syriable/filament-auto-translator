@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Inlining;
+namespace Syriable\Filament\Plugins\AutoTranslator\Inlining;
 
-use Syriable\FilamentAutoTranslator\Enums\Chrome;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\Chrome;
 
 /**
  * Adds a chrome method returning `__('key')` to the first class in a file.

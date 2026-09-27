@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\File;
-use Syriable\FilamentAutoTranslator\Domains\SchemaDomainRegistry;
-use Syriable\FilamentAutoTranslator\Extraction\LanguageFiles;
-use Syriable\FilamentAutoTranslator\Inlining\MessageInliner;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\SchemaDomainRegistry;
+use Syriable\Filament\Plugins\AutoTranslator\Extraction\LanguageFiles;
+use Syriable\Filament\Plugins\AutoTranslator\Inlining\MessageInliner;
 
 beforeEach(function () {
     $this->langPath = sys_get_temp_dir().'/messages-apply-lang-'.uniqid('', true);
@@ -28,7 +28,7 @@ namespace {$this->namespace};
 
 use Filament\\Forms\\Components\\TextInput;
 use Filament\\Schemas\\Schema;
-use Syriable\\FilamentAutoTranslator\\Attributes\\TranslationDomain;
+use Syriable\\Filament\\Plugins\\AutoTranslator\\Attributes\\TranslationDomain;
 
 #[TranslationDomain('identity.sign-up')]
 class SignUpForm

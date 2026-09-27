@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Scanning;
+namespace Syriable\Filament\Plugins\AutoTranslator\Scanning;
 
 use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Field;
@@ -16,13 +16,13 @@ use Filament\Tables\Table;
 use Illuminate\Filesystem\Filesystem;
 use ReflectionClass;
 use ReflectionMethod;
-use Syriable\FilamentAutoTranslator\Binding\MessageOptions;
-use Syriable\FilamentAutoTranslator\Domains\DomainResolver;
-use Syriable\FilamentAutoTranslator\Domains\PanelRegistry;
-use Syriable\FilamentAutoTranslator\Domains\SchemaDomain;
-use Syriable\FilamentAutoTranslator\Domains\SchemaDomainRegistry;
-use Syriable\FilamentAutoTranslator\Enums\Chrome;
-use Syriable\FilamentAutoTranslator\Messages\MachineName;
+use Syriable\Filament\Plugins\AutoTranslator\Binding\MessageOptions;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\DomainResolver;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\PanelRegistry;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\SchemaDomain;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\SchemaDomainRegistry;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\Chrome;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MachineName;
 use Throwable;
 
 /**

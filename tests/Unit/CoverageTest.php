@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Syriable\FilamentAutoTranslator\Scanning\Coverage;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\Coverage;
 
 it('removes a form key whose component is no longer live', function () {
     expect((new Coverage(['form.components.authorization.schema.name' => true, 'form.components.authorization' => true], [], ['form' => true]))->isOrphaned(['form', 'components', 'authorization', 'schema', 'or', 'body']))->toBeTrue();

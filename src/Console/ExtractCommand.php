@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Console;
+namespace Syriable\Filament\Plugins\AutoTranslator\Console;
 
 use Illuminate\Console\Command;
-use Syriable\FilamentAutoTranslator\Enums\ChangeType;
-use Syriable\FilamentAutoTranslator\Extraction\LanguageFileChange;
-use Syriable\FilamentAutoTranslator\Extraction\MessageExtractor;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\ChangeType;
+use Syriable\Filament\Plugins\AutoTranslator\Extraction\LanguageFileChange;
+use Syriable\Filament\Plugins\AutoTranslator\Extraction\MessageExtractor;
 
 final class ExtractCommand extends Command
 {

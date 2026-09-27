@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Lang;
-use Syriable\FilamentAutoTranslator\Domains\DomainName;
-use Syriable\FilamentAutoTranslator\Domains\DomainResolver;
-use Syriable\FilamentAutoTranslator\Exceptions\UnknownTranslationNamespaceException;
-use Syriable\FilamentAutoTranslator\Extraction\LanguageFiles;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\DomainName;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\DomainResolver;
+use Syriable\Filament\Plugins\AutoTranslator\Exceptions\UnknownTranslationNamespaceException;
+use Syriable\Filament\Plugins\AutoTranslator\Extraction\LanguageFiles;
 
 afterEach(function () {
     File::deleteDirectory(base_path('modules'));

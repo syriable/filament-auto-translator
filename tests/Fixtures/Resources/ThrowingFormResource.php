@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Tests\Fixtures\Resources;
+namespace Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\Resources;
 
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use RuntimeException;
-use Syriable\FilamentAutoTranslator\Concerns\HasResourceTranslations;
+use Syriable\Filament\Plugins\AutoTranslator\Concerns\HasResourceTranslations;
 
 /**
  * A resource whose form cannot be built outside a request, like one reading

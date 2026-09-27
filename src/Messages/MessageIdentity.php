@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Messages;
+namespace Syriable\Filament\Plugins\AutoTranslator\Messages;
 
-use Syriable\FilamentAutoTranslator\Domains\DomainName;
-use Syriable\FilamentAutoTranslator\Enums\Chrome;
-use Syriable\FilamentAutoTranslator\Enums\MessageScope;
-use Syriable\FilamentAutoTranslator\Enums\MessageSlot;
-use Syriable\FilamentAutoTranslator\Exceptions\InvalidMessageNameException;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\DomainName;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\Chrome;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageScope;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageSlot;
+use Syriable\Filament\Plugins\AutoTranslator\Exceptions\InvalidMessageNameException;
 
 /**
  * Where one message lives: its domain, scope, parent machine names, leaf name

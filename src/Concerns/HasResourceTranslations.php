@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Concerns;
+namespace Syriable\Filament\Plugins\AutoTranslator\Concerns;
 
-use Syriable\FilamentAutoTranslator\Enums\Chrome;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\Chrome;
 use UnitEnum;
 
 /**

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Syriable\FilamentAutoTranslator\Enums\MessageScope;
-use Syriable\FilamentAutoTranslator\Enums\MessageSlot;
-use Syriable\FilamentAutoTranslator\Exceptions\InvalidMessageNameException;
-use Syriable\FilamentAutoTranslator\Messages\MessageIdentity;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageScope;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\MessageSlot;
+use Syriable\Filament\Plugins\AutoTranslator\Exceptions\InvalidMessageNameException;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MessageIdentity;
 
 it('compiles a form field key from its identity', function () {
     $key = (new MessageIdentity(

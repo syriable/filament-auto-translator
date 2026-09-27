@@ -3,14 +3,14 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\File;
-use Syriable\FilamentAutoTranslator\AutoTranslator;
+use Syriable\Filament\Plugins\AutoTranslator\AutoTranslator;
 
 beforeEach(function () {
     $this->langPath = sys_get_temp_dir().'/auto-translator-audit-'.uniqid('', true);
     File::ensureDirectoryExists($this->langPath);
     app()->useLangPath($this->langPath);
 
-    AutoTranslator::discoverIn(dirname(__DIR__).'/Fixtures/Schemas/User', 'Syriable\\FilamentAutoTranslator\\Tests\\Fixtures\\Schemas\\User');
+    AutoTranslator::discoverIn(dirname(__DIR__).'/Fixtures/Schemas/User', 'Syriable\\Filament\\Plugins\\AutoTranslator\\Tests\\Fixtures\\Schemas\\User');
 });
 
 afterEach(function () {

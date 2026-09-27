@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Domains;
+namespace Syriable\Filament\Plugins\AutoTranslator\Domains;
 
 use ReflectionClass;
-use Syriable\FilamentAutoTranslator\Attributes\TranslationDomain;
-use Syriable\FilamentAutoTranslator\Messages\MachineName;
-use Syriable\FilamentAutoTranslator\Settings;
+use Syriable\Filament\Plugins\AutoTranslator\Attributes\TranslationDomain;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MachineName;
+use Syriable\Filament\Plugins\AutoTranslator\Settings;
 use Throwable;
 
 /**

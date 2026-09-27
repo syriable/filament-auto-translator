@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator;
+namespace Syriable\Filament\Plugins\AutoTranslator;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Syriable\FilamentAutoTranslator\Binding\ComponentBinder;
-use Syriable\FilamentAutoTranslator\Binding\ComponentIdentifier;
-use Syriable\FilamentAutoTranslator\Binding\EmbeddedSchemaLocator;
-use Syriable\FilamentAutoTranslator\Binding\MessageOptions;
-use Syriable\FilamentAutoTranslator\Console\AuditCommand;
-use Syriable\FilamentAutoTranslator\Console\ExtractCommand;
-use Syriable\FilamentAutoTranslator\Console\InlineCommand;
-use Syriable\FilamentAutoTranslator\Domains\DomainResolver;
-use Syriable\FilamentAutoTranslator\Domains\PanelRegistry;
-use Syriable\FilamentAutoTranslator\Domains\SchemaDomainRegistry;
-use Syriable\FilamentAutoTranslator\Messages\MessageResolver;
+use Syriable\Filament\Plugins\AutoTranslator\Binding\ComponentBinder;
+use Syriable\Filament\Plugins\AutoTranslator\Binding\ComponentIdentifier;
+use Syriable\Filament\Plugins\AutoTranslator\Binding\EmbeddedSchemaLocator;
+use Syriable\Filament\Plugins\AutoTranslator\Binding\MessageOptions;
+use Syriable\Filament\Plugins\AutoTranslator\Console\AuditCommand;
+use Syriable\Filament\Plugins\AutoTranslator\Console\ExtractCommand;
+use Syriable\Filament\Plugins\AutoTranslator\Console\InlineCommand;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\DomainResolver;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\PanelRegistry;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\SchemaDomainRegistry;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MessageResolver;
 
 final class AutoTranslatorServiceProvider extends PackageServiceProvider
 {

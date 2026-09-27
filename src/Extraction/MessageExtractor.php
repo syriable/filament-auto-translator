@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Extraction;
+namespace Syriable\Filament\Plugins\AutoTranslator\Extraction;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Lang;
-use Syriable\FilamentAutoTranslator\Domains\DomainName;
-use Syriable\FilamentAutoTranslator\Enums\ChangeType;
-use Syriable\FilamentAutoTranslator\Enums\ResolutionOutcome;
-use Syriable\FilamentAutoTranslator\Exceptions\UnknownTranslationNamespaceException;
-use Syriable\FilamentAutoTranslator\Messages\MessageIdentity;
-use Syriable\FilamentAutoTranslator\Messages\MessageResolver;
-use Syriable\FilamentAutoTranslator\Scanning\Coverage;
-use Syriable\FilamentAutoTranslator\Scanning\Finding;
-use Syriable\FilamentAutoTranslator\Scanning\MessageScanner;
-use Syriable\FilamentAutoTranslator\Scanning\ScanResult;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\DomainName;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\ChangeType;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\ResolutionOutcome;
+use Syriable\Filament\Plugins\AutoTranslator\Exceptions\UnknownTranslationNamespaceException;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MessageIdentity;
+use Syriable\Filament\Plugins\AutoTranslator\Messages\MessageResolver;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\Coverage;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\Finding;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\MessageScanner;
+use Syriable\Filament\Plugins\AutoTranslator\Scanning\ScanResult;
 
 /**
  * Writes the keys the scanned UI needs into its language files, and removes

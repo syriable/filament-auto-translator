@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Syriable\FilamentAutoTranslator\Inlining;
+namespace Syriable\Filament\Plugins\AutoTranslator\Inlining;
 
-use Syriable\FilamentAutoTranslator\Enums\ChangeType;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\ChangeType;
 
 /**
  * A setter or method `auto-translator:inline` wrote into a PHP file.

@@ -6,17 +6,17 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Lang;
-use Syriable\FilamentAutoTranslator\AutoTranslator;
-use Syriable\FilamentAutoTranslator\Binding\ComponentBinder;
-use Syriable\FilamentAutoTranslator\Domains\SchemaDomainRegistry;
-use Syriable\FilamentAutoTranslator\Enums\ResolutionOutcome;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\DomainForm;
-use Syriable\FilamentAutoTranslator\Tests\Fixtures\Schemas\User\EditForm;
+use Syriable\Filament\Plugins\AutoTranslator\AutoTranslator;
+use Syriable\Filament\Plugins\AutoTranslator\Binding\ComponentBinder;
+use Syriable\Filament\Plugins\AutoTranslator\Domains\SchemaDomainRegistry;
+use Syriable\Filament\Plugins\AutoTranslator\Enums\ResolutionOutcome;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\DomainForm;
+use Syriable\Filament\Plugins\AutoTranslator\Tests\Fixtures\Schemas\User\EditForm;
 
 it('discovers a directory and starts binding in one call', function () {
     AutoTranslator::discoverIn(
         dirname(__DIR__).'/Fixtures/Schemas',
-        'Syriable\\FilamentAutoTranslator\\Tests\\Fixtures\\Schemas',
+        'Syriable\\Filament\\Plugins\\AutoTranslator\\Tests\\Fixtures\\Schemas',
     );
 
     expect(array_keys(app(SchemaDomainRegistry::class)->all()))->toContain(EditForm::class);
@@ -24,7 +24,7 @@ it('discovers a directory and starts binding in one call', function () {
 
 it('is safe to call more than once', function () {
     $path = dirname(__DIR__).'/Fixtures/Schemas';
-    $namespace = 'Syriable\\FilamentAutoTranslator\\Tests\\Fixtures\\Schemas';
+    $namespace = 'Syriable\\Filament\\Plugins\\AutoTranslator\\Tests\\Fixtures\\Schemas';
 
     AutoTranslator::discoverIn($path, $namespace);
     $first = app(SchemaDomainRegistry::class)->all();
@@ -42,7 +42,7 @@ it('reports the domain a class belongs to', function () {
 it('works without a Filament panel', function () {
     AutoTranslator::discoverIn(
         dirname(__DIR__).'/Fixtures/Schemas',
-        'Syriable\\FilamentAutoTranslator\\Tests\\Fixtures\\Schemas',
+        'Syriable\\Filament\\Plugins\\AutoTranslator\\Tests\\Fixtures\\Schemas',
     );
 
     expect(TextInput::hasMacro('messageName'))->toBeTrue()
